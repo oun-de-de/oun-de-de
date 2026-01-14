@@ -35,7 +35,8 @@ jobs:
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
-          server: cdtphuhoi.com
+          server: ${{ secrets.FTP_SERVER }}
+          port: ${{ secrets.FTP_SERVER_PORT }}
           username: ${{ secrets.FTP_USRNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: /domains/cdtphuhoi.com/public_html/
