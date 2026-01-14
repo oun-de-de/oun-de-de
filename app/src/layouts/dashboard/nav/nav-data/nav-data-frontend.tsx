@@ -97,3 +97,31 @@ export const frontendNavData: NavProps["data"] = [
 		],
 	},
 ];
+
+export const newActions = [
+	{
+		title: "Customers",
+		items: [
+			{ title: "Create Cash Sale" },
+			{ title: "Create Invoice" },
+			{ title: "Create Receipt" },
+		],
+	},
+	{
+		title: "Vendors",
+		items: [
+			{ title: "Create Cash Purchase" },
+			{ title: "Create Bill" },
+			{ title: "Create Payment" },
+		],
+	},
+	{
+		title: "Accounting",
+		items: [
+			{ title: "Create Journal" },
+			{ title: "Create Cash Transaction" },
+			{ title: "Create Cash Revenue" },
+			{ title: "Create Cash Expense" },
+		],
+	},
+];
