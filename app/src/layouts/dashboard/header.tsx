@@ -48,7 +48,7 @@ const StyledHeader = styled.header`
 	flex-shrink: 0;
 	background-color: ${({ theme }) => theme.colors.common.white};
 	min-height: var(--layout-header-height);
-	border-bottom: 1px solid ${({ theme }) => rgbAlpha(theme.colors.palette.gray[500], 0.5)};
+	border-bottom: 1px solid ${({ theme }) => rgbAlpha(theme.colors.palette.gray[400], 0.4)};
 `;
 
 const StyledTopRow = styled.div`
@@ -57,7 +57,7 @@ const StyledTopRow = styled.div`
 	justify-content: space-between;
 	padding: 0 1rem;
 	height: var(--layout-header-height);
-	border-bottom: 1px solid ${({ theme }) => rgbAlpha(theme.colors.palette.gray[500], 0.5)};
+	border-bottom: 1px solid ${({ theme }) => rgbAlpha(theme.colors.palette.gray[400], 0.4)};
 `;
 
 const StyledBottomRow = styled.div`

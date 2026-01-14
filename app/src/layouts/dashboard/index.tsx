@@ -13,7 +13,7 @@ export default function DashboardLayout() {
 	const isMobile = useMediaQuery(down("md"));
 
 	return (
-		<div data-slot="slash-layout-root" className="w-full min-h-screen bg-white">
+		<div data-slot="slash-layout-root" className="w-full min-h-screen bg-neutral-50">
 			{isMobile ? <MobileLayout /> : <PcLayout />}
 		</div>
 	);

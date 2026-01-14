@@ -10,7 +10,6 @@ import { Suspense } from "react";
 import { Outlet, ScrollRestoration, useLocation } from "react-router";
 import { backendNavData } from "./nav/nav-data/nav-data-backend";
 import { frontendNavData } from "./nav/nav-data/nav-data-frontend";
-
 /**
  * find auth by path
  * @param path
@@ -40,14 +39,15 @@ const Main = () => {
 				className={cn(
 					"flex-auto w-full flex flex-col",
 					"transition-[max-width] duration-300 ease-in-out",
-					"px-4 sm:px-6 py-4 sm:py-6 md:px-8 mx-auto",
+					"mx-auto",
 					{
 						"max-w-full": themeStretch,
-						"xl:max-w-screen-xl": !themeStretch,
+						"4xl:max-w-screen-4xl": !themeStretch,
 					},
 				)}
 				style={{
 					willChange: "max-width",
+					padding: "14px",
 				}}
 			>
 				<Suspense fallback={<LineLoading />}>

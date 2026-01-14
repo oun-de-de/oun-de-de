@@ -3,7 +3,7 @@ import { Component } from "./utils";
 
 export function getFrontendDashboardRoutes(): RouteObject[] {
 	const frontendDashboardRoutes: RouteObject[] = [
-		{ index: true, element: Component("/pages/dashboard") },
+		{ index: true, element: Component("/pages/dashboard/_dashboard") },
 		{
 			path: "dashboard/sale",
 			children: [{ path: "new", element: Component("/pages/dashboard/sale/new") }],
