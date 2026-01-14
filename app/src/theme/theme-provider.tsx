@@ -1,7 +1,13 @@
 import { useSettings } from "@/store/settingStore";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { HtmlDataAttribute } from "#/enum";
+import { ThemeProvider as StyledThemeProvider } from "styled-components";
+import { baseThemeTokens } from "./tokens/base";
+import { darkColorTokens, lightColorTokens, presetsColors } from "./tokens/color";
+import { darkShadowTokens, lightShadowTokens } from "./tokens/shadow";
+import { typographyTokens } from "./tokens/typography";
 import type { UILibraryAdapter } from "./type";
+
 interface ThemeProviderProps {
 	children: React.ReactNode;
 	adapters?: UILibraryAdapter[];
@@ -9,6 +15,27 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children, adapters = [] }: ThemeProviderProps) {
 	const { themeMode, themeColorPresets, fontFamily, fontSize } = useSettings();
+
+	// Create theme object for styled-components
+	const styledTheme = useMemo(() => {
+		let colorTokens = themeMode === "light" ? lightColorTokens : darkColorTokens;
+
+		colorTokens = {
+			...colorTokens,
+			palette: {
+				...colorTokens.palette,
+				primary: presetsColors[themeColorPresets],
+			},
+		};
+
+		return {
+			mode: themeMode,
+			colors: colorTokens,
+			typography: typographyTokens,
+			shadows: themeMode === "light" ? lightShadowTokens : darkShadowTokens,
+			...baseThemeTokens,
+		};
+	}, [themeMode, themeColorPresets]);
 
 	// Update HTML class to support Tailwind dark mode
 	useEffect(() => {
@@ -41,5 +68,5 @@ export function ThemeProvider({ children, adapters = [] }: ThemeProviderProps) {
 		children,
 	);
 
-	return wrappedWithAdapters;
+	return <StyledThemeProvider theme={styledTheme}>{wrappedWithAdapters}</StyledThemeProvider>;
 }
