@@ -19,9 +19,9 @@ import {
   SummaryStatCard,
 } from '@/components/common';
 import {
-  useDashboardList,
-  useDashboardListActions,
-} from '@/store/dashboardListStore';
+  useCustomersList,
+  useCustomersListActions,
+} from '@/store/customersListStore';
 import {
   customerList,
   customerSummaryCards,
@@ -74,8 +74,8 @@ const buildPages = (current: number, total: number): Array<number | '...'> => {
 
 export default function CustomersPage() {
   const [activeCustomerId, setActiveCustomerId] = useState<string | null>(null);
-  const listState = useDashboardList('customers');
-  const { updateList } = useDashboardListActions();
+  const listState = useCustomersList();
+  const { updateState } = useCustomersListActions();
   const activeCustomer = customerList.find(
     (customer) => customer.id === activeCustomerId
   );
@@ -117,20 +117,23 @@ export default function CustomersPage() {
   const currentPage = Math.min(listState.page, totalPages);
   const pagedTransactions = useMemo(() => {
     const startIndex = (currentPage - 1) * listState.pageSize;
-    return filteredTransactions.slice(startIndex, startIndex + listState.pageSize);
+    return filteredTransactions.slice(
+      startIndex,
+      startIndex + listState.pageSize
+    );
   }, [currentPage, filteredTransactions, listState.pageSize]);
 
   const paginationItems = buildPages(currentPage, totalPages);
 
   useEffect(() => {
     if (listState.page > totalPages) {
-      updateList('customers', { page: totalPages });
+      updateState({ page: totalPages });
     }
-  }, [listState.page, totalPages, updateList]);
+  }, [listState.page, totalPages, updateState]);
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[280px_1fr]">
         <Card className="h-full">
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
@@ -145,7 +148,7 @@ export default function CustomersPage() {
                 </SelectContent>
               </Select>
               <Button variant="outline" size="icon" className="h-9 w-9">
-                <Icon icon="mdi:menu" />
+                <Icon icon="mdi:menu" color="white" />
               </Button>
             </div>
 
@@ -217,13 +220,13 @@ export default function CustomersPage() {
               fieldValue={listState.fieldFilter}
               searchValue={listState.searchValue}
               onTypeChange={(value) =>
-                updateList('customers', { typeFilter: value, page: 1 })
+                updateState({ typeFilter: value, page: 1 })
               }
               onFieldChange={(value) =>
-                updateList('customers', { fieldFilter: value, page: 1 })
+                updateState({ fieldFilter: value, page: 1 })
               }
               onSearchChange={(value) =>
-                updateList('customers', { searchValue: value, page: 1 })
+                updateState({ searchValue: value, page: 1 })
               }
             />
 
@@ -236,24 +239,20 @@ export default function CustomersPage() {
               pageSize={listState.pageSize}
               pageSizeOptions={[10, 20, 50]}
               goToValue={String(listState.page)}
-              onPrev={() =>
-                updateList('customers', { page: Math.max(1, currentPage - 1) })
-              }
+              onPrev={() => updateState({ page: Math.max(1, currentPage - 1) })}
               onNext={() =>
-                updateList('customers', {
+                updateState({
                   page: Math.min(totalPages, currentPage + 1),
                 })
               }
-              onPageChange={(nextPage) =>
-                updateList('customers', { page: nextPage })
-              }
+              onPageChange={(nextPage) => updateState({ page: nextPage })}
               onPageSizeChange={(nextSize) =>
-                updateList('customers', { pageSize: nextSize, page: 1 })
+                updateState({ pageSize: nextSize, page: 1 })
               }
               onGoToChange={(value) => {
                 const parsed = Number(value);
                 if (!Number.isNaN(parsed)) {
-                  updateList('customers', {
+                  updateState({
                     page: Math.min(Math.max(parsed, 1), totalPages),
                   });
                 }

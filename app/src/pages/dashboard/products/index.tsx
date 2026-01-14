@@ -17,9 +17,9 @@ import {
   SummaryStatCard,
 } from '@/components/common';
 import {
-  useDashboardList,
-  useDashboardListActions,
-} from '@/store/dashboardListStore';
+  useProductsList,
+  useProductsListActions,
+} from '@/store/productsListStore';
 import { useState } from 'react';
 import {
   productList,
@@ -48,8 +48,8 @@ const rows = productRows;
 export default function ProductsPage() {
   const [activeProductId, setActiveProductId] = useState<string | null>(null);
   const activeProduct = productList.find((item) => item.id === activeProductId);
-  const listState = useDashboardList('products');
-  const { updateList } = useDashboardListActions();
+  const listState = useProductsList();
+  const { updateState } = useProductsListActions();
 
   return (
     <div className="flex w-full flex-col gap-4">
@@ -141,13 +141,13 @@ export default function ProductsPage() {
               searchValue={listState.searchValue}
               typePlaceholder="Cash Sale"
               onTypeChange={(value) =>
-                updateList('products', { typeFilter: value, page: 1 })
+                updateState({ typeFilter: value, page: 1 })
               }
               onFieldChange={(value) =>
-                updateList('products', { fieldFilter: value, page: 1 })
+                updateState({ fieldFilter: value, page: 1 })
               }
               onSearchChange={(value) =>
-                updateList('products', { searchValue: value, page: 1 })
+                updateState({ searchValue: value, page: 1 })
               }
             />
 
@@ -202,21 +202,21 @@ export default function ProductsPage() {
               pageSizeOptions={[10, 20, 50]}
               goToValue={String(listState.page)}
               onPrev={() =>
-                updateList('products', { page: Math.max(1, listState.page - 1) })
+                updateState({ page: Math.max(1, listState.page - 1) })
               }
               onNext={() =>
-                updateList('products', {
+                updateState({
                   page: Math.min(19, listState.page + 1),
                 })
               }
               onPageChange={(nextPage) =>
-                updateList('products', { page: nextPage })
+                updateState({ page: nextPage })
               }
               onPageSizeChange={(nextSize) =>
-                updateList('products', { pageSize: nextSize, page: 1 })
+                updateState({ pageSize: nextSize, page: 1 })
               }
               onGoToChange={(value) =>
-                updateList('products', { page: Number(value) || 1 })
+                updateState({ page: Number(value) || 1 })
               }
             />
           </CardContent>

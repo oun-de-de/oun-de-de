@@ -1,36 +1,39 @@
-import {
-	EntityListItem,
-	SummaryStatCard,
-	TableFilterBar,
-	TablePagination,
-} from '@/components/common';
 import Icon from '@/components/icon/icon';
 import { Button } from '@/ui/button';
 import { Card, CardContent } from '@/ui/card';
 import { Input } from '@/ui/input';
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/ui/select';
 import { Text } from '@/ui/typography';
+import { useEffect, useMemo, useState } from 'react';
 import {
-	useDashboardList,
-	useDashboardListActions,
-} from '@/store/dashboardListStore';
-import { useState } from 'react';
+  EntityListItem,
+  SimpleDataTable,
+  TableFilterBar,
+  TablePagination,
+  SummaryStatCard,
+} from '@/components/common';
 import {
-	vendorList,
-	vendorSummaryCards,
+  useVendorsList,
+  useVendorsListActions,
+} from '@/store/vendorsListStore';
+import {
+  vendorList,
+  vendorSummaryCards,
+  vendorTransactions,
 } from '@/_mock/data/dashboard';
 
 const summaryCards = vendorSummaryCards;
+const transactions = vendorTransactions;
 
 const filterTypeOptions = [
   { value: 'all', label: 'All' },
-  { value: 'cash-purchase', label: 'Cash Purchase' },
+  { value: 'purchase-order', label: 'Purchase Order' },
   { value: 'bill', label: 'Bill' },
   { value: 'payment', label: 'Payment' },
 ];
@@ -41,15 +44,92 @@ const filterFieldOptions = [
   { value: 'ref-no', label: 'Ref No' },
 ];
 
-const paginationPages: Array<number | '...'> = [1];
+const normalizeToken = (value: string) =>
+  value.trim().toLowerCase().replace(/\s+/g, '-');
+
+const buildPages = (current: number, total: number): Array<number | '...'> => {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, index) => index + 1);
+  }
+
+  const pages: Array<number | '...'> = [1];
+  const left = Math.max(2, current - 1);
+  const right = Math.min(total - 1, current + 1);
+
+  if (left > 2) {
+    pages.push('...');
+  }
+
+  for (let page = left; page <= right; page += 1) {
+    pages.push(page);
+  }
+
+  if (right < total - 1) {
+    pages.push('...');
+  }
+
+  pages.push(total);
+  return pages;
+};
 
 export default function VendorsPage() {
   const [activeVendorId, setActiveVendorId] = useState<string | null>(null);
+  const listState = useVendorsList();
+  const { updateState } = useVendorsListActions();
   const activeVendor = vendorList.find(
     (vendor) => vendor.id === activeVendorId
   );
-  const listState = useDashboardList('vendors');
-  const { updateList } = useDashboardListActions();
+
+  const filteredTransactions = useMemo(() => {
+    const normalizedType = normalizeToken(listState.typeFilter);
+    const normalizedQuery = listState.searchValue.trim().toLowerCase();
+
+    return transactions.filter((row) => {
+      if (normalizedType && normalizedType !== 'all') {
+        const rowType = normalizeToken(row.type);
+        if (rowType !== normalizedType) {
+          return false;
+        }
+      }
+
+      if (!normalizedQuery) {
+        return true;
+      }
+
+      if (listState.fieldFilter === 'vendor') {
+        return row.vendor.toLowerCase().includes(normalizedQuery);
+      }
+
+      if (listState.fieldFilter === 'ref-no') {
+        return row.refNo.toLowerCase().includes(normalizedQuery);
+      }
+
+      return (
+        row.vendor.toLowerCase().includes(normalizedQuery) ||
+        row.refNo.toLowerCase().includes(normalizedQuery) ||
+        row.type.toLowerCase().includes(normalizedQuery)
+      );
+    });
+  }, [listState.fieldFilter, listState.searchValue, listState.typeFilter]);
+
+  const totalItems = filteredTransactions.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / listState.pageSize));
+  const currentPage = Math.min(listState.page, totalPages);
+  const pagedTransactions = useMemo(() => {
+    const startIndex = (currentPage - 1) * listState.pageSize;
+    return filteredTransactions.slice(
+      startIndex,
+      startIndex + listState.pageSize
+    );
+  }, [currentPage, filteredTransactions, listState.pageSize]);
+
+  const paginationItems = buildPages(currentPage, totalPages);
+
+  useEffect(() => {
+    if (listState.page > totalPages) {
+      updateState({ page: totalPages });
+    }
+  }, [listState.page, totalPages, updateState]);
 
   return (
     <div className="flex w-full flex-col gap-4">
@@ -63,8 +143,8 @@ export default function VendorsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="type">Vendor Type</SelectItem>
-                  <SelectItem value="vip">VIP</SelectItem>
-                  <SelectItem value="local">Local</SelectItem>
+                  <SelectItem value="preferred">Preferred</SelectItem>
+                  <SelectItem value="standard">Standard</SelectItem>
                 </SelectContent>
               </Select>
               <Button variant="outline" size="icon" className="h-9 w-9">
@@ -97,7 +177,7 @@ export default function VendorsPage() {
             </div>
 
             <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-              <span>Total 11</span>
+              <span>Total 150</span>
               <span className="flex items-center gap-1">
                 <Icon icon="mdi:chevron-left" />
                 <Icon icon="mdi:chevron-right" />
@@ -111,13 +191,13 @@ export default function VendorsPage() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Button size="sm" className="gap-1">
-                  <Icon icon="mdi:account-multiple-outline" />
+                  <Icon icon="mdi:truck-delivery-outline" />
                   Vendor
                 </Button>
                 <Text variant="body2" className="text-muted-foreground">
                   {activeVendor
                     ? `${activeVendor.name} selected`
-                    : 'No vendor selected'}
+                    : 'No Vendor Selected'}
                 </Text>
               </div>
               <Button size="sm" className="gap-2">
@@ -139,63 +219,44 @@ export default function VendorsPage() {
               typeValue={listState.typeFilter}
               fieldValue={listState.fieldFilter}
               searchValue={listState.searchValue}
-              typePlaceholder="Cash Purchase"
               onTypeChange={(value) =>
-                updateList('vendors', { typeFilter: value, page: 1 })
+                updateState({ typeFilter: value, page: 1 })
               }
               onFieldChange={(value) =>
-                updateList('vendors', { fieldFilter: value, page: 1 })
+                updateState({ fieldFilter: value, page: 1 })
               }
               onSearchChange={(value) =>
-                updateList('vendors', { searchValue: value, page: 1 })
+                updateState({ searchValue: value, page: 1 })
               }
             />
 
-            <div className="overflow-x-auto rounded-lg border">
-              <table className="min-w-full text-sm">
-                <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
-                  <tr>
-                    <th className="px-3 py-2 text-left">Date</th>
-                    <th className="px-3 py-2 text-left">Ref No</th>
-                    <th className="px-3 py-2 text-left">Vendor</th>
-                    <th className="px-3 py-2 text-left">Type</th>
-                    <th className="px-3 py-2 text-left">Ref Type</th>
-                    <th className="px-3 py-2 text-left">Status</th>
-                    <th className="px-3 py-2 text-right">Amount</th>
-                    <th className="px-3 py-2 text-left">Memo</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td
-                      colSpan={8}
-                      className="px-3 py-10 text-center text-sm text-muted-foreground"
-                    >
-                      No Data
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <SimpleDataTable rows={pagedTransactions} />
 
             <TablePagination
-              pages={paginationPages}
-              currentPage={listState.page}
-              totalItems={0}
+              pages={paginationItems}
+              currentPage={currentPage}
+              totalItems={totalItems}
               pageSize={listState.pageSize}
               pageSizeOptions={[10, 20, 50]}
               goToValue={String(listState.page)}
-              onPrev={() => updateList('vendors', { page: 1 })}
-              onNext={() => updateList('vendors', { page: 1 })}
-              onPageChange={(nextPage) =>
-                updateList('vendors', { page: nextPage })
+              onPrev={() => updateState({ page: Math.max(1, currentPage - 1) })}
+              onNext={() =>
+                updateState({
+                  page: Math.min(totalPages, currentPage + 1),
+                })
               }
+              onPageChange={(nextPage) => updateState({ page: nextPage })}
               onPageSizeChange={(nextSize) =>
-                updateList('vendors', { pageSize: nextSize, page: 1 })
+                updateState({ pageSize: nextSize, page: 1 })
               }
-              onGoToChange={(value) =>
-                updateList('vendors', { page: Number(value) || 1 })
-              }
+              onGoToChange={(value) => {
+                const parsed = Number(value);
+                if (!Number.isNaN(parsed)) {
+                  updateState({
+                    page: Math.min(Math.max(parsed, 1), totalPages),
+                  });
+                }
+              }}
             />
           </CardContent>
         </Card>

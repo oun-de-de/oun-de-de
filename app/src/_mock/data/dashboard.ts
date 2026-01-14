@@ -1,7 +1,12 @@
 import type {
+	AccountingRow,
+	AuditLogRow,
 	EntityListItemData,
+	ProductRow,
+	SettingsRow,
 	SummaryStatCardData,
 	TransactionRow,
+	VendorTransactionRow,
 } from "@/types/common";
 
 export const customerSummaryCards: SummaryStatCardData[] = [
@@ -148,6 +153,42 @@ export const vendorList: EntityListItemData[] = [
 	{ id: "006", name: "Summit Logistics", code: "" },
 ];
 
+export const vendorTransactions: VendorTransactionRow[] = [
+	{
+		date: "13/10/2025",
+		refNo: "PO25654803352",
+		customer: "Atlas Supplies",
+		vendor: "Atlas Supplies",
+		type: "Purchase Order",
+		refType: "None",
+		status: "Open",
+		amount: 12500,
+		memo: "Office supplies",
+	},
+	{
+		date: "13/10/2025",
+		refNo: "BL25654803326",
+		customer: "Evergreen Goods",
+		vendor: "Evergreen Goods",
+		type: "Bill",
+		refType: "None",
+		status: "Closed",
+		amount: 28750,
+		memo: "Packaging materials",
+	},
+	{
+		date: "12/10/2025",
+		refNo: "PM25654803317",
+		customer: "Orchid Trading",
+		vendor: "Orchid Trading",
+		type: "Payment",
+		refType: "None",
+		status: "Closed",
+		amount: 9200,
+		memo: "Partial settlement",
+	},
+];
+
 export const productSummaryCards: SummaryStatCardData[] = [
 	{ label: "On Hand", value: 0, color: "bg-sky-500", icon: "mdi:package-variant" },
 	{ label: "Avg Cost", value: 0, color: "bg-emerald-500", icon: "mdi:scale-balance" },
@@ -166,7 +207,7 @@ export const productList: EntityListItemData[] = [
 	{ id: "INV001", name: "Tape", code: "" },
 ];
 
-export const productRows = [
+export const productRows: ProductRow[] = [
 	{
 		date: "13/10/2025",
 		refNo: "CS25654803352",
@@ -196,7 +237,7 @@ export const accountingAccountList: EntityListItemData[] = [
 	{ id: "12125", name: "Other Receivable", code: "" },
 ];
 
-export const accountingRows = [
+export const accountingRows: AccountingRow[] = [
 	{
 		date: "14/10/2025",
 		refNo: "IN256554803445",
@@ -291,7 +332,7 @@ export const settingsLeftMenu = [
 	"Import Data",
 ];
 
-export const settingsRows = [
+export const settingsRows: SettingsRow[] = [
 	{ name: "NA", type: "Count" },
 	{ name: "Box", type: "Count" },
 	{ name: "Piece", type: "Count" },
@@ -301,7 +342,7 @@ export const settingsRows = [
 	{ name: "Bag", type: "Count" },
 ];
 
-export const auditLogRows = [
+export const auditLogRows: AuditLogRow[] = [
 	{
 		date: "14/10/2025 12:24:10 pm",
 		user: "lc1988",

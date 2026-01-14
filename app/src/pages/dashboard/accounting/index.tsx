@@ -12,9 +12,9 @@ import {
 } from '@/ui/select';
 import { Text } from '@/ui/typography';
 import {
-	useDashboardList,
-	useDashboardListActions,
-} from '@/store/dashboardListStore';
+	useAccountingList,
+	useAccountingListActions,
+} from '@/store/accountingListStore';
 import { useState } from 'react';
 import {
 	accountingAccountList,
@@ -29,8 +29,8 @@ export default function AccountingPage() {
   const activeAccount = accountList.find(
     (account) => account.id === activeAccountId
   );
-  const listState = useDashboardList('accounting');
-  const { updateList } = useDashboardListActions();
+  const listState = useAccountingList();
+  const { updateState } = useAccountingListActions();
 
   return (
     <div className="flex w-full flex-col gap-4">
@@ -115,7 +115,7 @@ export default function AccountingPage() {
               <Select
                 value={listState.typeFilter}
                 onValueChange={(value) =>
-                  updateList('accounting', { typeFilter: value, page: 1 })
+                  updateState({ typeFilter: value, page: 1 })
                 }
               >
                 <SelectTrigger className="w-[160px]">
@@ -130,7 +130,7 @@ export default function AccountingPage() {
               <Select
                 value={listState.fieldFilter}
                 onValueChange={(value) =>
-                  updateList('accounting', { fieldFilter: value, page: 1 })
+                  updateState({ fieldFilter: value, page: 1 })
                 }
               >
                 <SelectTrigger className="w-[160px]">
@@ -148,7 +148,7 @@ export default function AccountingPage() {
                   className="pl-9"
                   value={listState.searchValue}
                   onChange={(event) =>
-                    updateList('accounting', {
+                    updateState({
                       searchValue: event.target.value,
                       page: 1,
                     })
@@ -211,23 +211,23 @@ export default function AccountingPage() {
               pageSizeOptions={[10, 20, 50]}
               goToValue={String(listState.page)}
               onPrev={() =>
-                updateList('accounting', {
+                updateState({
                   page: Math.max(1, listState.page - 1),
                 })
               }
               onNext={() =>
-                updateList('accounting', {
+                updateState({
                   page: Math.min(2309, listState.page + 1),
                 })
               }
               onPageChange={(nextPage) =>
-                updateList('accounting', { page: nextPage })
+                updateState({ page: nextPage })
               }
               onPageSizeChange={(nextSize) =>
-                updateList('accounting', { pageSize: nextSize, page: 1 })
+                updateState({ pageSize: nextSize, page: 1 })
               }
               onGoToChange={(value) =>
-                updateList('accounting', { page: Number(value) || 1 })
+                updateState({ page: Number(value) || 1 })
               }
             />
           </CardContent>
