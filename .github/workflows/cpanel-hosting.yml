@@ -16,10 +16,11 @@ jobs:
           envkey_DEBUG: false
           envkey_FOO: "foo"
           envkey_SECRET: ${{ secrets.SECRET }}
+          # directory: <directory_name> # tmp disable for checking
           file_name: .env
           fail_on_empty: true
       - name: Confirm env file
-        run: ls .env
+        run: cat .env
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
@@ -31,10 +32,10 @@ jobs:
       - name: Build
         run: |
           pnpm build
-
-    # - name: 📂 Sync files
-    #   uses: SamKirkland/FTP-Deploy-Action@v4.3.6
-    #   with:
-    #     server: ftp.samkirkland.com
-    #     username: myFtpUserName
-    #     password: ${{ secrets.ftp_password }}
+      - name: 📂 Sync files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: wayland.maychu.cloud
+          username: ${{ secrets.FTP_USRNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /domains/cdtphuhoi.com/public_html/
