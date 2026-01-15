@@ -1,3 +1,4 @@
+
 import { setupWorker } from 'msw/browser';
 import { mockTokenExpired } from './handlers/_demo';
 import {
@@ -19,6 +20,7 @@ const handlers = [
   customerInfo,
   performance,
 ];
+
 const worker = setupWorker(...handlers);
 
 export { worker };
