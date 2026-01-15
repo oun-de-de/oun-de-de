@@ -25,7 +25,7 @@ export default function DashboardDropdownMenu({ items, repo }: Props) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="group inline-flex h-9 items-center gap-1 rounded border border-gray-300 bg-white px-3 text-sm font-medium">
-          <span className="text-gray-500">
+          <span className="text-gray-500 overflow-hidden text-ellipsis whitespace-nowrap">
             {selectedValue?.value}
           </span>
           <ChevronDownIcon className="size-4 transition-transform group-data-[state=open]:rotate-180 text-gray-500" />
