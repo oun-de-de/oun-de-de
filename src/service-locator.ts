@@ -11,27 +11,31 @@ import {
 	DashboardApiImpl,
 } from "./core/api/services/dashboardService";
 import {
-	CustomerInfoRepository,
+	type CustomerInfoRepository,
 	CustomerInfoRepositoryImpl,
 } from "./core/domain/dashboard/repositories/customer-info-repository";
 import {
-	DailyIncomeAccountingRepository,
+	type DailyIncomeAccountingRepository,
 	DailyIncomeAccountingRepositoryImpl,
 } from "./core/domain/dashboard/repositories/daily-income-accounting-repository";
 import {
-	DailyIncomePosRepository,
+	type DailyIncomePosRepository,
 	DailyIncomePosRepositoryImpl,
 } from "./core/domain/dashboard/repositories/daily-income-pos-repository";
 import {
-	DashboardRepository,
+	type DashboardRepository,
 	DashboardRepositoryImpl,
 } from "./core/domain/dashboard/repositories/dashboard-repository";
 import {
-	PerformanceRepository,
+	type PerformanceRepository,
 	PerformanceRepositoryImpl,
 } from "./core/domain/dashboard/repositories/performance-repository";
-import { DisposeAble } from "./core/types/dispose-able";
-import { InitAble } from "./core/types/init-able";
+import {
+	type VendorInfoRepository,
+	VendorInfoRepositoryImpl,
+} from "./core/domain/dashboard/repositories/vendor-info-repository";
+import type { DisposeAble } from "./core/types/dispose-able";
+import type { InitAble } from "./core/types/init-able";
 
 /* eslint-disable no-unused-vars */
 
@@ -218,8 +222,8 @@ class Repository {
 		}
 
 		// Lazy initialization
-		if (repoInstance._factories.has(key)) {
-			const factory = repoInstance._factories.get(key)!;
+		const factory = repoInstance._factories.get(key);
+		if (factory) {
 			const service = factory() as T;
 
 			if (Repository._isDisposeAble(service) && !repoInstance._disposers.has(key)) {
@@ -424,8 +428,9 @@ class Repository {
 	 * Track instance names from type name
 	 */
 	private _addInstanceNameFromTypeName(typeName: string, instanceName: string): void {
-		if (this._instanceNames.has(typeName)) {
-			this._instanceNames.get(typeName)!.add(instanceName);
+		const names = this._instanceNames.get(typeName);
+		if (names) {
+			names.add(instanceName);
 		} else {
 			this._instanceNames.set(typeName, new Set([instanceName]));
 		}
@@ -455,9 +460,9 @@ class Repository {
 		}
 
 		// Try to get constructor name
-		const constructor = (instance as { constructor?: { name?: string } }).constructor;
-		if (constructor && constructor.name) {
-			return constructor.name;
+		const ctor = (instance as { constructor?: { name?: string } }).constructor;
+		if (ctor?.name) {
+			return ctor.name;
 		}
 
 		// Fallback: use object type
@@ -535,6 +540,11 @@ function repositoryRegister(): void {
 	// Customer Info
 	Repository.register<CustomerInfoRepository>(new CustomerInfoRepositoryImpl(new DashboardApiImpl()), {
 		instanceName: "Customer-Info",
+	});
+
+	// Vendor Info
+	Repository.register<VendorInfoRepository>(new VendorInfoRepositoryImpl(new DashboardApiImpl()), {
+		instanceName: "Vendor-Info",
 	});
 
 	// Performance
