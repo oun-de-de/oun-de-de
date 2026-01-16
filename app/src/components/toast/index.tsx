@@ -1,7 +1,7 @@
 import { Icon } from "@/components/icon";
-import { useSettings } from "@/store/settingStore";
-import { themeVars } from "@/theme/theme.css";
-import { rgbAlpha } from "@/utils/theme";
+import { useSettings } from "@/core/store/settingStore";
+import { themeVars } from "@/core/theme/theme.css";
+import { rgbAlpha } from "@/core/utils/theme";
 import { Toaster } from "sonner";
 import styled from "styled-components";
 

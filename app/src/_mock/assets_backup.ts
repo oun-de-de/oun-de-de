@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
-import type { Menu, Permission, Role, User } from "#/entity";
-import { PermissionType } from "#/enum";
+import type { Menu, Permission, Role, User } from "@/core/types/entity";
+import { PermissionType } from "@/core/types/enum";
 
 const { GROUP, MENU, CATALOGUE } = PermissionType;
 

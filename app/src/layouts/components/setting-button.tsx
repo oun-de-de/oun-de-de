@@ -1,5 +1,5 @@
 import { Icon } from "@/components/icon";
-import { Button } from "@/ui/button";
+import { Button } from "@/core/ui/button";
 import styled from "styled-components";
 
 export default function SettingButton() {

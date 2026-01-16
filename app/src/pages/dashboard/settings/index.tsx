@@ -1,8 +1,8 @@
 import Icon from "@/components/icon/icon";
-import { Button } from "@/ui/button";
-import { Card, CardContent } from "@/ui/card";
-import { Input } from "@/ui/input";
-import { Text } from "@/ui/typography";
+import { Button } from "@/core/ui/button";
+import { Card, CardContent } from "@/core/ui/card";
+import { Input } from "@/core/ui/input";
+import { Text } from "@/core/ui/typography";
 import { TablePagination } from "@/components/common";
 import { useState } from "react";
 import {

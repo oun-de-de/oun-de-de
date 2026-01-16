@@ -1,8 +1,8 @@
 import { Icon } from "@/components/icon";
-import { useSettings } from "@/store/settingStore";
-import { ThemeLayout } from "@/types/enum";
-import { Button } from "@/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
+import { useSettings } from "@/core/store/settingStore";
+import { ThemeLayout } from "@/core/types/enum";
+import { Button } from "@/core/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/core/ui/popover";
 import styled from "styled-components";
 
 type NewActionColumn = {

@@ -1,9 +1,9 @@
 import Icon from "@/components/icon/icon";
-import useLocale from "@/locales/use-locale";
-import { TooltipContent } from "@/ui/tooltip";
-import { Tooltip } from "@/ui/tooltip";
-import { TooltipTrigger } from "@/ui/tooltip";
-import { TooltipProvider } from "@/ui/tooltip";
+import useLocale from "@/core/locales/use-locale";
+import { TooltipContent } from "@/core/ui/tooltip";
+import { Tooltip } from "@/core/ui/tooltip";
+import { TooltipTrigger } from "@/core/ui/tooltip";
+import { TooltipProvider } from "@/core/ui/tooltip";
 import { NavItemRenderer } from "../components";
 import { navItemStyles } from "../styles";
 import type { NavItemProps } from "../types";

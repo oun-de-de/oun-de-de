@@ -1,5 +1,5 @@
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/ui/collapsible";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/ui/hover-card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/core/ui/collapsible";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/core/ui/hover-card";
 import { RouterLink } from "@/routes/components/router-link";
 import { useState } from "react";
 import { useLocation } from "react-router";

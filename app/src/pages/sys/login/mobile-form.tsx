@@ -1,7 +1,7 @@
-import { Button } from "@/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
-import { Input } from "@/ui/input";
-import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/ui/input-otp";
+import { Button } from "@/core/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/core/ui/form";
+import { Input } from "@/core/ui/input";
+import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/core/ui/input-otp";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";

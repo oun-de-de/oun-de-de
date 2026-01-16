@@ -1,9 +1,9 @@
 import { Icon } from "@/components/icon";
-import { useSettings } from "@/store/settingStore";
-import { useUserActions, useUserInfo } from "@/store/userStore";
-import { ThemeLayout } from "@/types/enum";
-import { rgbAlpha } from "@/utils/theme";
-import { Button } from "@/ui/button";
+import { useSettings } from "@/core/store/settingStore";
+import { useUserActions, useUserInfo } from "@/core/store/userStore";
+import { ThemeLayout } from "@/core/types/enum";
+import { rgbAlpha } from "@/core/utils/theme";
+import { Button } from "@/core/ui/button";
 import { useRouter } from "@/routes/hooks";
 import styled from "styled-components";
 import AccountDropdown from "../../components/account-dropdown";

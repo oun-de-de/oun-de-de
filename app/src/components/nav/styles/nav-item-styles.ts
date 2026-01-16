@@ -1,4 +1,4 @@
-import { themeVars } from "@/theme/theme.css";
+import { themeVars } from "@/core/theme/theme.css";
 import type { CSSProperties } from "react";
 
 export type NavItemStyles = {

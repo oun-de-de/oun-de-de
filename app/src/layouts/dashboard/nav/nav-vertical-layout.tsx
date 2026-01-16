@@ -1,6 +1,6 @@
 import type { NavProps } from "@/components/nav/types";
-import { useSettings } from "@/store/settingStore";
-import { ThemeLayout } from "@/types/enum";
+import { useSettings } from "@/core/store/settingStore";
+import { ThemeLayout } from "@/core/types/enum";
 import styled from "styled-components";
 import { NavVerticalHeader } from "./nav-vertical-header";
 import { NavVerticalContent } from "./nav-vertical-content";

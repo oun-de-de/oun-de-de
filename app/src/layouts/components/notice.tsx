@@ -1,6 +1,6 @@
 import { Icon } from "@/components/icon";
-import { Badge } from "@/ui/badge";
-import { Button } from "@/ui/button";
+import { Badge } from "@/core/ui/badge";
+import { Button } from "@/core/ui/button";
 import styled from "styled-components";
 
 export default function NoticeButton() {

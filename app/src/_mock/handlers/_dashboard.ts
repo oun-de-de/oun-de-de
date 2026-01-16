@@ -1,11 +1,11 @@
 import { faker } from "@faker-js/faker";
 import { http, HttpResponse } from "msw";
-import { ResultStatus } from "@/types/enum";
+import { ResultStatus } from "@/core/types/enum";
 import { format } from "date-fns";
-import { DailyIncomeAccounting, DailyIncomePos } from "@/pages/dashboard/_dashboard/domain/entities/daily-income";
-import { CustomerSummaryItem } from "@/pages/dashboard/_dashboard/domain/entities/customer-info";
-import { PerformanceItem } from "@/pages/dashboard/_dashboard/domain/entities/performance";
-import { FilterData } from "@/pages/dashboard/_dashboard/domain/entities/filter";
+import { DailyIncomeAccounting, DailyIncomePos } from "@/core/domain/dashboard/entities/daily-income";
+import { CustomerSummaryItem } from "@/core/domain/dashboard/entities/customer-info";
+import { PerformanceItem } from "@/core/domain/dashboard/entities/performance";
+import { FilterData } from "@/core/domain/dashboard/entities/filter";
 
 
 /**

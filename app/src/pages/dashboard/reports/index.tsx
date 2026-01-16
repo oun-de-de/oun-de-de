@@ -1,7 +1,7 @@
 import Icon from "@/components/icon/icon";
-import { Button } from "@/ui/button";
-import { Card, CardContent } from "@/ui/card";
-import { Text } from "@/ui/typography";
+import { Button } from "@/core/ui/button";
+import { Card, CardContent } from "@/core/ui/card";
+import { Text } from "@/core/ui/typography";
 import { reportSections, reportTabs } from "@/_mock/data/dashboard";
 
 export default function ReportsPage() {

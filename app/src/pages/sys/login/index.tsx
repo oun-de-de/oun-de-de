@@ -3,7 +3,7 @@ import LocalePicker from "@/components/locale-picker";
 import Logo from "@/components/logo";
 import { GLOBAL_CONFIG } from "@/global-config";
 import SettingButton from "@/layouts/components/setting-button";
-import { useUserToken } from "@/store/userStore";
+import { useUserToken } from "@/core/store/userStore";
 import { Navigate } from "react-router";
 import LoginForm from "./login-form";
 import MobileForm from "./mobile-form";

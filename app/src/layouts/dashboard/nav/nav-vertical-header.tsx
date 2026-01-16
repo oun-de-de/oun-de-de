@@ -1,8 +1,8 @@
 import { GLOBAL_CONFIG } from "@/global-config";
 import { RouterLink } from "@/routes/components/router-link";
-import { useSettings } from "@/store/settingStore";
-import { ThemeLayout } from "@/types/enum";
-import { rgbAlpha } from "@/utils/theme";
+import { useSettings } from "@/core/store/settingStore";
+import { ThemeLayout } from "@/core/types/enum";
+import { rgbAlpha } from "@/core/utils/theme";
 import styled from "styled-components";
 
 export function NavVerticalHeader() {

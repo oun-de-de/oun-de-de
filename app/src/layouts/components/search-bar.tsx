@@ -1,11 +1,11 @@
 import { Icon } from "@/components/icon";
-import useLocale from "@/locales/use-locale";
+import useLocale from "@/core/locales/use-locale";
 import { useRouter } from "@/routes/hooks";
-import { Badge } from "@/ui/badge";
-import { Button } from "@/ui/button";
-import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandSeparator } from "@/ui/command";
-import { ScrollArea } from "@/ui/scroll-area";
-import { Text } from "@/ui/typography";
+import { Badge } from "@/core/ui/badge";
+import { Button } from "@/core/ui/button";
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandSeparator } from "@/core/ui/command";
+import { ScrollArea } from "@/core/ui/scroll-area";
+import { Text } from "@/core/ui/typography";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBoolean } from "react-use";
 import { useFilteredNavData } from "../dashboard/nav";

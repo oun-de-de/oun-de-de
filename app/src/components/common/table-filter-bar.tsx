@@ -1,13 +1,13 @@
 import Icon from '@/components/icon/icon';
-import { Button } from '@/ui/button';
-import { Input } from '@/ui/input';
+import { Button } from '@/core/ui/button';
+import { Input } from '@/core/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/ui/select';
+} from '@/core/ui/select';
 import styled from 'styled-components';
 
 const BarRoot = styled.div.attrs({

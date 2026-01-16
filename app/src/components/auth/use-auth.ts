@@ -1,4 +1,4 @@
-import { useUserInfo, useUserToken } from "@/store/userStore";
+import { useUserInfo, useUserToken } from "@/core/store/userStore";
 
 /**
  * permission/role check hook

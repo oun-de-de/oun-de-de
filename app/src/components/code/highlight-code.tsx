@@ -1,8 +1,8 @@
 import { Icon } from "@/components/icon";
-import { useCopyToClipboard } from "@/hooks";
-import { useSettings } from "@/store/settingStore";
-import { Button } from "@/ui/button";
-import { cn } from "@/utils";
+import { useCopyToClipboard } from "@/core/hooks";
+import { useSettings } from "@/core/store/settingStore";
+import { Button } from "@/core/ui/button";
+import { cn } from "@/core/utils";
 import { useState } from "react";
 import { createHighlighter } from "shiki/bundle/web";
 import type { HighlightCodeProps } from ".";

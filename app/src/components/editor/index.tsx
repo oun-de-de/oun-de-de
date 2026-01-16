@@ -1,5 +1,5 @@
 /* eslint-disable import/order */
-import "@/utils/highlight";
+import "@/core/utils/highlight";
 import ReactQuill, { type ReactQuillProps } from "react-quill";
 import { StyledEditor } from "./styles";
 import Toolbar, { formats } from "./toolbar";

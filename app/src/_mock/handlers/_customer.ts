@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { http, HttpResponse } from "msw";
-import { Customer } from "@/types/customer";
-import { BasicStatus } from "@/types/enum";
+import { Customer } from "@/core/types/customer";
+import { BasicStatus } from "@/core/types/enum";
 
 const customerList = http.get("/api/customers", async () => {
   const customers: Customer[] = Array.from({ length: 20 }).map(() => ({

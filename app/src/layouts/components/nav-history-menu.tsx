@@ -4,7 +4,7 @@ import { RouterLink } from "@/routes/components/router-link";
 import { useLocation, useNavigate } from "react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { ScrollArea } from "@/ui/scroll-area";
+import { ScrollArea } from "@/core/ui/scroll-area";
 
 type HistoryItem = {
 	path: string;

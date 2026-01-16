@@ -1,4 +1,4 @@
-import { useTheme } from "@/theme/hooks";
+import { useTheme } from "@/core/theme/hooks";
 
 export default function UploadIllustration() {
 	const {

@@ -1,5 +1,5 @@
-import { fNumber } from '@/utils/format-number';
-import type { TransactionRow } from '@/types/common';
+import { fNumber } from '@/core/utils/format-number';
+import type { TransactionRow } from '@/core/types/common';
 import styled from 'styled-components';
 
 const TableWrap = styled.div.attrs({

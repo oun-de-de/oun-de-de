@@ -1,4 +1,4 @@
-import { useUserToken } from "@/store/userStore";
+import { useUserToken } from "@/core/store/userStore";
 import { useCallback, useEffect } from "react";
 import { useRouter } from "../hooks";
 

@@ -1,12 +1,12 @@
-import { themeVars } from "@/theme/theme.css";
-import { removePx, rgbAlpha } from "@/utils/theme";
+import { themeVars } from "@/core/theme/theme.css";
+import { removePx, rgbAlpha } from "@/core/utils/theme";
 import type { ApexOptions } from "apexcharts";
 import { mergeDeepRight } from "ramda";
 
-import { useSettings } from "@/store/settingStore";
-import { breakpointsTokens } from "@/theme/tokens/breakpoints";
-import { paletteColors, presetsColors } from "@/theme/tokens/color";
-import type { ThemeColorPresets, ThemeMode } from "@/types/enum";
+import { useSettings } from "@/core/store/settingStore";
+import { breakpointsTokens } from "@/core/theme/tokens/breakpoints";
+import { paletteColors, presetsColors } from "@/core/theme/tokens/color";
+import type { ThemeColorPresets, ThemeMode } from "@/core/types/enum";
 
 export function useChart(options: ApexOptions) {
 	const { themeColorPresets, themeMode } = useSettings();

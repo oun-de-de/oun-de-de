@@ -1,8 +1,8 @@
 import MotionContainer from "@/components/animate/motion-container";
 import { varBounce } from "@/components/animate/variants/bounce";
 import { GLOBAL_CONFIG } from "@/global-config";
-import { Button } from "@/ui/button";
-import { Text, Title } from "@/ui/typography";
+import { Button } from "@/core/ui/button";
+import { Text, Title } from "@/core/ui/typography";
 import { m } from "motion/react";
 import type { ReactNode } from "react";
 import { Helmet } from "react-helmet-async";

@@ -1,4 +1,4 @@
-import { useTheme } from "@/theme/hooks";
+import { useTheme } from "@/core/theme/hooks";
 import { type HTMLMotionProps, type MotionValue, m, useSpring } from "motion/react";
 import type { CSSProperties } from "react";
 

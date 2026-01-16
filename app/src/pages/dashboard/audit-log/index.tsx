@@ -1,15 +1,15 @@
 import Icon from "@/components/icon/icon";
-import { Button } from "@/ui/button";
-import { Card, CardContent } from "@/ui/card";
-import { Input } from "@/ui/input";
+import { Button } from "@/core/ui/button";
+import { Card, CardContent } from "@/core/ui/card";
+import { Input } from "@/core/ui/input";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/ui/select";
-import { Text } from "@/ui/typography";
+} from "@/core/ui/select";
+import { Text } from "@/core/ui/typography";
 import { TablePagination } from "@/components/common";
 import { useState } from "react";
 import { auditLogRows } from "@/_mock/data/dashboard";

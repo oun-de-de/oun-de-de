@@ -1,4 +1,4 @@
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/ui/hover-card";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/core/ui/hover-card";
 import { RouterLink } from "@/routes/components/router-link";
 import { useLocation } from "react-router";
 import type { NavListProps } from "../types";

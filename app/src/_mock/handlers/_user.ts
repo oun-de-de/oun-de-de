@@ -1,6 +1,6 @@
-import { UserApi } from "@/api/services/userService";
-import { ResultStatus } from "@/types/enum";
-import { convertFlatToTree } from "@/utils/tree";
+import { UserApi } from "@/core/api/services/userService";
+import { ResultStatus } from "@/core/types/enum";
+import { convertFlatToTree } from "@/core/utils/tree";
 import { faker } from "@faker-js/faker";
 import { http, HttpResponse } from "msw";
 import { DB_MENU, DB_PERMISSION, DB_ROLE, DB_ROLE_PERMISSION, DB_USER, DB_USER_ROLE } from "../assets_backup";

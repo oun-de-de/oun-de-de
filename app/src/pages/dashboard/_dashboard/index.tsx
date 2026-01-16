@@ -1,34 +1,14 @@
-import DashboardCard from "./presentation/components/card/dashboard-card";
-import DashboardCustomerInfo from "./presentation/components/dashboard-customer-info";
-import DashboardIncomePos from "./presentation/components/dashboard-income-pos";
-import DashboardPerformance from "./presentation/components/dashboard-performance";
-import DashboardDropdownMenu from "./presentation/components/dropdown-menu/dashboard-dropdown-menu";
-import { DashboardRepository, DashboardRepositoryImpl } from "./domain/repositories/dashboard-repository";
-import { MultiProvider, register, useProvider } from "@/ui/multi-provider";
-import { DashboardApiImpl } from "@/api/services/dashboardService";
-import DashboardIncomeAccounting from "./presentation/components/dashboard-income-accounting";
-import DropdownMenuPromise from "./presentation/components/promise/drop-down-menu-promise";
+import DashboardCard from "./components/card/dashboard-card";
+import DashboardCustomerInfo from "./components/dashboard-customer-info";
+import DashboardIncomePos from "./components/dashboard-income-pos";
+import DashboardPerformance from "./components/dashboard-performance";
+import DashboardDropdownMenu from "./components/dropdown-menu/dashboard-dropdown-menu";
+import { DashboardRepository } from "../../../core/domain/dashboard/repositories/dashboard-repository";
+import DashboardIncomeAccounting from "./components/dashboard-income-accounting";
+import DropdownMenuPromise from "./components/promise/drop-down-menu-promise";
+import { useProvider } from "@/core/ui/multi-provider";
 
 export default function Dashboard() {
-	return (
-		<MultiProvider
-			repos={[
-				register<DashboardRepository>(() =>
-				  new DashboardRepositoryImpl(new DashboardApiImpl(), "dashboard:selectedFilter:income-pos"),
-				  "Income-Pos"
-				),
-				register<DashboardRepository>(() =>
-				  new DashboardRepositoryImpl(new DashboardApiImpl(), "dashboard:selectedFilter:income-accounting"),
-				  "Income-Accounting"
-				),
-			]}
-		>
-			<View />
-		</MultiProvider>
-	)
-}
-
-function View() {
 	const repoPos = useProvider<DashboardRepository>("Income-Pos");
 	const repoAccounting = useProvider<DashboardRepository>("Income-Accounting");
 	

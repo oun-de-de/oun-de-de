@@ -7,7 +7,7 @@ import type {
 	SummaryStatCardData,
 	TransactionRow,
 	VendorTransactionRow,
-} from "@/types/common";
+} from "@/core/types/common";
 
 export const customerSummaryCards: SummaryStatCardData[] = [
 	{ label: "Deposit Balance", value: 0, color: "bg-sky-500", icon: "mdi:cash-plus" },

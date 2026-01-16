@@ -1,9 +1,9 @@
 import { Icon } from "@/components/icon";
 import Logo from "@/components/logo";
-import { down, useMediaQuery } from "@/hooks";
-import { useSettings, useSettingActions } from "@/store/settingStore";
-import { ThemeLayout } from "#/enum";
-import { Button } from "@/ui/button";
+import { down, useMediaQuery } from "@/core/hooks";
+import { useSettings, useSettingActions } from "@/core/store/settingStore";
+import { ThemeLayout } from "@/core/types/enum";
+import { Button } from "@/core/ui/button";
 import styled from "styled-components";
 import Header from "./header";
 import Main from "./main";

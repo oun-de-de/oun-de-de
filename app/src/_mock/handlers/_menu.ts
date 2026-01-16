@@ -1,5 +1,5 @@
-import { ResultStatus } from "@/types/enum";
-import { convertFlatToTree } from "@/utils/tree";
+import { ResultStatus } from "@/core/types/enum";
+import { convertFlatToTree } from "@/core/utils/tree";
 import { http, HttpResponse } from "msw";
 import { DB_MENU } from "../assets_backup";
 

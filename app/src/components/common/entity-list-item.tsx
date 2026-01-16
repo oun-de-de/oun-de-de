@@ -1,4 +1,4 @@
-import type { EntityListItemData } from '@/types/common';
+import type { EntityListItemData } from '@/core/types/common';
 import styled from 'styled-components';
 
 const ItemButton = styled.button.attrs<{ $active: boolean }>(({ $active }) => ({

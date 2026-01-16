@@ -1,7 +1,7 @@
 import Icon from '@/components/icon/icon';
-import { Text, Title } from '@/ui/typography';
-import { fNumber } from '@/utils/format-number';
-import type { SummaryStatCardData } from '@/types/common';
+import { Text, Title } from '@/core/ui/typography';
+import { fNumber } from '@/core/utils/format-number';
+import type { SummaryStatCardData } from '@/core/types/common';
 import styled from 'styled-components';
 
 const CardRoot = styled.div.attrs({

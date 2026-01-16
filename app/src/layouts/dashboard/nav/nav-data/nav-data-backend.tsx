@@ -1,9 +1,9 @@
 import { DB_MENU } from "@/_mock/assets_backup";
 import { Icon } from "@/components/icon";
 import type { NavItemDataProps, NavProps } from "@/components/nav";
-import type { MenuTree } from "@/types/entity";
-import { Badge } from "@/ui/badge";
-import { convertFlatToTree } from "@/utils/tree";
+import type { MenuTree } from "@/core/types/entity";
+import { Badge } from "@/core/ui/badge";
+import { convertFlatToTree } from "@/core/utils/tree";
 
 const convertChildren = (children?: MenuTree[]): NavItemDataProps[] => {
 	if (!children?.length) return [];

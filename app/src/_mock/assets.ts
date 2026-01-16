@@ -1,5 +1,5 @@
-import useUserStore from '@/store/userStore';
-import { BasicStatus, PermissionType } from '@/types/enum';
+import useUserStore from '@/core/store/userStore';
+import { BasicStatus, PermissionType } from '@/core/types/enum';
 import { faker } from '@faker-js/faker';
 
 /**

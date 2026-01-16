@@ -1,7 +1,7 @@
-import { useSettings } from "@/store/settingStore";
+import { useSettings } from "@/core/store/settingStore";
 import type { ReactNode } from "react";
 import styled from "styled-components";
-import { rgbAlpha } from "@/utils/theme";
+import { rgbAlpha } from "@/core/utils/theme";
 import BreadCrumb from "../components/bread-crumb";
 import NavHistoryMenu from "../components/nav-history-menu";
 import NoticeButton from "../components/notice";
