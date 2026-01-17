@@ -1,5 +1,5 @@
-import { Avatar, AvatarFallback } from "@/ui/avatar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
+import { Avatar, AvatarFallback } from "@/core/ui/avatar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/core/ui/tooltip";
 import * as React from "react";
 import type { CSSProperties } from "react";
 

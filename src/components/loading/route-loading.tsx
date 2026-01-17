@@ -1,4 +1,4 @@
-import { Progress } from "@/ui/progress";
+import { Progress } from "@/core/ui/progress";
 import { useEffect, useState } from "react";
 
 export function RouteLoadingProgress() {

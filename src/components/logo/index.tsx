@@ -1,4 +1,4 @@
-import { cn } from "@/utils";
+import { cn } from "@/core/utils";
 import { NavLink } from "react-router";
 import { Icon } from "../icon";
 

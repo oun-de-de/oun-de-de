@@ -1,16 +1,18 @@
 import "./global.css";
-import "./theme/theme.css";
-import "./locales/i18n";
+import "./core/theme/theme.css";
+import "./core/locales/i18n";
 import ReactDOM from "react-dom/client";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router";
 import App from "./App";
 import { worker } from "./_mock";
-import menuService from "./api/services/menuService";
+import menuService from "./core/api/services/menuService";
 import { registerLocalIcons } from "./components/icon";
 import { GLOBAL_CONFIG } from "./global-config";
 import ErrorBoundary from "./routes/components/error-boundary";
 import { routesSection } from "./routes/sections";
-import { urlJoin } from "./utils";
+
+import { urlJoin } from "./core/utils";
+import Repository from "./service-locator";
 
 await registerLocalIcons();
 await worker.start({
@@ -20,6 +22,8 @@ await worker.start({
 if (GLOBAL_CONFIG.routerMode === "backend") {
 	await menuService.getMenuList();
 }
+
+Repository.initialize();
 
 const router = createBrowserRouter(
 	[

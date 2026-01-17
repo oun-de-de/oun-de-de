@@ -1,5 +1,5 @@
 import { Icon } from "@/components/icon";
-import { Button } from "@/ui/button";
+import { Button } from "@/core/ui/button";
 import { useTranslation } from "react-i18next";
 
 interface ReturnButtonProps {

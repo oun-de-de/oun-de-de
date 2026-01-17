@@ -1,4 +1,4 @@
-import { cn } from "@/utils";
+import { cn } from "@/core/utils";
 import type { NavProps } from "../types";
 import { NavGroup } from "./nav-group";
 

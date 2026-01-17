@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { FontFamilyPreset, typographyTokens } from "@/theme/tokens/typography";
-import { StorageEnum, ThemeColorPresets, ThemeLayout, ThemeMode } from "#/enum";
+import { FontFamilyPreset, typographyTokens } from "@/core/theme/tokens/typography";
+import { StorageEnum, ThemeColorPresets, ThemeLayout, ThemeMode } from "@/core/types/enum";
 
 export type SettingsType = {
 	themeColorPresets: ThemeColorPresets;
@@ -31,7 +31,7 @@ const useSettingStore = create<SettingStore>()(
 		(set) => ({
 			settings: {
 				themeColorPresets: ThemeColorPresets.Default,
-				themeMode: ThemeMode.Light,
+				themeMode: ThemeMode.Dark,
 				themeLayout: ThemeLayout.Vertical,
 				themeStretch: false,
 				breadCrumb: true,

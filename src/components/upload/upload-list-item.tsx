@@ -1,9 +1,9 @@
 import { varFade } from "@/components/animate/variants";
 import { Icon } from "@/components/icon";
-import { Button } from "@/ui/button";
-import { Card } from "@/ui/card";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
-import { fBytes } from "@/utils/format-number";
+import { Button } from "@/core/ui/button";
+import { Card } from "@/core/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/core/ui/tooltip";
+import { fBytes } from "@/core/utils/format-number";
 import type { ItemRender } from "antd/es/upload/interface";
 import { m } from "motion/react";
 import { useEffect, useState } from "react";

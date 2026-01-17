@@ -7,8 +7,8 @@ import { MotionLazy } from "./components/animate/motion-lazy";
 import { RouteLoadingProgress } from "./components/loading";
 import Toast from "./components/toast";
 import { GLOBAL_CONFIG } from "./global-config";
-import { AntdAdapter } from "./theme/adapter/antd.adapter";
-import { ThemeProvider } from "./theme/theme-provider";
+import { AntdAdapter } from "./core/theme/adapter/antd.adapter";
+import { ThemeProvider } from "./core/theme/theme-provider";
 
 if (import.meta.env.DEV) {
 	import("react-scan").then(({ scan }) => {

@@ -1,9 +1,9 @@
 import { DB_MENU } from "@/_mock/assets_backup";
 import { Icon } from "@/components/icon";
 import type { NavItemDataProps, NavProps } from "@/components/nav";
-import type { MenuTree } from "@/types/entity";
-import { Badge } from "@/ui/badge";
-import { convertFlatToTree } from "@/utils/tree";
+import type { MenuTree } from "@/core/types/entity";
+import { Badge } from "@/core/ui/badge";
+import { convertFlatToTree } from "@/core/utils/tree";
 
 const convertChildren = (children?: MenuTree[]): NavItemDataProps[] => {
 	if (!children?.length) return [];
@@ -30,3 +30,31 @@ const convert = (menuTree: MenuTree[]): NavProps["data"] => {
 };
 
 export const backendNavData: NavProps["data"] = convert(convertFlatToTree(DB_MENU));
+
+export const newActions = [
+	{
+		title: "Customers",
+		items: [
+			{ title: "Create Cash Sale" },
+			{ title: "Create Invoice" },
+			{ title: "Create Receipt" },
+		],
+	},
+	{
+		title: "Vendors",
+		items: [
+			{ title: "Create Cash Purchase" },
+			{ title: "Create Bill" },
+			{ title: "Create Payment" },
+		],
+	},
+	{
+		title: "Accounting",
+		items: [
+			{ title: "Create Journal" },
+			{ title: "Create Cash Transaction" },
+			{ title: "Create Cash Revenue" },
+			{ title: "Create Cash Expense" },
+		],
+	},
+];

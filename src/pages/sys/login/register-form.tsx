@@ -1,7 +1,7 @@
-import userService from "@/api/services/userService";
-import { Button } from "@/ui/button";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/ui/form";
-import { Input } from "@/ui/input";
+import userService from "@/core/api/services/userService";
+import { Button } from "@/core/ui/button";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/core/ui/form";
+import { Input } from "@/core/ui/input";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";

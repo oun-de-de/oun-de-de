@@ -1,4 +1,4 @@
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/ui/hover-card";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/core/ui/hover-card";
 import { useLocation } from "react-router";
 import type { NavListProps } from "../types";
 import { NavItem } from "./nav-item";
@@ -36,7 +36,9 @@ export function NavList({ data, depth = 0 }: NavListProps) {
 	const renderRootItemWithHoverCard = () => {
 		return (
 			<HoverCard openDelay={100}>
-				<HoverCardTrigger>{renderNavItem()}</HoverCardTrigger>
+				<HoverCardTrigger asChild>
+					<div>{renderNavItem()}</div>
+				</HoverCardTrigger>
 				<HoverCardContent side={depth === 1 ? "bottom" : "right"} sideOffset={10} className="p-1">
 					{data.children?.map((child) => (
 						<NavList key={child.title} data={child} depth={depth + 1} />

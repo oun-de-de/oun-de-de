@@ -1,7 +1,7 @@
 import { Icon } from "@/components/icon";
-import { themeVars } from "@/theme/theme.css";
-import { Text } from "@/ui/typography";
-import { fBytes } from "@/utils/format-number";
+import { themeVars } from "@/core/theme/theme.css";
+import { Text } from "@/core/ui/typography";
+import { fBytes } from "@/core/utils/format-number";
 import { Upload } from "antd";
 import type { UploadChangeParam, UploadFile, UploadProps } from "antd/es/upload";
 import { useState } from "react";

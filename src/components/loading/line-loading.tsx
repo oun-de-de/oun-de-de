@@ -1,6 +1,6 @@
 import "./line-loading.css";
-import { useSettings } from "@/store/settingStore";
-import { commonColors, paletteColors } from "@/theme/tokens/color";
+import { useSettings } from "@/core/store/settingStore";
+import { commonColors, paletteColors } from "@/core/theme/tokens/color";
 
 export function LineLoading() {
 	const { themeMode } = useSettings();

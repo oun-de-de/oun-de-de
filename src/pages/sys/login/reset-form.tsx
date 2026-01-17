@@ -1,7 +1,7 @@
 import { Icon } from "@/components/icon";
-import { Button } from "@/ui/button";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/ui/form";
-import { Input } from "@/ui/input";
+import { Button } from "@/core/ui/button";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/core/ui/form";
+import { Input } from "@/core/ui/input";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { ReturnButton } from "./components/ReturnButton";

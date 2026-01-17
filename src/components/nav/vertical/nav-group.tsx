@@ -1,7 +1,7 @@
 import { Icon } from "@/components/icon";
-import useLocale from "@/locales/use-locale";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/ui/collapsible";
-import { cn } from "@/utils";
+import useLocale from "@/core/locales/use-locale";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/core/ui/collapsible";
+import { cn } from "@/core/utils";
 import { useToggle } from "react-use";
 import type { NavGroupProps } from "../types";
 import { NavList } from "./nav-list";

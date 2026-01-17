@@ -1,16 +1,15 @@
 import Icon from "@/components/icon/icon";
-import useLocale from "@/locales/use-locale";
-import { TooltipContent } from "@/ui/tooltip";
-import { Tooltip } from "@/ui/tooltip";
-import { TooltipTrigger } from "@/ui/tooltip";
-import { TooltipProvider } from "@/ui/tooltip";
-import { cn } from "@/utils";
+import useLocale from "@/core/locales/use-locale";
+import { TooltipContent } from "@/core/ui/tooltip";
+import { Tooltip } from "@/core/ui/tooltip";
+import { TooltipTrigger } from "@/core/ui/tooltip";
+import { TooltipProvider } from "@/core/ui/tooltip";
 import { NavItemRenderer } from "../components";
-import { navItemClasses, navItemStyles } from "../styles";
+import { navItemStyles } from "../styles";
 import type { NavItemProps } from "../types";
 
 export function NavItem(item: NavItemProps) {
-	const { title, icon, info, caption, open, active, disabled, depth, hasChild } = item;
+	const { title, icon, info, caption, open, hasChild } = item;
 	const { t } = useLocale();
 
 	const content = (
@@ -56,17 +55,8 @@ export function NavItem(item: NavItemProps) {
 		</>
 	);
 
-	const itemClassName = cn(
-		navItemClasses.base,
-		navItemClasses.hover,
-		"min-h-[44px]",
-		active && depth === 1 && navItemClasses.active,
-		active && depth !== 1 && "bg-action-hover!",
-		disabled && navItemClasses.disabled,
-	);
-
 	return (
-		<NavItemRenderer item={item} className={itemClassName}>
+		<NavItemRenderer item={item} className="min-h-[44px]">
 			{content}
 		</NavItemRenderer>
 	);
