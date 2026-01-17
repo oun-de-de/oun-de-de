@@ -1,4 +1,4 @@
-import type { NavItemDataProps } from "@/components/nav/types";
+import type { NavItemDataProps } from "@/core/components/nav/types";
 import { GLOBAL_CONFIG } from "@/global-config";
 import { useUserPermissions } from "@/core/store/userStore";
 import { checkAny } from "@/core/utils";

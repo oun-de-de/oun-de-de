@@ -1,5 +1,5 @@
 import type { TransactionRow } from "@/core/types/common";
-import { fNumber } from "@/utils/format-number";
+import { fNumber } from "@/core/utils/format-number";
 import type { ColumnDef } from "@tanstack/react-table";
 
 export const columns: ColumnDef<TransactionRow>[] = [

@@ -1,6 +1,6 @@
 import { DB_USER } from "@/_mock/assets_backup";
 import type { SignInReq } from "@/core/api/services/userService";
-import { Icon } from "@/components/icon";
+import { Icon } from "@/core/components/icon";
 import { GLOBAL_CONFIG } from "@/global-config";
 import { useSignIn } from "@/core/store/userStore";
 import { Button } from "@/core/ui/button";

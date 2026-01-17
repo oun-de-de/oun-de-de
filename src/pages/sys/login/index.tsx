@@ -1,6 +1,6 @@
 import PlaceholderImg from "@/assets/images/background/placeholder.svg";
-import LocalePicker from "@/components/locale-picker";
-import Logo from "@/components/logo";
+import LocalePicker from "@/core/components/locale-picker";
+import Logo from "@/core/components/logo";
 import { GLOBAL_CONFIG } from "@/global-config";
 import SettingButton from "@/layouts/components/setting-button";
 import { useUserToken } from "@/core/store/userStore";

@@ -1,9 +1,9 @@
-import Icon from "@/components/icon/icon";
+import Icon from "@/core/components/icon/icon";
 import { Button } from "@/core/ui/button";
 import { Card, CardContent } from "@/core/ui/card";
 import { Input } from "@/core/ui/input";
 import { Text } from "@/core/ui/typography";
-import { SmartDataTable } from "@/components/common";
+import { SmartDataTable } from "@/core/components/common";
 import { useState } from "react";
 import { settingsLeftMenu, settingsRows, settingsTopTabs } from "@/_mock/data/dashboard";
 import type { ColumnDef } from "@tanstack/react-table";

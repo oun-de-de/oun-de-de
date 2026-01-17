@@ -1,5 +1,5 @@
-import MotionContainer from "@/components/animate/motion-container";
-import { varBounce } from "@/components/animate/variants/bounce";
+import MotionContainer from "@/core/components/animate/motion-container";
+import { varBounce } from "@/core/components/animate/variants/bounce";
 import { GLOBAL_CONFIG } from "@/global-config";
 import { Button } from "@/core/ui/button";
 import { Text, Title } from "@/core/ui/typography";

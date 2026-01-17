@@ -1,7 +1,7 @@
-import { Icon } from "@/components/icon";
-import { Button } from "@/ui/button";
-import { Input } from "@/ui/input";
-import { ScrollArea, ScrollBar } from "@/ui/scroll-area";
+import { Icon } from "@/core/components/icon";
+import { Button } from "@/core/ui/button";
+import { Input } from "@/core/ui/input";
+import { ScrollArea, ScrollBar } from "@/core/ui/scroll-area";
 import {
 	DndContext,
 	type DragEndEvent,

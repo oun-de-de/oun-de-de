@@ -1,11 +1,11 @@
-import { Icon } from "@/components/icon";
+import { Icon } from "@/core/components/icon";
 import { Button } from "@/core/ui/button";
 import styled from "styled-components";
 
 export default function SettingButton() {
 	return (
 		<StyledButton variant="ghost" size="icon" className="rounded-full">
-					<Icon icon="solar:settings-outline" size={24} />
+			<Icon icon="solar:settings-outline" size={24} />
 		</StyledButton>
 	);
 }

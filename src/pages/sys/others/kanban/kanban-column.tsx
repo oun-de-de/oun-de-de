@@ -1,8 +1,8 @@
-import { Icon } from "@/components/icon";
+import { Icon } from "@/core/components/icon";
 import { useSettings } from "@/store/settingStore";
-import { Button } from "@/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/ui/dropdown-menu";
-import { Input } from "@/ui/input";
+import { Button } from "@/core/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/core/ui/dropdown-menu";
+import { Input } from "@/core/ui/input";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { faker } from "@faker-js/faker";

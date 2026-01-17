@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { DashboardSplitView } from "@/components/common/dashboard-split-view";
+import { DashboardSplitView } from "@/core/components/common/dashboard-split-view";
 import { useVendorsList, useVendorsListActions } from "@/core/store/vendorsListStore";
 import { vendorTransactions } from "@/_mock/data/dashboard";
-import { normalizeToken, buildPagination } from "@/utils/dashboard-utils";
+import { normalizeToken, buildPagination } from "@/core/utils/dashboard-utils";
 import { VendorSidebar } from "./components/vendor-sidebar";
 import { VendorContent } from "./components/vendor-content";
 

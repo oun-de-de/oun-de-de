@@ -1,9 +1,9 @@
-import { Icon } from "@/components/icon";
+import { Icon } from "@/core/components/icon";
 import { themeVars } from "@/theme/theme.css";
-import { Avatar, AvatarImage } from "@/ui/avatar";
-import { Button } from "@/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
-import { Sheet, SheetContent, SheetHeader } from "@/ui/sheet";
+import { Avatar, AvatarImage } from "@/core/ui/avatar";
+import { Button } from "@/core/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/ui/select";
+import { Sheet, SheetContent, SheetHeader } from "@/core/ui/sheet";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { type CSSProperties, memo, useState } from "react";

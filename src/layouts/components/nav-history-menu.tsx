@@ -1,4 +1,4 @@
-import { Icon } from "@/components/icon";
+import { Icon } from "@/core/components/icon";
 import { useFilteredNavData } from "@/layouts/dashboard/nav/nav-data/index";
 import { RouterLink } from "@/routes/components/router-link";
 import { useLocation, useNavigate } from "react-router";
@@ -65,7 +65,7 @@ export default function NavHistoryMenu() {
 		map.set("/dashboard/reports", "Reports");
 		map.set("/dashboard/settings", "Settings");
 		map.set("/dashboard/audit-log", "Audit Log");
-		
+
 		// Add nested routes that might be accessed
 		map.set("/dashboard/reports/customer-list", "Customer List Report");
 		map.set("/dashboard/reports/sale-detail-by-customer", "Sale Detail By Customer");
@@ -105,7 +105,7 @@ export default function NavHistoryMenu() {
 	// Update history when pathname changes
 	useEffect(() => {
 		const currentPath = location.pathname;
-		
+
 		// Only track dashboard routes
 		if (!currentPath.startsWith("/dashboard") && currentPath !== DEFAULT_DASHBOARD_PATH) {
 			return;
@@ -133,15 +133,12 @@ export default function NavHistoryMenu() {
 		localStorage.setItem("nav-history", JSON.stringify(history));
 	}, [history]);
 
-	const handleRemove = useCallback(
-		(path: string, e: React.MouseEvent) => {
-			e.preventDefault();
-			e.stopPropagation();
+	const handleRemove = useCallback((path: string, e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
 
-			setHistory((prev) => prev.filter((item) => item.path !== path));
-		},
-		[],
-	);
+		setHistory((prev) => prev.filter((item) => item.path !== path));
+	}, []);
 
 	const handleClick = useCallback(
 		(path: string) => {
@@ -177,10 +174,7 @@ export default function NavHistoryMenu() {
 									<StyledHistoryText $active={active}>{item.title}</StyledHistoryText>
 								</StyledHistoryLink>
 								{removable && (
-									<StyledRemoveButton
-										onClick={(e: React.MouseEvent) => handleRemove(item.path, e)}
-										aria-label="Remove"
-									>
+									<StyledRemoveButton onClick={(e: React.MouseEvent) => handleRemove(item.path, e)} aria-label="Remove">
 										<Icon icon="lucide:x" size={14} />
 									</StyledRemoveButton>
 								)}
@@ -238,8 +232,7 @@ const StyledHistoryItem = styled.div<{ $active: boolean }>`
 	flex-shrink: 0;
 	border-radius: 4px;
 	border: 1px solid ${({ theme }) => theme.colors.palette.gray[300]};
-	background-color: ${({ theme, $active }) =>
-		$active ? "#2065D1" : theme.colors.common.white};
+	background-color: ${({ theme, $active }) => ($active ? "#2065D1" : theme.colors.common.white)};
 
 	&:hover {
 		background-color: ${({ theme, $active }) => ($active ? "" : theme.colors.palette.gray[200])};
@@ -255,8 +248,7 @@ const StyledHistoryLink = styled(RouterLink as any)<{ $active: boolean }>`
 	text-decoration: none;
 	transition: all 0.2s ease;
 	white-space: nowrap;
-	background-color: ${({ theme, $active }) =>
-		$active ? "#2065D1" : theme.colors.palette.gray[100]};
+	background-color: ${({ theme, $active }) => ($active ? "#2065D1" : theme.colors.palette.gray[100])};
 	color: ${({ theme, $active }) => ($active ? theme.colors.common.white : theme.colors.palette.gray[700])};
 	font-size: 0.875rem;
 	font-weight: ${({ $active }) => ($active ? 500 : 400)};

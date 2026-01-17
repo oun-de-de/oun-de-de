@@ -1,7 +1,7 @@
-import { Icon } from "@/components/icon";
-import Logo from "@/components/logo";
-import { NavVertical } from "@/components/nav";
-import type { NavProps } from "@/components/nav/types";
+import { Icon } from "@/core/components/icon";
+import Logo from "@/core/components/logo";
+import { NavVertical } from "@/core/components/nav";
+import type { NavProps } from "@/core/components/nav/types";
 import { GLOBAL_CONFIG } from "@/global-config";
 import { Button } from "@/core/ui/button";
 import { ScrollArea } from "@/core/ui/scroll-area";

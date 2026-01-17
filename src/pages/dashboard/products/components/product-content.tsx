@@ -1,7 +1,7 @@
-import Icon from "@/components/icon/icon";
+import Icon from "@/core/components/icon/icon";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
-import { SmartDataTable, SummaryStatCard } from "@/components/common";
+import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
 import type { ColumnDef } from "@tanstack/react-table";
 import { productList, productSummaryCards } from "@/_mock/data/dashboard";
 import type { ProductRow } from "@/core/types/common";

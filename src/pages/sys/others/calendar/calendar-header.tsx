@@ -1,8 +1,8 @@
-import { Icon } from "@/components/icon";
+import { Icon } from "@/core/components/icon";
 import { up } from "@/hooks";
 import { useMediaQuery } from "@/hooks";
-import { Button } from "@/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/ui/dropdown-menu";
+import { Button } from "@/core/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/core/ui/dropdown-menu";
 import dayjs from "dayjs";
 import { type ReactNode, useMemo } from "react";
 

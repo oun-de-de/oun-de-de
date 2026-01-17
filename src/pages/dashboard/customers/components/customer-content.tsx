@@ -1,6 +1,6 @@
 import { customerList, customerSummaryCards } from "@/_mock/data/dashboard";
-import { SmartDataTable, SummaryStatCard } from "@/components/common";
-import Icon from "@/components/icon/icon";
+import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
+import Icon from "@/core/components/icon/icon";
 import type { TransactionRow } from "@/core/types/common";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";

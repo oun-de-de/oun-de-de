@@ -1,4 +1,4 @@
-import Icon from "@/components/icon/icon";
+import Icon from "@/core/components/icon/icon";
 import { Button } from "@/core/ui/button";
 import { Card, CardContent } from "@/core/ui/card";
 import { Text } from "@/core/ui/typography";

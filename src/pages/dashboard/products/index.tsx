@@ -1,8 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
-import { DashboardSplitView } from "@/components/common/dashboard-split-view";
+import { DashboardSplitView } from "@/core/components/common/dashboard-split-view";
 import { useProductsList, useProductsListActions } from "@/core/store/productsListStore";
 import { productRows as transactions } from "@/_mock/data/dashboard";
-import { normalizeToken, buildPagination } from "@/utils/dashboard-utils";
+import { normalizeToken, buildPagination } from "@/core/utils/dashboard-utils";
 import { ProductSidebar } from "./components/product-sidebar";
 import { ProductContent } from "./components/product-content";
 

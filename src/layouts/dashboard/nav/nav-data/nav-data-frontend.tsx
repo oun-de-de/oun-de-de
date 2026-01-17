@@ -1,5 +1,5 @@
-import { Icon } from "@/components/icon";
-import type { NavProps } from "@/components/nav";
+import { Icon } from "@/core/components/icon";
+import type { NavProps } from "@/core/components/nav";
 
 export const frontendNavData: NavProps["data"] = [
 	{
@@ -101,19 +101,11 @@ export const frontendNavData: NavProps["data"] = [
 export const newActions = [
 	{
 		title: "Customers",
-		items: [
-			{ title: "Create Cash Sale" },
-			{ title: "Create Invoice" },
-			{ title: "Create Receipt" },
-		],
+		items: [{ title: "Create Cash Sale" }, { title: "Create Invoice" }, { title: "Create Receipt" }],
 	},
 	{
 		title: "Vendors",
-		items: [
-			{ title: "Create Cash Purchase" },
-			{ title: "Create Bill" },
-			{ title: "Create Payment" },
-		],
+		items: [{ title: "Create Cash Purchase" }, { title: "Create Bill" }, { title: "Create Payment" }],
 	},
 	{
 		title: "Accounting",

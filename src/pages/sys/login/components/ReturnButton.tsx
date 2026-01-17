@@ -1,4 +1,4 @@
-import { Icon } from "@/components/icon";
+import { Icon } from "@/core/components/icon";
 import { Button } from "@/core/ui/button";
 import { useTranslation } from "react-i18next";
 

@@ -1,9 +1,16 @@
-import { Icon } from "@/components/icon";
+import { Icon } from "@/core/components/icon";
 import useLocale from "@/core/locales/use-locale";
 import { useRouter } from "@/routes/hooks";
 import { Badge } from "@/core/ui/badge";
 import { Button } from "@/core/ui/button";
-import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandSeparator } from "@/core/ui/command";
+import {
+	CommandDialog,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandSeparator,
+} from "@/core/ui/command";
 import { ScrollArea } from "@/core/ui/scroll-area";
 import { Text } from "@/core/ui/typography";
 import { useCallback, useEffect, useMemo, useState } from "react";

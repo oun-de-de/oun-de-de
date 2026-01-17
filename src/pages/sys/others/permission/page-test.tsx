@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/ui/card";
 import { faker } from "@faker-js/faker";
 
 export default function PermissionPageTest() {

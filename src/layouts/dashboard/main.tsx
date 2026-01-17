@@ -1,5 +1,5 @@
-import { AuthGuard } from "@/components/auth/auth-guard";
-import { LineLoading } from "@/components/loading";
+import { AuthGuard } from "@/core/components/auth/auth-guard";
+import { LineLoading } from "@/core/components/loading";
 import { GLOBAL_CONFIG } from "@/global-config";
 import Page403 from "@/pages/sys/error/Page403";
 import { useSettings } from "@/core/store/settingStore";
@@ -36,15 +36,10 @@ const Main = () => {
 		<AuthGuard checkAny={currentNavAuth} fallback={<Page403 />}>
 			<main
 				data-slot="slash-layout-main"
-				className={cn(
-					"flex-auto w-full flex flex-col",
-					"transition-[max-width] duration-300 ease-in-out",
-					"mx-auto",
-					{
-						"max-w-full": themeStretch,
-						"4xl:max-w-screen-4xl": !themeStretch,
-					},
-				)}
+				className={cn("flex-auto w-full flex flex-col", "transition-[max-width] duration-300 ease-in-out", "mx-auto", {
+					"max-w-full": themeStretch,
+					"4xl:max-w-screen-4xl": !themeStretch,
+				})}
 				style={{
 					willChange: "max-width",
 					padding: "14px",

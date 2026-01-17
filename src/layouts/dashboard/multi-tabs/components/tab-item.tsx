@@ -1,4 +1,4 @@
-import { Icon } from "@/components/icon";
+import { Icon } from "@/core/components/icon";
 import { Dropdown, type MenuProps } from "antd";
 import { useTranslation } from "react-i18next";
 import { MultiTabOperation } from "@/core/types/enum";

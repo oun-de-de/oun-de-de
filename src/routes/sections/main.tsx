@@ -1,4 +1,4 @@
-import { LineLoading } from "@/components/loading";
+import { LineLoading } from "@/core/components/loading";
 import SimpleLayout from "@/layouts/simple";
 import { Suspense, lazy } from "react";
 import { Outlet, type RouteObject } from "react-router";

@@ -1,4 +1,4 @@
-import type { NavItemDataProps } from "@/components/nav/types";
+import type { NavItemDataProps } from "@/core/components/nav/types";
 import type { BasicStatus, PermissionType } from "./enum";
 
 export interface UserToken {

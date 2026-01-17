@@ -1,6 +1,6 @@
 import { DB_MENU } from "@/_mock/assets_backup";
-import { Icon } from "@/components/icon";
-import type { NavItemDataProps, NavProps } from "@/components/nav";
+import { Icon } from "@/core/components/icon";
+import type { NavItemDataProps, NavProps } from "@/core/components/nav";
 import type { MenuTree } from "@/core/types/entity";
 import { Badge } from "@/core/ui/badge";
 import { convertFlatToTree } from "@/core/utils/tree";
@@ -34,19 +34,11 @@ export const backendNavData: NavProps["data"] = convert(convertFlatToTree(DB_MEN
 export const newActions = [
 	{
 		title: "Customers",
-		items: [
-			{ title: "Create Cash Sale" },
-			{ title: "Create Invoice" },
-			{ title: "Create Receipt" },
-		],
+		items: [{ title: "Create Cash Sale" }, { title: "Create Invoice" }, { title: "Create Receipt" }],
 	},
 	{
 		title: "Vendors",
-		items: [
-			{ title: "Create Cash Purchase" },
-			{ title: "Create Bill" },
-			{ title: "Create Payment" },
-		],
+		items: [{ title: "Create Cash Purchase" }, { title: "Create Bill" }, { title: "Create Payment" }],
 	},
 	{
 		title: "Accounting",

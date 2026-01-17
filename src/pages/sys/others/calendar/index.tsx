@@ -1,6 +1,6 @@
 import { down, useMediaQuery } from "@/hooks";
 import { useSettings } from "@/store/settingStore";
-import { Card, CardContent } from "@/ui/card";
+import { Card, CardContent } from "@/core/ui/card";
 import { faker } from "@faker-js/faker";
 import type { DateSelectArg, EventClickArg, EventInput } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";

@@ -1,4 +1,4 @@
-import { Icon } from "@/components/icon";
+import { Icon } from "@/core/components/icon";
 import { useSettings } from "@/core/store/settingStore";
 import { useUserActions, useUserInfo } from "@/core/store/userStore";
 import { ThemeLayout } from "@/core/types/enum";
@@ -38,9 +38,7 @@ export function NavVerticalFooter() {
 					{avatar ? (
 						<StyledAvatar src={avatar} alt={username} />
 					) : (
-						<StyledAvatarPlaceholder>
-							{username?.[0]?.toUpperCase() || "U"}
-						</StyledAvatarPlaceholder>
+						<StyledAvatarPlaceholder>{username?.[0]?.toUpperCase() || "U"}</StyledAvatarPlaceholder>
 					)}
 					<StyledUserInfo>
 						<StyledUsername>{username}</StyledUsername>

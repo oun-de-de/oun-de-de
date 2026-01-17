@@ -1,8 +1,8 @@
-import Icon from "@/components/icon/icon";
+import Icon from "@/core/components/icon/icon";
 import { Button } from "@/core/ui/button";
 import { Input } from "@/core/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/ui/select";
-import { EntityListItem } from "@/components/common";
+import { EntityListItem } from "@/core/components/common";
 import { vendorList } from "@/_mock/data/dashboard";
 
 type VendorSidebarProps = {
