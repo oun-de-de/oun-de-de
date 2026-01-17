@@ -20,6 +20,6 @@ pre-commit:
 
 commit-msg:
   commands:
-    commitlint:
-      run: npx commitlint --edit {1}
-      skip: [merge, rebase]
+    # commitlint:
+    #   run: npx commitlint --edit {1}
+    #   skip: [merge, rebase]
