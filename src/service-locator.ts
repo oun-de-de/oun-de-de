@@ -553,5 +553,8 @@ function repositoryRegister(): void {
 	});
 }
 
+// Register services automatically
+repositoryRegister();
+
 export default Repository;
 export { repositoryRegister };
