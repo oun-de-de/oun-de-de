@@ -1,6 +1,7 @@
 import { ReactNode, createContext, useContext, useEffect, useRef } from "react";
 import type { createBoundStore } from "../utils/create-bound-store";
 import { createTaggedLogger } from "../utils/logger";
+import { isInitAble } from "../types/init-able";
 
 const logger = createTaggedLogger("StoreProvider");
 
@@ -50,6 +51,26 @@ export function StoreProvider<T extends ReturnType<typeof createBoundStore>>({
 	useEffect(() => {
 		storeRef.current = store;
 		logger.info("Store provider initialized");
+
+		// Initialize actions that implement InitAble
+		try {
+			const storeApi = store.getStoreApi();
+			const state = storeApi.getState();
+			const actions = state.actions;
+
+			// Check if actions object implements InitAble
+			if (isInitAble(actions)) {
+				logger.info("Initializing store");
+				const result = actions.initialize();
+				if (result instanceof Promise) {
+					result.catch((error) => {
+						logger.error("Error initializing store:", error);
+					});
+				}
+			}
+		} catch (error) {
+			logger.error("Error initializing store:", error);
+		}
 	}, [store]);
 
 	return <SingleStoreContext.Provider value={storeRef.current}>{children}</SingleStoreContext.Provider>;
