@@ -31,10 +31,8 @@ export const createDailyIncomeAccountingStore = ({ accountingRepo }: Deps) =>
 		state: DailyIncomeAccountingInitialState(),
 		actions: {
 			async fetch(id: FilterData) {
-				const currentState = get().state;
-
 				set({
-					state: DailyIncomeAccountingLoadFirstLoadingState(currentState, id),
+					state: DailyIncomeAccountingLoadFirstLoadingState(get().state, id),
 				});
 
 				const result = await new GetIncomeAccountingListUseCase(accountingRepo).getIncomeAccountingList(id);
@@ -42,12 +40,12 @@ export const createDailyIncomeAccountingStore = ({ accountingRepo }: Deps) =>
 				result.fold(
 					(failure) => {
 						set({
-							state: DailyIncomeAccountingLoadFirstErrorState(currentState, failure),
+							state: DailyIncomeAccountingLoadFirstErrorState(get().state, failure),
 						});
 					},
 					(list) => {
 						set({
-							state: DailyIncomeAccountingLoadFirstSuccessState(currentState, list),
+							state: DailyIncomeAccountingLoadFirstSuccessState(get().state, list),
 						});
 					},
 				);

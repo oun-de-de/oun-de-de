@@ -29,10 +29,8 @@ export const createCustomerInfoStore = ({ customerRepo }: Deps) =>
 		state: CustomerInfoInitialState(),
 		actions: {
 			async fetch() {
-				const currentState = get().state;
-
 				set({
-					state: CustomerInfoLoadFirstLoadingState(currentState),
+					state: CustomerInfoLoadFirstLoadingState(get().state),
 				});
 
 				const result = await new GetCustomerInfoUseCase(customerRepo).getCustomerInfo();
@@ -40,12 +38,12 @@ export const createCustomerInfoStore = ({ customerRepo }: Deps) =>
 				result.fold(
 					(failure) => {
 						set({
-							state: CustomerInfoLoadFirstErrorState(currentState, failure),
+							state: CustomerInfoLoadFirstErrorState(get().state, failure),
 						});
 					},
 					(list) => {
 						set({
-							state: CustomerInfoLoadFirstSuccessState(currentState, list),
+							state: CustomerInfoLoadFirstSuccessState(get().state, list),
 						});
 					},
 				);

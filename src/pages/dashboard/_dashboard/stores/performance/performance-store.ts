@@ -29,21 +29,19 @@ export const createPerformanceStore = ({ performanceRepo }: Deps) =>
 		state: PerformanceInitialState(),
 		actions: {
 			async fetch() {
-				const currentState = get().state;
-
-				set({ state: PerformanceLoadFirstLoadingState(currentState) });
+				set({ state: PerformanceLoadFirstLoadingState(get().state) });
 
 				const result = await new GetPerformanceUseCase(performanceRepo).getPerformance();
 
 				result.fold(
 					(failure) => {
 						set({
-							state: PerformanceLoadFirstErrorState(currentState, failure),
+							state: PerformanceLoadFirstErrorState(get().state, failure),
 						});
 					},
 					(list) => {
 						set({
-							state: PerformanceLoadFirstSuccessState(currentState, list),
+							state: PerformanceLoadFirstSuccessState(get().state, list),
 						});
 					},
 				);

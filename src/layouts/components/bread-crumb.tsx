@@ -57,7 +57,7 @@ export default function BreadCrumb({ maxItems = 3 }: BreadCrumbProps) {
 	const breadCrumbs = useMemo(() => {
 		const dashboardItem: BreadcrumbItemData = {
 			key: "/",
-			label: t("Dashboard"),
+			label: "Dashboard",
 			items: [],
 		};
 
@@ -74,12 +74,12 @@ export default function BreadCrumb({ maxItems = 3 }: BreadCrumbProps) {
 				const children =
 					currentItem.children?.map((child) => ({
 						key: child.path,
-						label: t(child.title),
+						label: child.title,
 					})) ?? [];
 
 				return {
 					key: currentItem.path,
-					label: t(currentItem.title),
+					label: currentItem.title,
 					items: children,
 				};
 			})

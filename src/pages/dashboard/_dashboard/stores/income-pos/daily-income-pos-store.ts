@@ -29,13 +29,10 @@ type Deps = {
 export const createDailyIncomePosStore = ({ posRepo }: Deps) =>
 	create<DailyIncomePosStore>((set, get) => ({
 		state: DailyIncomePosInitialState(),
-
 		actions: {
 			async fetch(id: FilterData) {
-				const currentState = get().state;
-
 				set({
-					state: DailyIncomePosLoadFirstLoadingState(currentState, id),
+					state: DailyIncomePosLoadFirstLoadingState(get().state, id),
 				});
 
 				const result = await new GetIncomePosListUseCase(posRepo).getIncomePosList(id);
@@ -43,12 +40,12 @@ export const createDailyIncomePosStore = ({ posRepo }: Deps) =>
 				result.fold(
 					(failure) => {
 						set({
-							state: DailyIncomePosLoadFirstErrorState(currentState, failure),
+							state: DailyIncomePosLoadFirstErrorState(get().state, failure),
 						});
 					},
 					(list) => {
 						set({
-							state: DailyIncomePosLoadFirstSuccessState(currentState, list),
+							state: DailyIncomePosLoadFirstSuccessState(get().state, list),
 						});
 					},
 				);
