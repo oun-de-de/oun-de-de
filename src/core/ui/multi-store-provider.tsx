@@ -2,6 +2,7 @@ import { ReactNode, createContext, useContext, useEffect, useRef } from "react";
 import type { createBoundStore } from "../utils/create-bound-store";
 import { createTaggedLogger } from "../utils/logger";
 import { BaseStore } from "../types/base-store";
+import { isInitAble } from "../types/init-able";
 
 const logger = createTaggedLogger("MultiStoreProvider");
 
@@ -75,6 +76,28 @@ export function MultiStoreProvider({ stores, children }: MultiStoreProviderProps
 		storeRegistryRef.current = buildRegistry(stores);
 		const keys = Array.from(storeRegistryRef.current.keys());
 		logger.info(`Registered ${keys.length} stores:`, keys);
+
+		// Initialize actions that implement InitAble
+		stores.forEach((config) => {
+			try {
+				const storeApi = config.store.getStoreApi();
+				const state = storeApi.getState();
+				const actions = state.actions;
+
+				// Check if actions object implements InitAble
+				if (isInitAble(actions)) {
+					logger.info(`Initializing store "${config.name}"`);
+					const result = actions.initialize();
+					if (result instanceof Promise) {
+						result.catch((error) => {
+							logger.error(`Error initializing store "${config.name}":`, error);
+						});
+					}
+				}
+			} catch (error) {
+				logger.error(`Error initializing store "${config.name}":`, error);
+			}
+		});
 	}, [stores]);
 
 	// Auto-subscribe to stores with onStateChange callback

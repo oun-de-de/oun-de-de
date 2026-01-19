@@ -6,10 +6,5 @@ export interface InitAble {
 }
 
 export function isInitAble(obj: unknown): obj is InitAble {
-	return (
-		typeof obj === "object" &&
-		obj !== null &&
-		"initialize" in (obj as any) &&
-		typeof (obj as any).initialize === "function"
-	);
+	return typeof obj === "object" && obj !== null && "initialize" in obj && typeof obj.initialize === "function";
 }
