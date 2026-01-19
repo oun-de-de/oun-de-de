@@ -8,7 +8,8 @@ import {
 	DashboardRepositoryImpl,
 } from "../../../../core/domain/dashboard/repositories/dashboard-repository";
 import { useObservable } from "react-use";
-import { useDailyIncomePosActions, useDailyIncomePosState } from "../stores/income-pos/daily-income-pos-store";
+import { DailyIncomePosStore } from "../stores/income-pos/daily-income-pos-store";
+import { useStore } from "@/core/ui/multi-store-provider";
 import Repository from "@/service-locator";
 
 export default function DashboardIncomePos() {
@@ -16,8 +17,9 @@ export default function DashboardIncomePos() {
 
 	const filter = useObservable(repo.selectedFilter$, repo.getSelectedFilter());
 
-	const state = useDailyIncomePosState();
-	const { fetch } = useDailyIncomePosActions();
+	const { useState, useAction } = useStore<DailyIncomePosStore>("dailyIncomePos");
+	const state = useState();
+	const { fetch } = useAction();
 
 	useEffect(() => {
 		if (!filter) return;

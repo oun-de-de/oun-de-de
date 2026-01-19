@@ -1,15 +1,16 @@
-
 import { useEffect } from "react";
 import { styled } from "styled-components";
 import { rgbAlpha } from "@/core/utils/theme";
-import { usePerformanceActions, usePerformanceState } from "../stores/performance/performance-store";
 import PerformanceCard, { PerformanceLoadingCard } from "./card/performance-card";
 import { ErrorState, isErrorState, isLoadingState } from "@/core/types/state";
+import { useStore } from "@/core/ui/multi-store-provider";
+import { PerformanceStore } from "../stores/performance/performance-store";
 
 export default function DashboardPerformance() {
-	const state = usePerformanceState();
+	const { useState, useAction } = useStore<PerformanceStore>("performance");
+	const state = useState();
 
-	const { fetch } = usePerformanceActions();
+	const { fetch } = useAction();
 
 	useEffect(() => {
 		void fetch();
@@ -22,9 +23,7 @@ export default function DashboardPerformance() {
 	if (isErrorState(state)) {
 		const errorState = state as ErrorState;
 		return (
-			<div className="flex h-[120px] items-center justify-center text-sm text-red-500">
-				{errorState.error.message}
-			</div>
+			<div className="flex h-[120px] items-center justify-center text-sm text-red-500">{errorState.error.message}</div>
 		);
 	}
 

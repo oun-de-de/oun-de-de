@@ -4,15 +4,13 @@ import {
 	DashboardRepositoryImpl,
 } from "../../../../core/domain/dashboard/repositories/dashboard-repository";
 import { useObservable } from "react-use";
-import {
-	useDailyIncomeAccountingActions,
-	useDailyIncomeAccountingState,
-} from "../stores/income-accounting/daily-income-accounting-store";
 import { ErrorState, isErrorState } from "@/core/types/state";
 import ReactApexChart from "react-apexcharts";
 import { styled } from "styled-components";
 import { rgbAlpha } from "@/core/utils/theme";
 import Repository from "@/service-locator";
+import { useStore } from "@/core/ui/multi-store-provider";
+import { DailyIncomeAccountingStore } from "../stores/income-accounting/daily-income-accounting-store";
 
 export default function DashboardIncomeAccounting() {
 	const repo = Repository.get<DashboardRepository>(DashboardRepositoryImpl, {
@@ -21,8 +19,9 @@ export default function DashboardIncomeAccounting() {
 
 	const filter = useObservable(repo.selectedFilter$, repo.getSelectedFilter());
 
-	const state = useDailyIncomeAccountingState();
-	const { fetch } = useDailyIncomeAccountingActions();
+	const { useState, useAction } = useStore<DailyIncomeAccountingStore>("dailyIncomeAccounting");
+	const state = useState();
+	const { fetch } = useAction();
 
 	useEffect(() => {
 		if (!filter) return;
