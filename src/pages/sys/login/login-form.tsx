@@ -1,13 +1,12 @@
 import { DB_USER } from "@/_mock/assets_backup";
 import type { SignInReq } from "@/core/api/services/userService";
-import { Icon } from "@/core/components/icon";
-import { GLOBAL_CONFIG } from "@/global-config";
 import { useSignIn } from "@/core/store/userStore";
 import { Button } from "@/core/ui/button";
 import { Checkbox } from "@/core/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/core/ui/form";
 import { Input } from "@/core/ui/input";
 import { cn } from "@/core/utils";
+import { GLOBAL_CONFIG } from "@/global-config";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -113,7 +112,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 					</Button>
 
 					{/* 手机登录/二维码登录 */}
-					<div className="grid gap-4 sm:grid-cols-2">
+					{/* <div className="grid gap-4 sm:grid-cols-2">
 						<Button variant="outline" className="w-full" onClick={() => setLoginState(LoginStateEnum.MOBILE)}>
 							<Icon icon="uil:mobile-android" size={20} />
 							{t("sys.login.mobileSignInFormTitle")}
@@ -122,10 +121,10 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 							<Icon icon="uil:qrcode-scan" size={20} />
 							{t("sys.login.qrSignInFormTitle")}
 						</Button>
-					</div>
+					</div> */}
 
 					{/* 其他登录方式 */}
-					<div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+					{/* <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
 						<span className="relative z-10 bg-background px-2 text-muted-foreground">{t("sys.login.otherSignIn")}</span>
 					</div>
 					<div className="flex cursor-pointer justify-around text-2xl">
@@ -138,15 +137,15 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 						<Button variant="ghost" size="icon">
 							<Icon icon="ant-design:google-circle-filled" size={24} />
 						</Button>
-					</div>
+					</div> */}
 
 					{/* 注册 */}
-					<div className="text-center text-sm">
+					{/* <div className="text-center text-sm">
 						{t("sys.login.noAccount")}
 						<Button variant="link" className="px-1" onClick={() => setLoginState(LoginStateEnum.REGISTER)}>
 							{t("sys.login.signUpFormTitle")}
 						</Button>
-					</div>
+					</div> */}
 				</form>
 			</Form>
 		</div>
