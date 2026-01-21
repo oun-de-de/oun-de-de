@@ -1,4 +1,4 @@
-import { AuthAccount } from "@auth-service";
+import type { AuthAccount } from "@auth-service";
 import type { UserInfo } from "@/core/types/entity";
 
 /**
@@ -16,84 +16,89 @@ export interface AppUserData {
 	status?: UserInfo["status"];
 }
 
-export class AppAuthAccount extends AuthAccount {
-	private get userData(): AppUserData | undefined {
-		return this.data?.data as AppUserData | undefined;
-	}
+/**
+ * Application auth account type
+ */
+export type AppAuthAccount = AuthAccount<AppUserData>;
+
+/**
+ * Helper functions for AppAuthAccount
+ */
+export const AppAuthAccountHelpers = {
 	/**
 	 * Get user ID
 	 */
-	get userId(): string {
-		return this.userData?.id ?? "";
-	}
+	getUserId(account: AppAuthAccount): string {
+		return account.data?.data?.id ?? "";
+	},
 
 	/**
 	 * Get username
 	 */
-	get username(): string {
-		return this.userData?.username ?? "";
-	}
+	getUsername(account: AppAuthAccount): string {
+		return account.data?.data?.username ?? "";
+	},
 
 	/**
 	 * Get email
 	 */
-	get email(): string | undefined {
-		return this.userData?.email;
-	}
+	getEmail(account: AppAuthAccount): string | undefined {
+		return account.data?.data?.email;
+	},
 
 	/**
 	 * Get phone number
 	 */
-	get phoneNumber(): string | undefined {
-		return this.userData?.phoneNumber;
-	}
+	getPhoneNumber(account: AppAuthAccount): string | undefined {
+		return account.data?.data?.phoneNumber;
+	},
 
 	/**
 	 * Get avatar URL
 	 */
-	get avatar(): string | undefined {
-		return this.userData?.avatar;
-	}
+	getAvatar(account: AppAuthAccount): string | undefined {
+		return account.data?.data?.avatar;
+	},
 
 	/**
 	 * Get user roles
 	 */
-	get roles(): string[] {
-		return this.userData?.roles ?? [];
-	}
+	getRoles(account: AppAuthAccount): string[] {
+		return account.data?.data?.roles ?? [];
+	},
 
 	/**
 	 * Get user permissions
 	 */
-	get permissions(): string[] {
-		return this.userData?.permissions ?? [];
-	}
+	getPermissions(account: AppAuthAccount): string[] {
+		return account.data?.data?.permissions ?? [];
+	},
 
 	/**
 	 * Check if user has specific role
 	 */
-	hasRole(role: string): boolean {
-		return this.roles.includes(role);
-	}
+	hasRole(account: AppAuthAccount, role: string): boolean {
+		return this.getRoles(account).includes(role);
+	},
 
 	/**
 	 * Check if user has specific permission
 	 */
-	hasPermission(permission: string): boolean {
-		return this.permissions.includes(permission);
-	}
+	hasPermission(account: AppAuthAccount, permission: string): boolean {
+		return this.getPermissions(account).includes(permission);
+	},
 
 	/**
 	 * Check if user has any of the specified roles
 	 */
-	hasAnyRole(roles: string[]): boolean {
-		return roles.some((role) => this.hasRole(role));
-	}
+	hasAnyRole(account: AppAuthAccount, roles: string[]): boolean {
+		return roles.some((role) => this.hasRole(account, role));
+	},
 
 	/**
 	 * Check if user has any of the specified permissions
 	 */
-	hasAnyPermission(permissions: string[]): boolean {
-		return permissions.some((permission) => this.hasPermission(permission));
-	}
-}
+	hasAnyPermission(account: AppAuthAccount, permissions: string[]): boolean {
+		return permissions.some((permission) => this.hasPermission(account, permission));
+	},
+};

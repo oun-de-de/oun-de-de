@@ -37,12 +37,12 @@ export class UsernameAuthCredential extends AuthCredential {
 /**
  * Username authentication provider
  */
-export abstract class UsernameAuthProvider extends AuthProvider {
+export abstract class UsernameAuthProvider<D = unknown> extends AuthProvider<D> {
 	constructor(config: { providerId: string }) {
 		super(config.providerId);
 	}
 
-	abstract login(credential: UsernameAuthCredential): Promise<AuthLoginDTO>;
+	abstract login(credential: UsernameAuthCredential): Promise<AuthLoginDTO<D>>;
 
-	abstract loginWithAuthToken(token: AuthToken): Promise<AuthLoginDTO>;
+	abstract loginWithAuthToken(token: AuthToken): Promise<AuthLoginDTO<D>>;
 }

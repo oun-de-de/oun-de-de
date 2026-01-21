@@ -1,33 +1,37 @@
-import type { AuthAccountMapper, AuthLoginDTO, AuthProvider, AuthCredential } from "@auth-service";
-import { AppAuthAccount } from "../models/app-auth-account";
-import { AuthenticationStatus, AccountStatus, AuthAccountData, JWTToken, RefreshToken } from "@auth-service";
+import type { AuthAccountMapper, AuthLoginDTO, AuthProvider, AuthCredential, AuthAccount } from "@auth-service";
+import { AuthenticationStatus, AccountStatus, JWTToken, RefreshToken, createAuthAccount } from "@auth-service";
+import type { AppUserData } from "../models/app-auth-account";
+
+/**
+ * Expected structure of login response data
+ */
+export interface LoginResponseData {
+	accessToken: string;
+	refreshToken: string;
+	user: AppUserData;
+}
 
 /**
  * Mapper for converting AuthLoginDTO to AppAuthAccount
  */
-export class AppAuthAccountMapper implements AuthAccountMapper<AppAuthAccount> {
-	fromLogin(dto: AuthLoginDTO, provider: AuthProvider, credential: AuthCredential | null): AppAuthAccount {
+export class AppAuthAccountMapper
+	implements AuthAccountMapper<AuthAccount<AppUserData>, AppUserData, LoginResponseData>
+{
+	fromLogin(
+		dto: AuthLoginDTO<LoginResponseData>,
+		provider?: AuthProvider<LoginResponseData>,
+		credential?: AuthCredential | null,
+	): AuthAccount<AppUserData> {
 		const data = dto.data;
 
-		// Validate required fields
-		if (!data.accessToken) {
-			throw new Error("AccessToken is required in login response");
-		}
-		if (!data.refreshToken) {
-			throw new Error("RefreshToken is required in login response");
-		}
-		if (!data.user) {
-			throw new Error("User data is required in login response");
-		}
-
-		return new AppAuthAccount(
-			AuthenticationStatus.Authenticated,
-			AccountStatus.Registered,
-			provider.providerId,
-			credential?.identity ?? null,
-			JWTToken.fromValue(data.accessToken),
-			new RefreshToken(data.refreshToken),
-			new AuthAccountData(data.user),
-		);
+		return createAuthAccount<AppUserData>({
+			authStatus: AuthenticationStatus.Authenticated,
+			accountStatus: AccountStatus.Registered,
+			providerId: provider?.providerId ?? null,
+			identity: credential?.identity ?? null,
+			accessToken: JWTToken.fromValue(data.accessToken),
+			refreshToken: new RefreshToken(data.refreshToken),
+			data: { data: data.user },
+		});
 	}
 }

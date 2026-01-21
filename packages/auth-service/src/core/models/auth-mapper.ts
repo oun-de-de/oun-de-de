@@ -1,24 +1,24 @@
 import { AuthLoginDTO, AuthOtpDTO } from "./auth-dto";
 import { AuthAccount } from "./auth-account";
 import { AuthProvider, AuthCredential } from "../providers";
-import type { PhoneAuthOtp } from "./phone-auth-otp";
+import { PhoneAuthOtp } from "./phone-auth-otp";
 
 /**
  * Mapper interface for converting DTOs to AuthAccount
  */
-export interface AuthAccountMapper<T extends AuthAccount> {
+export type AuthAccountMapper<T extends AuthAccount<TData>, TData = unknown, DtoData = unknown> = {
 	/**
-	 * Convert login DTO to AuthAccount
+	 * Get auth account from login DTO
 	 */
-	fromLogin(dto: AuthLoginDTO, provider: AuthProvider, credential: AuthCredential | null): T;
-}
+	fromLogin(dto: AuthLoginDTO<DtoData>, provider?: AuthProvider<DtoData>, credential?: AuthCredential | null): T;
+};
 
 /**
- * Mapper interface for phone OTP
+ * Mapper interface for phone auth OTP
  */
-export interface PhoneOtpMapper {
+export type PhoneOtpMapper<D = unknown> = {
 	/**
-	 * Get phone auth OTP from request OTP DTO
+	 * Get phone auth OTP from OTP DTO
 	 */
-	fromRequestOtp(dto: AuthOtpDTO, provider?: AuthProvider, credential?: AuthCredential): PhoneAuthOtp;
-}
+	fromRequestOtp(dto: AuthOtpDTO<D>, provider?: AuthProvider<D>, credential?: AuthCredential | null): PhoneAuthOtp<D>;
+};

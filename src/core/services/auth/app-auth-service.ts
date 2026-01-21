@@ -1,6 +1,7 @@
 import { AuthService } from "@auth-service";
 import type { AuthProviderManagerPlatform, AuthLocalStoragePlatform, AuthAccountMapper } from "@auth-service";
-import { AppAuthAccount } from "./models/app-auth-account";
+import type { AppAuthAccount, AppUserData } from "./models/app-auth-account";
+import { AppAuthAccountHelpers } from "./models/app-auth-account";
 import { AppAuthProviderManager } from "./providers/provider-manager";
 import { AppAuthAccountMapper } from "./mappers/account-mapper";
 import { AuthLocalStorageAdapter } from "./adapters/local-storage-adapter";
@@ -76,7 +77,39 @@ export class AppAuthService extends AuthService<AppAuthAccount> {
 	/**
 	 * Get current user info
 	 */
-	getUserInfo() {
+	getUserInfo(): AppUserData | null {
 		return this.getCurrentUser()?.data?.data ?? null;
+	}
+
+	/**
+	 * Get user ID
+	 */
+	getUserId(): string {
+		const user = this.getCurrentUser();
+		return user ? AppAuthAccountHelpers.getUserId(user) : "";
+	}
+
+	/**
+	 * Get username
+	 */
+	getUsername(): string {
+		const user = this.getCurrentUser();
+		return user ? AppAuthAccountHelpers.getUsername(user) : "";
+	}
+
+	/**
+	 * Check if user has specific role
+	 */
+	hasRole(role: string): boolean {
+		const user = this.getCurrentUser();
+		return user ? AppAuthAccountHelpers.hasRole(user, role) : false;
+	}
+
+	/**
+	 * Check if user has specific permission
+	 */
+	hasPermission(permission: string): boolean {
+		const user = this.getCurrentUser();
+		return user ? AppAuthAccountHelpers.hasPermission(user, permission) : false;
 	}
 }

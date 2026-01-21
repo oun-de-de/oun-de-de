@@ -6,14 +6,23 @@ import { createTaggedLogger } from "@/core/utils/logger";
 const logger = createTaggedLogger("UsernameAuthProvider");
 
 /**
+ * Login response data structure
+ */
+interface LoginResponseData {
+	accessToken: string;
+	refreshToken: string;
+	user: any;
+}
+
+/**
  * Username/password authentication provider for the application
  */
-export class AppUsernameAuthProvider extends UsernameAuthProvider {
+export class AppUsernameAuthProvider extends UsernameAuthProvider<LoginResponseData> {
 	constructor() {
 		super({ providerId: "username" });
 	}
 
-	async login(credential: UsernameAuthCredential): Promise<AuthLoginDTO> {
+	async login(credential: UsernameAuthCredential): Promise<AuthLoginDTO<LoginResponseData>> {
 		// Call API to authenticate
 		const response = await apiClient.post<SignInRes>({
 			url: UserApi.SignIn,
@@ -27,15 +36,15 @@ export class AppUsernameAuthProvider extends UsernameAuthProvider {
 		logger.debug("login response", response);
 		return {
 			data: {
-				accessToken: response.accessToken,
-				refreshToken: response.refreshToken,
+				accessToken: response.accessToken!,
+				refreshToken: response.refreshToken!,
 				user: response.user,
 			},
 			credential: null,
 		};
 	}
 
-	async loginWithAuthToken(token: AuthToken): Promise<AuthLoginDTO> {
+	async loginWithAuthToken(token: AuthToken): Promise<AuthLoginDTO<LoginResponseData>> {
 		// Use refresh token to get new access token
 		const response = await apiClient.post<SignInRes>({
 			url: UserApi.Refresh,
@@ -45,8 +54,8 @@ export class AppUsernameAuthProvider extends UsernameAuthProvider {
 		logger.debug("loginWithAuthToken response", response);
 		return {
 			data: {
-				accessToken: response.accessToken,
-				refreshToken: response.refreshToken,
+				accessToken: response.accessToken!,
+				refreshToken: response.refreshToken!,
 				user: response.user,
 			},
 			credential: null,
@@ -62,7 +71,7 @@ export class AppUsernameAuthProvider extends UsernameAuthProvider {
 		}
 	}
 
-	async refreshToken(refreshToken: string): Promise<AuthLoginDTO> {
+	async refreshToken(refreshToken: string): Promise<AuthLoginDTO<LoginResponseData>> {
 		const response = await apiClient.post<SignInRes>({
 			url: UserApi.Refresh,
 			data: { refreshToken },
@@ -70,8 +79,8 @@ export class AppUsernameAuthProvider extends UsernameAuthProvider {
 
 		return {
 			data: {
-				accessToken: response.accessToken,
-				refreshToken: response.refreshToken,
+				accessToken: response.accessToken!,
+				refreshToken: response.refreshToken!,
 				user: response.user,
 			},
 			credential: null,

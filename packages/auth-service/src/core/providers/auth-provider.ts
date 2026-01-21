@@ -27,18 +27,18 @@ export abstract class AuthCredential {
  * Base authentication provider
  * Handles the authentication process only
  */
-export abstract class AuthProvider {
+export abstract class AuthProvider<D = unknown> {
 	constructor(public readonly providerId: string) {}
 
 	/**
 	 * Authenticate user with credentials
 	 */
-	abstract login(credential: AuthCredential): Promise<AuthLoginDTO>;
+	abstract login(credential: AuthCredential): Promise<AuthLoginDTO<D>>;
 
 	/**
 	 * Authenticate user with an auth token
 	 */
-	abstract loginWithAuthToken(token: AuthToken): Promise<AuthLoginDTO>;
+	abstract loginWithAuthToken(token: AuthToken): Promise<AuthLoginDTO<D>>;
 
 	toString(): string {
 		return `AuthProvider(providerId: ${this.providerId})`;

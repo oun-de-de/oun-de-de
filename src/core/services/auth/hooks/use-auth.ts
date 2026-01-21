@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { AppAuthAccount } from "../models/app-auth-account";
+import type { AppAuthAccount } from "../models/app-auth-account";
+import { AppAuthAccountHelpers } from "../models/app-auth-account";
 import { AppAuthService } from "../app-auth-service";
 import { UsernameAuthCredential } from "..";
 
@@ -119,7 +120,7 @@ export function useAccessToken(): string | null {
  */
 export function useUserPermissions(): string[] {
 	const user = useAuthUser();
-	return user?.permissions ?? [];
+	return user ? AppAuthAccountHelpers.getPermissions(user) : [];
 }
 
 /**
@@ -127,7 +128,7 @@ export function useUserPermissions(): string[] {
  */
 export function useUserRoles(): string[] {
 	const user = useAuthUser();
-	return user?.roles ?? [];
+	return user ? AppAuthAccountHelpers.getRoles(user) : [];
 }
 
 /**
@@ -135,7 +136,7 @@ export function useUserRoles(): string[] {
  */
 export function useHasPermission(permission: string): boolean {
 	const user = useAuthUser();
-	return user?.hasPermission(permission) ?? false;
+	return user ? AppAuthAccountHelpers.hasPermission(user, permission) : false;
 }
 
 /**
@@ -143,5 +144,5 @@ export function useHasPermission(permission: string): boolean {
  */
 export function useHasRole(role: string): boolean {
 	const user = useAuthUser();
-	return user?.hasRole(role) ?? false;
+	return user ? AppAuthAccountHelpers.hasRole(user, role) : false;
 }

@@ -1,5 +1,13 @@
 import { BehaviorSubject, Observable, filter } from "rxjs";
-import { AuthAccount, AuthAccountMapper, AuthLoginDTO, AuthenticationStatus, PhoneOtpMapper } from "./models";
+import {
+	AuthAccount,
+	AuthenticationStatus,
+	AuthLoginDTO,
+	AuthAccountMapper,
+	PhoneOtpMapper,
+	PhoneAuthOtp,
+	createPhoneAuthOtp,
+} from "./models";
 import { AuthProviderManagerPlatform } from "./interfaces/auth-provider-manager";
 import { AuthLocalStoragePlatform } from "./interfaces/auth-local-storage";
 import { AuthCredential, AuthProvider, PhoneAuthCredential, PhoneAuthProvider } from "./providers";
@@ -265,7 +273,7 @@ export abstract class AuthService<T extends AuthAccount> {
 	/**
 	 * Request OTP for phone authentication
 	 */
-	public async requestOtp(credential: PhoneAuthCredential): Promise<any> {
+	public async requestOtp(credential: PhoneAuthCredential): Promise<PhoneAuthOtp> {
 		const provider = this.providerManager.getProvider(credential.providerId);
 
 		if (!provider) {
@@ -278,11 +286,16 @@ export abstract class AuthService<T extends AuthAccount> {
 
 		const otpDTO = await provider.requestOtp(credential);
 
-		if (this.phoneOtpMapper) {
-			return this.phoneOtpMapper.fromRequestOtp(otpDTO.data);
-		}
+		// Use mapper if provided, otherwise create default PhoneAuthOtp
+		const otpInfo = this.phoneOtpMapper
+			? this.phoneOtpMapper.fromRequestOtp(otpDTO, provider, credential)
+			: createPhoneAuthOtp({
+					provider,
+					credential,
+					sendDate: new Date(),
+				});
 
-		return otpDTO.data;
+		return otpInfo;
 	}
 
 	/**
@@ -312,15 +325,12 @@ export abstract class AuthService<T extends AuthAccount> {
 	/**
 	 * Type guard for AuthToken
 	 */
-	private isAuthToken(value: any): value is AuthToken {
-		return (
-			value &&
-			typeof value === "object" &&
-			"type" in value &&
-			"value" in value &&
-			"authorizationValue" in value &&
-			"isValid" in value
-		);
+	private isAuthToken(value: unknown): value is AuthToken {
+		if (!value || typeof value !== "object") {
+			return false;
+		}
+		const obj = value as Record<string, unknown>;
+		return "type" in obj && "value" in obj && "authorizationValue" in obj && "isValid" in obj;
 	}
 
 	/**

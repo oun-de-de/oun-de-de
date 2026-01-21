@@ -1,6 +1,6 @@
 import type { AuthLocalStoragePlatform } from "@auth-service";
-import { JWTToken, RefreshToken, AuthenticationStatus, AccountStatus, AuthAccountData } from "@auth-service";
-import { AppAuthAccount } from "../models/app-auth-account";
+import { JWTToken, RefreshToken, AuthenticationStatus, AccountStatus } from "@auth-service";
+import type { AppAuthAccount, AppUserData } from "../models/app-auth-account";
 import { LocalStorageService } from "@/core/services/storages/local-storage";
 
 /**
@@ -49,16 +49,19 @@ export class AuthLocalStorageAdapter implements AuthLocalStoragePlatform<AppAuth
 				)
 			: null;
 
-		// Reconstruct AppAuthAccount instance
-		return new AppAuthAccount(
-			data.authStatus ?? AuthenticationStatus.Unauthenticated,
-			data.accountStatus ?? AccountStatus.Unregistered,
-			data.providerId ?? "",
-			data.identity ?? null,
+		// Return AppAuthAccount object
+		return {
+			authStatus: data.authStatus ?? AuthenticationStatus.Unauthenticated,
+			accountStatus: data.accountStatus ?? AccountStatus.Unregistered,
+			providerId: data.providerId ?? "",
+			identity: data.identity ?? null,
 			accessToken,
 			refreshToken,
-			data.data ? new AuthAccountData(data.data.data) : null,
-		);
+			data: data.data ? { data: data.data.data as AppUserData } : null,
+			isAuthenticated: data.authStatus === AuthenticationStatus.Authenticated,
+			hasValidAccessToken: accessToken?.isValid ?? false,
+			hasValidRefreshToken: refreshToken?.isValid ?? false,
+		};
 	}
 
 	async clearLocalAuthentication(): Promise<void> {

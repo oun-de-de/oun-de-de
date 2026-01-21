@@ -20,72 +20,90 @@ export enum AccountStatus {
 /**
  * Data associated with an authentication account
  */
-export class AuthAccountData {
-	constructor(public readonly data: any) {}
-}
+export type AuthAccountData<T = unknown> = {
+	data: T;
+};
 
 /**
  * Authentication account model
  */
-export class AuthAccount {
-	constructor(
-		public readonly authStatus: AuthenticationStatus,
-		public readonly accountStatus: AccountStatus | null = null,
-		public readonly providerId: string | null = null,
-		public readonly identity: string | null = null,
-		public readonly accessToken: AuthToken | null = null,
-		public readonly refreshToken: RefreshToken | null = null,
-		public readonly data: AuthAccountData | null = null,
-	) {}
+export type AuthAccount<T = unknown> = {
+	authStatus: AuthenticationStatus;
+	accountStatus: AccountStatus | null;
+	providerId: string | null;
+	identity: string | null;
+	accessToken: AuthToken | null;
+	refreshToken: RefreshToken | null;
+	data: AuthAccountData<T> | null;
+	isAuthenticated: boolean;
+	hasValidAccessToken: boolean;
+	hasValidRefreshToken: boolean;
+};
 
-	/**
-	 * Create an unauthenticated account
-	 */
-	static unauthenticated(): AuthAccount {
-		return new AuthAccount(AuthenticationStatus.Unauthenticated);
-	}
+/**
+ * Create an unauthenticated account
+ */
+export function createUnauthenticatedAccount<T = unknown>(): AuthAccount<T> {
+	return {
+		authStatus: AuthenticationStatus.Unauthenticated,
+		accountStatus: null,
+		providerId: null,
+		identity: null,
+		accessToken: null,
+		refreshToken: null,
+		data: null,
+		isAuthenticated: false,
+		hasValidAccessToken: false,
+		hasValidRefreshToken: false,
+	};
+}
 
-	/**
-	 * Copy with changes
-	 */
-	copyWith(changes: {
-		authStatus?: AuthenticationStatus;
-		accountStatus?: AccountStatus | null;
-		providerId?: string | null;
-		identity?: string | null;
-		accessToken?: AuthToken | null;
-		refreshToken?: RefreshToken | null;
-		data?: AuthAccountData | null;
-	}): AuthAccount {
-		return new AuthAccount(
-			changes.authStatus ?? this.authStatus,
-			changes.accountStatus ?? this.accountStatus,
-			changes.providerId ?? this.providerId,
-			changes.identity ?? this.identity,
-			changes.accessToken ?? this.accessToken,
-			changes.refreshToken ?? this.refreshToken,
-			changes.data ?? this.data,
-		);
-	}
+/**
+ * Create an authenticated account
+ */
+export function createAuthAccount<T = unknown>(params: {
+	authStatus: AuthenticationStatus;
+	accountStatus?: AccountStatus | null;
+	providerId?: string | null;
+	identity?: string | null;
+	accessToken?: AuthToken | null;
+	refreshToken?: RefreshToken | null;
+	data?: AuthAccountData<T> | null;
+}): AuthAccount<T> {
+	const hasValidAccessToken = params.accessToken?.isValid ?? false;
+	const hasValidRefreshToken = params.refreshToken?.isValid ?? false;
+	const isAuthenticated = params.authStatus === AuthenticationStatus.Authenticated;
 
-	/**
-	 * Check if account is authenticated
-	 */
-	get isAuthenticated(): boolean {
-		return this.authStatus === AuthenticationStatus.Authenticated;
-	}
+	return {
+		authStatus: params.authStatus,
+		accountStatus: params.accountStatus ?? null,
+		providerId: params.providerId ?? null,
+		identity: params.identity ?? null,
+		accessToken: params.accessToken ?? null,
+		refreshToken: params.refreshToken ?? null,
+		data: params.data ?? null,
+		isAuthenticated,
+		hasValidAccessToken,
+		hasValidRefreshToken,
+	};
+}
 
-	/**
-	 * Check if access token is valid
-	 */
-	get hasValidAccessToken(): boolean {
-		return this.accessToken?.isValid ?? false;
-	}
+/**
+ * Copy account with changes
+ */
+export function copyAuthAccount<T = unknown>(
+	account: AuthAccount<T>,
+	changes: Partial<Omit<AuthAccount<T>, "isAuthenticated" | "hasValidAccessToken" | "hasValidRefreshToken">>,
+): AuthAccount<T> {
+	const updated = {
+		authStatus: changes.authStatus ?? account.authStatus,
+		accountStatus: changes.accountStatus !== undefined ? changes.accountStatus : account.accountStatus,
+		providerId: changes.providerId !== undefined ? changes.providerId : account.providerId,
+		identity: changes.identity !== undefined ? changes.identity : account.identity,
+		accessToken: changes.accessToken !== undefined ? changes.accessToken : account.accessToken,
+		refreshToken: changes.refreshToken !== undefined ? changes.refreshToken : account.refreshToken,
+		data: changes.data !== undefined ? changes.data : account.data,
+	};
 
-	/**
-	 * Check if refresh token is valid
-	 */
-	get hasValidRefreshToken(): boolean {
-		return this.refreshToken?.isValid ?? false;
-	}
+	return createAuthAccount(updated);
 }
