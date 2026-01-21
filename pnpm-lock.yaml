@@ -84,8 +84,8 @@ importers:
         specifier: ^4.6.0
         version: 4.6.0
       auth-service:
-        specifier: file:./auth-service
-        version: '@auth/service@file:auth-service'
+        specifier: file:./packages/auth-service
+        version: '@auth/service@file:packages/auth-service'
       axios:
         specifier: ^1.7.7
         version: 1.8.4
@@ -176,6 +176,9 @@ importers:
       screenfull:
         specifier: ^6.0.2
         version: 6.0.2
+      service-locator:
+        specifier: file:./packages/service-locator
+        version: file:packages/service-locator
       sonner:
         specifier: ^1.7.0
         version: 1.7.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -302,8 +305,8 @@ packages:
   '@antfu/install-pkg@1.1.0':
     resolution: {integrity: sha512-MGQsmw10ZyI+EJo45CdSER4zEb+p31LpDAFp2Z3gkSd1yqVZGi0Ebx++YTEMonJy4oChEMLsxZ64j8FH6sSqtQ==}
 
-  '@auth/service@file:auth-service':
-    resolution: {directory: auth-service, type: directory}
+  '@auth/service@file:packages/auth-service':
+    resolution: {directory: packages/auth-service, type: directory}
 
   '@babel/code-frame@7.26.2':
     resolution: {integrity: sha512-RJlIHRueQgwWitWgF8OdFYGZX328Ax5BCemNGlqHfplnRT9ESi8JkFlvaVYbS+UubVY6dpv87Fs2u5M29iNFVQ==}
@@ -3925,6 +3928,9 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  service-locator@file:packages/service-locator:
+    resolution: {directory: packages/service-locator, type: directory}
+
   set-cookie-parser@2.7.1:
     resolution: {integrity: sha512-IOc8uWeOZgnb3ptbCURJWNjWUPcO3ZnTTdzsurqERrP6nPyv+paC55vJM0LpOlT2ne+Ix+9+CRG1MNLlyZ4GjQ==}
 
@@ -4481,7 +4487,7 @@ snapshots:
       package-manager-detector: 1.6.0
       tinyexec: 1.0.2
 
-  '@auth/service@file:auth-service':
+  '@auth/service@file:packages/auth-service':
     dependencies:
       rxjs: 7.8.2
 
@@ -8307,6 +8313,8 @@ snapshots:
       lru-cache: 6.0.0
 
   semver@7.7.1: {}
+
+  service-locator@file:packages/service-locator: {}
 
   set-cookie-parser@2.7.1: {}
 

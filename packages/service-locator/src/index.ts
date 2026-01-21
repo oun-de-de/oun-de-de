@@ -20,35 +20,35 @@
 // ============================================================================
 
 /** Factory function for creating services */
-type FactoryFunc<T> = () => T;
+export type FactoryFunc<T> = () => T;
 
 /** Async factory function for creating services */
-type FactoryFuncAsync<T> = () => Promise<T>;
+export type FactoryFuncAsync<T> = () => Promise<T>;
 
 /** Factory function with parameters */
-type FactoryFuncParam<T, P1 = void, P2 = void> = (p1: P1, p2: P2) => T;
+export type FactoryFuncParam<T, P1 = void, P2 = void> = (p1: P1, p2: P2) => T;
 
 /** Async factory function with parameters */
-type FactoryFuncParamAsync<T, P1 = void, P2 = void> = (p1: P1, p2: P2) => Promise<T>;
+export type FactoryFuncParamAsync<T, P1 = void, P2 = void> = (p1: P1, p2: P2) => Promise<T>;
 
 /** Function for disposing services */
-type DisposingFunc<T> = (instance: T) => void | Promise<void>;
+export type DisposingFunc<T> = (instance: T) => void | Promise<void>;
 
 /** Function called when scope is disposed */
-type ScopeDisposeFunc = () => void | Promise<void>;
+export type ScopeDisposeFunc = () => void | Promise<void>;
 
 /** Interface for objects that can be initialized */
-interface Initializable {
+export interface Initializable {
 	initialize(): void | Promise<void>;
 }
 
 /** Interface for objects that can be disposed */
-interface Disposable {
+export interface Disposable {
 	dispose(): void | Promise<void>;
 }
 
 /** Service factory type enum */
-enum ServiceFactoryType {
+export enum ServiceFactoryType {
 	AlwaysNew = "alwaysNew",
 	Constant = "constant",
 	Lazy = "lazy",
@@ -56,7 +56,7 @@ enum ServiceFactoryType {
 }
 
 /** Exception for waiting timeout */
-class WaitingTimeOutException extends Error {
+export class WaitingTimeOutException extends Error {
 	constructor(message: string) {
 		super(message);
 		this.name = "WaitingTimeOutException";
@@ -68,7 +68,7 @@ class WaitingTimeOutException extends Error {
 // ============================================================================
 
 /** Internal service factory implementation */
-class ServiceFactory<T extends object = any, P1 = void, P2 = void> {
+export class ServiceFactory<T extends object = any, P1 = void, P2 = void> {
 	private _type: ServiceFactoryType;
 	private _creationFunction?: FactoryFunc<T>;
 	private _asyncCreationFunction?: FactoryFuncAsync<T>;
@@ -181,7 +181,6 @@ class ServiceFactory<T extends object = any, P1 = void, P2 = void> {
 			this._initializeIfNeeded(service);
 			return service;
 		} else if (this._type === ServiceFactoryType.CachedFactory) {
-			// const cacheKey = `${String(param1)}:${String(param2)}`;
 			if (this.instance) return this.instance;
 
 			let service: T;
@@ -257,7 +256,7 @@ class ServiceFactory<T extends object = any, P1 = void, P2 = void> {
 			const result = service.initialize();
 			if (result instanceof Promise) {
 				result.catch((error) => {
-					console.error(`[ServiceLocator] Initialization failed for ${this.debugName}:`, error);
+					console.error(`[ServiceLocator] Initialization error for ${this.debugName}:`, error);
 				});
 			}
 		}
@@ -355,7 +354,7 @@ class ServiceFactory<T extends object = any, P1 = void, P2 = void> {
 // ============================================================================
 
 /** Type registration holder */
-class TypeRegistration<T extends object = any> {
+export class TypeRegistration<T extends object = any> {
 	private _factories: ServiceFactory<T>[] = [];
 	private _namedFactories = new Map<string, ServiceFactory<T>>();
 
@@ -409,7 +408,7 @@ class TypeRegistration<T extends object = any> {
 // ============================================================================
 
 /** Scope for managing service lifecycle */
-class Scope {
+export class Scope {
 	private _name?: string;
 	private _disposeFunc?: ScopeDisposeFunc;
 	private _typeRegistrations = new Map<any, TypeRegistration>();
@@ -450,7 +449,6 @@ class Scope {
 	}
 
 	async dispose(): Promise<void> {
-		// Dispose all registrations in reverse order
 		const types = Array.from(this._typeRegistrations.keys()).reverse();
 		const promises: Promise<void>[] = [];
 
@@ -463,7 +461,6 @@ class Scope {
 
 		await Promise.all(promises);
 
-		// Call scope dispose function
 		if (this._disposeFunc) {
 			const result = this._disposeFunc();
 			if (result instanceof Promise) {
@@ -524,7 +521,7 @@ class Scope {
  * await locator.reset();
  * ```
  */
-class GetIt {
+export class GetIt {
 	private static _instance: GetIt | null = null;
 	private static _pushScopeInProgress = false;
 	private _scopes: Scope[] = [];
@@ -685,7 +682,6 @@ class GetIt {
 		const registration = scope.getRegistration<T>(factory.constructor);
 		registration.addFactory(serviceFactory, instanceName);
 
-		// Start initialization
 		serviceFactory.getObjectAsync().catch((error) => {
 			console.error(`[ServiceLocator] Async initialization failed:`, error);
 		});
@@ -693,8 +689,6 @@ class GetIt {
 
 	/**
 	 * Register singleton only if not already registered
-	 * Increments reference counter if already exists
-	 * Decrements counter with releaseInstance() for auto-unregister at 0
 	 */
 	registerSingletonIfAbsent<T extends object>(
 		factory: FactoryFunc<T>,
@@ -708,12 +702,10 @@ class GetIt {
 		const existingFactory = registration.getFactory(instanceName);
 
 		if (existingFactory && existingFactory.instance) {
-			// Already registered, increment reference counter
 			existingFactory.incrementReferenceCount();
 			return existingFactory.instance;
 		}
 
-		// Not registered, create new singleton
 		const instance = factory();
 		const serviceFactory = new ServiceFactory<T>({
 			type: ServiceFactoryType.Constant,
@@ -727,7 +719,6 @@ class GetIt {
 			param2Type: void 0,
 		});
 
-		// Initialize reference count to 1
 		serviceFactory.incrementReferenceCount();
 
 		registration.addFactory(serviceFactory, instanceName);
@@ -848,10 +839,8 @@ class GetIt {
 			return;
 		}
 
-		// Find factory by instance and signal ready
 		const scopes = this._scopes;
 		for (const scope of scopes) {
-			// Search through all type registrations
 			for (const registration of (scope as any)._typeRegistrations.values()) {
 				for (const factory of registration.getAll()) {
 					if (factory.instance === instance) {
@@ -872,7 +861,7 @@ class GetIt {
 		if (timeout) {
 			return Promise.race<void>([
 				this._globalReadyCompleter,
-				new Promise<void>((_, reject) =>
+				new Promise<void>((_resolve, reject) =>
 					setTimeout(() => reject(new WaitingTimeOutException("[ServiceLocator] allReady timeout")), timeout),
 				),
 			]);
@@ -906,8 +895,6 @@ class GetIt {
 
 	/**
 	 * Release an instance and decrement reference counter
-	 * Only disposes when reference counter reaches 0
-	 * Used with registerSingletonIfAbsent for ref counting
 	 */
 	async releaseInstance<T extends object>(instance: T): Promise<void> {
 		const scopes = this._scopes;
@@ -916,12 +903,9 @@ class GetIt {
 			for (const registration of (scope as any)._typeRegistrations.values()) {
 				for (const factory of registration.getAll()) {
 					if (factory.instance === instance) {
-						const shouldDispose = factory.decrementReferenceCount();
-
-						if (shouldDispose) {
+						if (factory.decrementReferenceCount()) {
 							await factory.dispose();
 						}
-
 						return;
 					}
 				}
@@ -1029,7 +1013,6 @@ class GetIt {
 			const failedScope = this._scopes.pop();
 			if (failedScope) {
 				failedScope.markAsFinal();
-				await failedScope.reset(true);
 			}
 			throw error;
 		} finally {
@@ -1153,7 +1136,7 @@ class GetIt {
 			const result = service.initialize();
 			if (result instanceof Promise) {
 				result.catch((error) => {
-					console.error(`[ServiceLocator] Initialization failed:`, error);
+					console.error(`[ServiceLocator] Initialization error:`, error);
 				});
 			}
 		}
@@ -1166,9 +1149,6 @@ class GetIt {
 	}
 
 	private _getTypeFromGeneric(): any {
-		// This is a workaround for TypeScript generic type extraction
 		return undefined;
 	}
 }
-
-export { GetIt, ServiceFactory, Scope, ServiceFactoryType, WaitingTimeOutException };

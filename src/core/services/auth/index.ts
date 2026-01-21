@@ -14,7 +14,7 @@ export type {
 	PhoneAuthCredential,
 	AuthToken,
 	AuthLoginDTO,
-} from "auth-service";
+} from "packages/auth-service";
 
 export {
 	AuthenticationStatus,
@@ -24,4 +24,4 @@ export {
 	UsernameAuthCredential,
 	JWTToken,
 	RefreshToken,
-} from "auth-service";
+} from "packages/auth-service";

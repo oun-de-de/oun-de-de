@@ -1,4 +1,4 @@
-import { AuthAccount } from "auth-service";
+import { AuthAccount } from "packages/auth-service";
 import type { UserInfo } from "@/core/types/entity";
 
 /**

@@ -23,6 +23,7 @@ export type NavItemDataProps = {
 	info?: React.ReactNode;
 	caption?: string;
 	auth?: string[];
+	roles?: string[];
 	children?: NavItemDataProps[];
 	actions?: NavAction[];
 } & NavItemStateProps;

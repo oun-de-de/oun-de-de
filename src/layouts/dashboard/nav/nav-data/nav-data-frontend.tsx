@@ -8,16 +8,19 @@ export const frontendNavData: NavProps["data"] = [
 				title: "Dashboard",
 				path: "/",
 				icon: <Icon icon="lucide:layout-dashboard" size="24" />,
+				roles: ["SUPER_ADMIN"],
 			},
 			{
 				title: "New Sale",
 				path: "/dashboard/sale/new",
 				icon: <Icon icon="lucide:shopping-cart" size="24" />,
+				roles: ["SUPER_ADMIN"],
 			},
 			{
 				title: "Customers",
 				path: "/dashboard/customers",
 				icon: <Icon icon="lucide:users" size="24" />,
+				roles: ["SUPER_ADMIN"],
 				actions: [
 					{
 						title: "Create Customer",
@@ -37,6 +40,7 @@ export const frontendNavData: NavProps["data"] = [
 				title: "Vendors",
 				path: "/dashboard/vendors",
 				icon: <Icon icon="lucide:truck" size="24" />,
+				roles: ["SUPER_ADMIN"],
 				actions: [
 					{
 						title: "Create Vendor",
@@ -56,11 +60,13 @@ export const frontendNavData: NavProps["data"] = [
 				title: "Product/Service",
 				path: "/dashboard/products",
 				icon: <Icon icon="lucide:gift" size="24" />,
+				roles: ["SUPER_ADMIN"],
 			},
 			{
 				title: "Accounting",
 				path: "/dashboard/accounting",
 				icon: <Icon icon="lucide:scale" size="24" />,
+				roles: ["SUPER_ADMIN"],
 				actions: [
 					{
 						title: "Create Journal",
@@ -83,16 +89,19 @@ export const frontendNavData: NavProps["data"] = [
 				title: "Reports",
 				path: "/dashboard/reports",
 				icon: <Icon icon="lucide:file-bar-chart" size="24" />,
+				roles: ["SUPER_ADMIN"],
 			},
 			{
 				title: "Settings",
 				path: "/dashboard/settings",
 				icon: <Icon icon="lucide:settings" size="24" />,
+				roles: ["SUPER_ADMIN"],
 			},
 			{
 				title: "Audit Log",
 				path: "/dashboard/audit-log",
 				icon: <Icon icon="lucide:history" size="24" />,
+				roles: ["SUPER_ADMIN"],
 			},
 		],
 	},
