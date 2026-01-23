@@ -8,7 +8,12 @@ import {
 import { FilterData } from "../../../../../core/domain/dashboard/entities/filter";
 import { GetIncomeAccountingListUseCase } from "../../../../../core/domain/dashboard/usecases/get-income-account-list-use-case";
 import { BaseStore } from "@/core/types/base-store";
-import { DailyIncomeAccountingRepository } from "@/core/domain/dashboard/repositories/daily-income-accounting-repository";
+import {
+	DailyIncomeAccountingRepository,
+	DailyIncomeAccountingRepositoryImpl,
+} from "@/core/domain/dashboard/repositories/daily-income-accounting-repository";
+import { Repository } from "@/service-locator";
+import { createBoundStore } from "@/core/utils/create-bound-store";
 
 type DailyIncomeAccountingActions = {
 	fetch: (id: FilterData) => Promise<void>;
@@ -26,7 +31,7 @@ type Deps = {
 	accountingRepo: DailyIncomeAccountingRepository;
 };
 
-export const createDailyIncomeAccountingStore = ({ accountingRepo }: Deps) =>
+const createDailyIncomeAccountingStore = ({ accountingRepo }: Deps) =>
 	create<DailyIncomeAccountingStore>((set, get) => ({
 		state: DailyIncomeAccountingInitialState(),
 		actions: {
@@ -52,3 +57,10 @@ export const createDailyIncomeAccountingStore = ({ accountingRepo }: Deps) =>
 			},
 		},
 	}));
+
+export const dailyIncomeAccountingBoundStore = createBoundStore<DailyIncomeAccountingStore>({
+	createStore: () =>
+		createDailyIncomeAccountingStore({
+			accountingRepo: Repository.get<DailyIncomeAccountingRepository>(DailyIncomeAccountingRepositoryImpl),
+		}),
+});

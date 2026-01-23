@@ -6,8 +6,13 @@ import {
 	PerformanceLoadFirstSuccessState,
 } from "./states/get-state";
 import { GetPerformanceUseCase } from "@/core/domain/dashboard/usecases/get-performance-use-case";
-import { PerformanceRepository } from "@/core/domain/dashboard/repositories/performance-repository";
+import {
+	PerformanceRepository,
+	PerformanceRepositoryImpl,
+} from "@/core/domain/dashboard/repositories/performance-repository";
 import { BaseStore } from "@/core/types/base-store";
+import { Repository } from "@/service-locator";
+import { createBoundStore } from "@/core/utils/create-bound-store";
 
 type PerformanceActions = {
 	fetch: () => Promise<void>;
@@ -24,7 +29,7 @@ export type Deps = {
 	performanceRepo: PerformanceRepository;
 };
 
-export const createPerformanceStore = ({ performanceRepo }: Deps) =>
+const createPerformanceStore = ({ performanceRepo }: Deps) =>
 	create<PerformanceStore>((set, get) => ({
 		state: PerformanceInitialState(),
 		actions: {
@@ -48,3 +53,10 @@ export const createPerformanceStore = ({ performanceRepo }: Deps) =>
 			},
 		},
 	}));
+
+export const performanceBoundStore = createBoundStore<PerformanceStore>({
+	createStore: () =>
+		createPerformanceStore({
+			performanceRepo: Repository.get<PerformanceRepository>(PerformanceRepositoryImpl),
+		}),
+});

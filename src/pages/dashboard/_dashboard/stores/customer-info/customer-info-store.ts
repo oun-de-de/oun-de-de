@@ -7,7 +7,12 @@ import {
 } from "./states/get-state";
 import { BaseStore } from "@/core/types/base-store";
 import { GetCustomerInfoUseCase } from "@/core/domain/dashboard/usecases/get-customer-info-use-case";
-import { CustomerInfoRepository } from "@/core/domain/dashboard/repositories/customer-info-repository";
+import {
+	CustomerInfoRepository,
+	CustomerInfoRepositoryImpl,
+} from "@/core/domain/dashboard/repositories/customer-info-repository";
+import { createBoundStore } from "@/core/utils/create-bound-store";
+import { Repository } from "@/service-locator";
 
 type CustomerInfoActions = {
 	fetch: () => Promise<void>;
@@ -24,7 +29,7 @@ type Deps = {
 	customerRepo: CustomerInfoRepository;
 };
 
-export const createCustomerInfoStore = ({ customerRepo }: Deps) =>
+const createCustomerInfoStore = ({ customerRepo }: Deps) =>
 	create<CustomerInfoStore>((set, get) => ({
 		state: CustomerInfoInitialState(),
 		actions: {
@@ -50,3 +55,10 @@ export const createCustomerInfoStore = ({ customerRepo }: Deps) =>
 			},
 		},
 	}));
+
+export const customerInfoBoundStore = createBoundStore<CustomerInfoStore>({
+	createStore: () =>
+		createCustomerInfoStore({
+			customerRepo: Repository.get<CustomerInfoRepository>(CustomerInfoRepositoryImpl),
+		}),
+});

@@ -1,4 +1,4 @@
-import apiClient from "../apiClient";
+import { apiClient } from "../apiClient";
 import type { Customer } from "@/core/types/customer";
 
 export enum CustomerApi {

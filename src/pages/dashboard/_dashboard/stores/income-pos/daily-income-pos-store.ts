@@ -8,7 +8,12 @@ import {
 } from "./states/get-state";
 import { FilterData } from "../../../../../core/domain/dashboard/entities/filter";
 import { BaseStore } from "@/core/types/base-store";
-import { DailyIncomePosRepository } from "@/core/domain/dashboard/repositories/daily-income-pos-repository";
+import {
+	DailyIncomePosRepository,
+	DailyIncomePosRepositoryImpl,
+} from "@/core/domain/dashboard/repositories/daily-income-pos-repository";
+import { Repository } from "@/service-locator";
+import { createBoundStore } from "@/core/utils/create-bound-store";
 
 type DailyIncomePosActions = {
 	fetch: (id: FilterData) => Promise<void>;
@@ -26,7 +31,7 @@ type Deps = {
 	posRepo: DailyIncomePosRepository;
 };
 
-export const createDailyIncomePosStore = ({ posRepo }: Deps) =>
+const createDailyIncomePosStore = ({ posRepo }: Deps) =>
 	create<DailyIncomePosStore>((set, get) => ({
 		state: DailyIncomePosInitialState(),
 		actions: {
@@ -52,3 +57,10 @@ export const createDailyIncomePosStore = ({ posRepo }: Deps) =>
 			},
 		},
 	}));
+
+export const dailyIncomePosStore = createBoundStore<DailyIncomePosStore>({
+	createStore: () =>
+		createDailyIncomePosStore({
+			posRepo: Repository.get<DailyIncomePosRepository>(DailyIncomePosRepositoryImpl),
+		}),
+});

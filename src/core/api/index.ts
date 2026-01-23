@@ -1,4 +1,4 @@
-import { AuthNetworkService, NoAuthNetworkService, type NetworkService } from "./apiClient";
+import { AuthNetworkService, NetworkService, NoAuthNetworkService } from "./network-service";
 
 /**
  * Base API interface
@@ -21,15 +21,3 @@ export abstract class MainApi implements BaseApi {
 		return NoAuthNetworkService.getInstance();
 	}
 }
-
-// Re-export types and classes from apiClient
-export {
-	AuthNetworkService,
-	NoAuthNetworkService,
-	CustomNetworkService,
-	type NetworkService,
-	type NetworkResponse,
-	type NetworkRequestOptions,
-} from "./apiClient";
-
-export { default as apiClient } from "./apiClient";
