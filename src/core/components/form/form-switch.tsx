@@ -1,8 +1,7 @@
 import type React from "react";
-import { Controller, useFormContext } from "react-hook-form";
 import { Switch } from "@/core/ui/switch";
 import { cn } from "@/core/utils";
-import { FormField } from "./form-field";
+import { FormControllerField } from "./form-controller-field";
 
 type FormSwitchProps = {
 	name: string;
@@ -21,24 +20,19 @@ export function FormSwitch({
 	switchClassName,
 	disabled,
 }: FormSwitchProps) {
-	const { control } = useFormContext();
-
 	return (
-		<FormField name={name} helperText={helperText} containerClassName={containerClassName}>
-			{() => (
+		<FormControllerField
+			name={name}
+			helperText={helperText}
+			containerClassName={containerClassName}
+			render={({ value, onChange }) => (
 				<div className="flex items-center gap-2">
-					<Controller
-						name={name}
-						control={control}
-						render={({ field }) => (
-							<Switch
-								id={name}
-								checked={field.value}
-								onCheckedChange={field.onChange}
-								disabled={disabled}
-								className={cn(switchClassName)}
-							/>
-						)}
+					<Switch
+						id={name}
+						checked={value as boolean}
+						onCheckedChange={onChange}
+						disabled={disabled}
+						className={cn(switchClassName)}
 					/>
 					{label && (
 						<label htmlFor={name} className="text-sm font-medium cursor-pointer">
@@ -47,6 +41,6 @@ export function FormSwitch({
 					)}
 				</div>
 			)}
-		</FormField>
+		/>
 	);
 }
