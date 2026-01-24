@@ -1,9 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { FormProvider, FormSelect, FormSwitch, FormTextarea, FormTextField } from "@/core/components/form";
-import { Button } from "@/core/ui/button";
+import { FormActions, FormProvider, FormSelect, FormSwitch, FormTextarea, FormTextField } from "@/core/components/form";
 import { Text } from "@/core/ui/typography";
 import { cn } from "@/core/utils";
 
@@ -66,6 +63,7 @@ export type DefaultFormProps = VariantProps<typeof defaultFormVariants> & {
 	showTitle?: boolean;
 	inputVariant?: "default" | "filled" | "ghost";
 	inputSize?: "sm" | "md" | "lg";
+	disableWhenClean?: boolean;
 };
 
 export function DefaultForm({
@@ -83,9 +81,8 @@ export function DefaultForm({
 	showTitle = true,
 	inputVariant = "default",
 	inputSize = "md",
+	disableWhenClean = false,
 }: DefaultFormProps) {
-	const [loading, setLoading] = useState(false);
-
 	const buildDefaultValues = () => {
 		const values: DefaultFormData = {};
 		for (const field of fields) {
@@ -99,12 +96,7 @@ export function DefaultForm({
 	});
 
 	const handleFormSubmit = async (data: DefaultFormData) => {
-		setLoading(true);
-		try {
-			await onSubmit?.(data);
-		} finally {
-			setLoading(false);
-		}
+		await onSubmit?.(data);
 	};
 
 	const renderField = (field: FormFieldConfig) => {
@@ -150,15 +142,12 @@ export function DefaultForm({
 			<FormProvider methods={methods} onSubmit={handleFormSubmit} className="space-y-4">
 				<div className={formGridVariants({ columns })}>{fields.map(renderField)}</div>
 
-				<div className="flex justify-end gap-2 pt-4 border-t">
-					<Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
-						{cancelLabel}
-					</Button>
-					<Button type="submit" disabled={loading}>
-						{loading && <Loader2 className="animate-spin mr-2 h-4 w-4" />}
-						{submitLabel}
-					</Button>
-				</div>
+				<FormActions
+					submitLabel={submitLabel}
+					cancelLabel={cancelLabel}
+					onCancel={onCancel}
+					disableWhenClean={disableWhenClean}
+				/>
 			</FormProvider>
 		</div>
 	);
