@@ -1,8 +1,13 @@
 import { create } from "zustand";
 import { settingsLeftMenu } from "@/_mock/data/dashboard";
 import type { BaseStore } from "@/core/types/base-store";
+import type { SettingsRow } from "@/core/types/common";
 import { createBoundStore } from "@/core/utils/create-bound-store";
-import { SettingsSidebarInitialState, type SettingsSidebarState } from "./settings-sidebar-state";
+import {
+	_SettingsSidebarState,
+	SettingsSidebarInitialState,
+	type SettingsSidebarState,
+} from "./settings-sidebar-state";
 import {
 	SettingsSidebarSelectItemLoadingState,
 	SettingsSidebarSelectItemSuccessState,
@@ -11,6 +16,10 @@ import {
 type SettingsSidebarActions = {
 	selectItem: (item: string) => void;
 	reset: () => void;
+	// Form actions
+	openCreateForm: () => void;
+	openEditForm: (item: SettingsRow) => void;
+	closeForm: () => void;
 };
 
 export interface SettingsSidebarStore extends BaseStore<SettingsSidebarState, SettingsSidebarActions> {
@@ -24,12 +33,44 @@ const createSettingsSidebarStore = (items: string[]) =>
 		actions: {
 			selectItem(item: string) {
 				set({ state: SettingsSidebarSelectItemLoadingState(get().state) });
-
-				// Simulate async operation if needed, otherwise just set directly
 				set({ state: SettingsSidebarSelectItemSuccessState(get().state, item) });
 			},
 			reset() {
 				set({ state: SettingsSidebarInitialState(items) });
+			},
+			// Form actions
+			openCreateForm() {
+				set({
+					state: _SettingsSidebarState({
+						state: get().state,
+						type: get().state.type,
+						showForm: true,
+						editItem: null,
+						formMode: "create",
+					}),
+				});
+			},
+			openEditForm(item: SettingsRow) {
+				set({
+					state: _SettingsSidebarState({
+						state: get().state,
+						type: get().state.type,
+						showForm: true,
+						editItem: item,
+						formMode: "edit",
+					}),
+				});
+			},
+			closeForm() {
+				set({
+					state: _SettingsSidebarState({
+						state: get().state,
+						type: get().state.type,
+						showForm: false,
+						editItem: null,
+						formMode: "create",
+					}),
+				});
 			},
 		},
 	}));
@@ -42,3 +83,11 @@ export const settingsSidebarBoundStore = createBoundStore<SettingsSidebarStore>(
 export const useSettingsSidebarState = () => settingsSidebarBoundStore.useState();
 export const useSettingsSidebarActions = () => settingsSidebarBoundStore.useAction();
 export const useActiveItem = () => settingsSidebarBoundStore.useState().activeItem;
+export const useFormState = () => {
+	const state = settingsSidebarBoundStore.useState();
+	return {
+		showForm: state.showForm,
+		editItem: state.editItem,
+		formMode: state.formMode,
+	};
+};
