@@ -9,6 +9,8 @@ import { StoreConsumer } from "@/core/ui/store/store-consumer";
 import { useRef } from "react";
 import { PagedGridRef } from "@/core/components/pagination/paged-grid";
 import { SaleProductState } from "../stores/sale-products/sale-product-state";
+import { isLoadingState } from "@/core/types/state";
+import { loadingOverlay } from "@/core/components/loading";
 
 export default function SaleLeftContent() {
 	const store = useStore<SaleProductStore>("saleProductsStore");
@@ -22,18 +24,28 @@ export default function SaleLeftContent() {
 			saleProductListRef.current?.updatePagination(state.pagination);
 		} else if (state.type === "SearchSuccessState") {
 			saleProductListRef.current?.updatePagination(state.pagination);
+		} else if (state.type === "SearchLoadingState") {
+			loadingOverlay.show();
 		}
 
 		if (state.type === "FilterErrorState") {
 			saleProductListRef.current?.updatePagination(state.pagination);
 		} else if (state.type === "FilterSuccessState") {
 			saleProductListRef.current?.updatePagination(state.pagination);
+		} else if (state.type === "FilterLoadingState") {
+			loadingOverlay.show();
 		}
 
 		if (state.type === "SelectCategoriesErrorState") {
 			saleProductListRef.current?.updatePagination(state.pagination);
 		} else if (state.type === "SelectCategoriesSuccessState") {
 			saleProductListRef.current?.updatePagination(state.pagination);
+		} else if (state.type === "SelectCategoriesLoadingState") {
+			loadingOverlay.show();
+		}
+
+		if (!isLoadingState(state)) {
+			loadingOverlay.hide();
 		}
 	};
 
@@ -43,11 +55,11 @@ export default function SaleLeftContent() {
 			listener={listener}
 			builder={(state) => {
 				return (
-					<Container>
+					<Container className="py-3">
 						<SaleLeftCollapsible formSaleFilters={state.filters} onChange={filterProducts} />
 						<ChoiceChipsPromise value={state.selectedCategories} onChange={selectCategories} />
 						<SearchInput value={state.search ?? ""} onChange={searchProducts} />
-						<GridSection className="pl-2">
+						<GridSection className="pl-1">
 							<SaleProductList
 								ref={saleProductListRef}
 								pagination={state.pagination}

@@ -23,7 +23,7 @@ export default function ChoiceChipsPromise({ value, onChange, className }: Choic
 			promise={promise}
 			builder={(snapshot) => {
 				if (snapshot.connectionState === "none" || snapshot.connectionState === "waiting") {
-					return <div className={className}>Loading...</div>;
+					return null;
 				}
 				if (snapshot.connectionState === "done" && snapshot.error) {
 					return null;

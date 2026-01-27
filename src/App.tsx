@@ -10,6 +10,7 @@ import { AntdAdapter } from "./core/theme/adapter/antd.adapter";
 import { ThemeProvider } from "./core/theme/theme-provider";
 import { GLOBAL_CONFIG } from "./global-config";
 import Repository from "./service-locator";
+import { GlobalLoadingOverlay } from "./core/components/loading/global-loading-overlay";
 
 if (import.meta.env.DEV) {
 	import("react-scan").then(({ scan }) => {
@@ -37,6 +38,7 @@ function App({ children }: { children: React.ReactNode }) {
 					</Helmet>
 					<Toast />
 					<RouteLoadingProgress />
+					<GlobalLoadingOverlay />
 					<MotionLazy>{children}</MotionLazy>
 				</ThemeProvider>
 			</QueryClientProvider>

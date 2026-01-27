@@ -54,7 +54,7 @@ export function ChoiceChips({ options, value, onChange, className }: ChoiceChips
 	const handleScroll = () => updateScrollState();
 
 	return (
-		<Wrapper className={cn(className, "px-2")}>
+		<Wrapper className={cn(className, "px-1")}>
 			{canScrollLeft && (
 				<ArrowButton $side="left" type="button" onClick={() => scrollByAmount(-160)}>
 					<Icon icon="mdi:chevron-left" size={16} />

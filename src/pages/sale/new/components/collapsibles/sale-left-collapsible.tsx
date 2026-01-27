@@ -18,8 +18,8 @@ export default function SaleLeftCollapsible({ formSaleFilters, onChange }: SaleL
 	}, [formSaleFilters]);
 
 	return (
-		<Collapsible className="pt-2">
-			<TopRow className="px-2">
+		<Collapsible>
+			<TopRow className="px-1">
 				<FilterRow>
 					<DateFilter
 						mode="single"
@@ -36,7 +36,7 @@ export default function SaleLeftCollapsible({ formSaleFilters, onChange }: SaleL
 				</MoreButton>
 			</TopRow>
 
-			<ExpandedFilters className="px-2">
+			<ExpandedFilters className="px-1">
 				<EmployeeFilter value={formData.employee} onChange={(value) => onChange({ ...formData, employee: value })} />
 
 				<WarehouseFilter value={formData.warehouse} onChange={(value) => onChange({ ...formData, warehouse: value })} />

@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { TableFilterBar } from "./table-filter-bar";
 import { TablePagination } from "./table-pagination";
+import { cn } from "@/core/utils";
 
 /**
  * Configuration for the Table Filter Bar.
@@ -82,12 +83,10 @@ type SmartDataTableProps<T> = {
 	data: T[];
 	/**
 	 * Column definitions compatible with TanStack Table.
-	 * Use `meta: { className: '...' }` to style specific columns (header and cell).
 	 * @example
 	 * {
 	 *   header: 'Amount',
 	 *   accessorKey: 'amount',
-	 *   meta: { className: 'text-right font-bold' }
 	 * }
 	 */
 	columns: ColumnDef<T, any>[];
@@ -107,7 +106,6 @@ type SmartDataTableProps<T> = {
  * - **TableFilterBar** for optional top-level filtering/searching.
  * - **TablePagination** for optional bottom-level pagination.
  *
- * It supports custom styling for columns via `meta.className` in the column definition.
  * Header text is enforced to be white (`!text-white`) for consistency.
  *
  * @example
@@ -118,7 +116,6 @@ type SmartDataTableProps<T> = {
  *   {
  *     header: 'Status',
  *     accessorKey: 'status',
- *     meta: { className: 'text-center text-blue-600' } // Custom styling
  *   }
  * ];
  *
@@ -220,7 +217,10 @@ export function SmartDataTable<T extends object>({
 										return (
 											<th
 												key={header.id}
-												className={`px-3 py-3 text-center border-r border-gray-300 last:border-r-0`}
+												className={cn(
+													`px-3 py-3 text-center border-r border-gray-300 last:border-r-0`,
+													header.column.columnDef.meta?.headerClassName,
+												)}
 												onClick={header.column.getToggleSortingHandler()}
 											>
 												{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}

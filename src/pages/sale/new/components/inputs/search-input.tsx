@@ -17,7 +17,7 @@ export function SearchInput({ value, onChange, placeholder = "Search...", classN
 	const handleClear = () => onChange("");
 
 	return (
-		<Wrapper className={cn(className, "px-2")} style={{ position: "relative" }}>
+		<Wrapper className={cn(className, "px-1")} style={{ position: "relative" }}>
 			<Input
 				id="search-input"
 				name="search"

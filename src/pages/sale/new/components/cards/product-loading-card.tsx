@@ -8,7 +8,6 @@ export interface ProductLoadingCardProps {
 export function ProductLoadingCard({ height = 240 }: ProductLoadingCardProps) {
 	return (
 		<Card style={{ height }}>
-			<PriceTag />
 			<ImagePlaceholder>
 				<Skeleton style={{ width: 100, height: 100, borderRadius: 10 }} />
 			</ImagePlaceholder>
@@ -30,20 +29,6 @@ const Card = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-`;
-
-const PriceTag = styled(Skeleton)`
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  border-radius: 10px;
-  padding: 4px 8px;
-  font-size: 13px;
-  font-weight: 700;
-  min-width: 60px;
-  min-height: 20px;
-  display: flex;
-  align-items: center;
 `;
 
 const ImagePlaceholder = styled.div`
