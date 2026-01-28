@@ -24,8 +24,8 @@ export const StyledNavItem = styled.div<StyledNavItemProps>`
 	${baseNavItemStyles}
 	color: ${({ theme, $active, $disabled, $depth }) => {
 		if ($disabled) return theme.colors.text.disabled;
-		if ($active && $depth === 1) return theme.colors.palette.gray[800];
-		return theme.colors.text.primary;
+		if ($active && $depth === 1) return theme.colors.common.black;
+		return theme.colors.common.white;
 	}};
 	cursor: ${({ $disabled }) => ($disabled ? "not-allowed" : "pointer")};
 
@@ -51,8 +51,8 @@ export const StyledNavItemLink = styled(RouterLink as any).withConfig({
 	${baseNavItemStyles}
 	color: ${({ theme, $active, $disabled, $depth }) => {
 		if ($disabled) return theme.colors.text.disabled;
-		if ($active && $depth === 1) return theme.colors.palette.gray[800];
-		return theme.colors.text.primary;
+		if ($active && $depth === 1) return theme.colors.common.black;
+		return theme.colors.common.white;
 	}} !important;
 	cursor: ${({ $disabled }) => ($disabled ? "not-allowed" : "pointer")};
 	text-decoration: none !important;
@@ -66,12 +66,12 @@ export const StyledNavItemLink = styled(RouterLink as any).withConfig({
 	&:hover {
 		color: ${({ theme, $active, $disabled, $depth }) => {
 			if ($disabled) return theme.colors.text.disabled;
-			if ($active && $depth === 1) return theme.colors.palette.gray[800];
-			return theme.colors.text.primary;
+			if ($active && $depth === 1) return theme.colors.common.black;
+			return theme.colors.common.white;
 		}} !important;
 		background-color: ${({ theme, $disabled, $active, $depth }) => {
 			if ($disabled) return "transparent";
-			if ($active && $depth === 1) return theme.colors.common.white;
+			if ($active && $depth === 1) return theme.colors.common.black;
 			if ($active && $depth !== 1) return theme.colors.action.hover;
 			return theme.colors.action.hover;
 		}} !important;
@@ -83,8 +83,8 @@ export const StyledNavItemLink = styled(RouterLink as any).withConfig({
 	&:focus {
 		color: ${({ theme, $active, $disabled, $depth }) => {
 			if ($disabled) return theme.colors.text.disabled;
-			if ($active && $depth === 1) return theme.colors.palette.gray[800];
-			return theme.colors.text.primary;
+			if ($active && $depth === 1) return theme.colors.common.black;
+			return theme.colors.common.white;
 		}} !important;
 		text-decoration: none !important;
 	}
