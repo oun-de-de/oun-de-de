@@ -1,9 +1,9 @@
 import type { DailyIncomeAccounting, DailyIncomePos } from "@/core/domain/dashboard/entities/daily-income";
-import { authClient } from "../index";
 import type { CustomerSummaryItem } from "@/core/domain/dashboard/entities/customer-info";
 import type { VendorSummaryItem } from "@/core/domain/dashboard/entities/vendor-info";
 import type { PerformanceItem } from "@/core/domain/dashboard/entities/performance";
 import type { FilterData } from "@/core/domain/dashboard/entities/filter";
+import { apiClient } from "../apiClient";
 
 enum DashboardApiPath {
 	DailyIncomePos = "/dashboard/daily-income-pos",
@@ -31,42 +31,51 @@ export interface DashboardApi {
 
 export class DashboardApiImpl implements DashboardApi {
 	async getCustomerInfo(): Promise<CustomerSummaryItem[]> {
-		const response = await authClient.get<CustomerSummaryItem[]>(DashboardApiPath.CustomerInfo);
-		return response.body ?? [];
+		const response = await apiClient.get<CustomerSummaryItem[]>({
+			url: DashboardApiPath.CustomerInfo,
+		});
+		return response;
 	}
 
 	async getVendorInfo(): Promise<VendorSummaryItem[]> {
-		const response = await authClient.get<VendorSummaryItem[]>(DashboardApiPath.VendorInfo);
-		return response.body ?? [];
+		const response = await apiClient.get<VendorSummaryItem[]>({
+			url: DashboardApiPath.VendorInfo,
+		});
+		return response;
 	}
 
 	async getPerformance(): Promise<PerformanceItem[]> {
-		const response = await authClient.get<PerformanceItem[]>(DashboardApiPath.Performance);
-		return response.body ?? [];
+		const response = await apiClient.get<PerformanceItem[]>({
+			url: DashboardApiPath.Performance,
+		});
+		return response;
 	}
 
 	async getFiltersByType(type: string): Promise<FilterData[]> {
-		const response = await authClient.get<FilterData[]>(DashboardApiPath.Filters, {
-			queryParameters: { type },
+		const response = await apiClient.get<FilterData[]>({
+			url: DashboardApiPath.Filters,
+			params: { type },
 		});
-		return response.body ?? [];
+		return response;
 	}
 }
 
 export class DailyIncomePosApiImpl implements DailyIncomePosApi {
 	async getDailyIncomesPos(range: string): Promise<DailyIncomePos[]> {
-		const response = await authClient.get<DailyIncomePos[]>(DashboardApiPath.DailyIncomePos, {
-			queryParameters: { range },
+		const response = await apiClient.get<DailyIncomePos[]>({
+			url: DashboardApiPath.DailyIncomePos,
+			params: { range },
 		});
-		return response.body ?? [];
+		return response;
 	}
 }
 
 export class DailyIncomeAccountingApiImpl implements DailyIncomeAccountingApi {
 	async getDailyIncomesAccounting(range: string): Promise<DailyIncomeAccounting[]> {
-		const response = await authClient.get<DailyIncomeAccounting[]>(DashboardApiPath.DailyIncomeAccounting, {
-			queryParameters: { range },
+		const response = await apiClient.get<DailyIncomeAccounting[]>({
+			url: DashboardApiPath.DailyIncomeAccounting,
+			params: { range },
 		});
-		return response.body ?? [];
+		return response;
 	}
 }

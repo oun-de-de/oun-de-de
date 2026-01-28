@@ -1,6 +1,5 @@
 import { SaleCategory } from "@/core/domain/sales/entities/sale-category";
 import type { SaleProduct } from "@/core/domain/sales/entities/sale-product";
-import { authClient } from "../index";
 import type {
 	CustomerFilter,
 	EmployeeFilter,
@@ -9,6 +8,7 @@ import type {
 } from "@/core/domain/sales/entities/sale-filter";
 import type { SaleFilters } from "@/core/domain/sales/entities/sale-filter";
 import type { Pagination } from "@/core/types/pagination";
+import { apiClient } from "../apiClient";
 
 enum SaleApiPath {
 	Customers = "/sale/customers",
@@ -41,33 +41,45 @@ export interface SaleApi extends SaleProductApi {
 
 export class SaleApiImpl implements SaleApi {
 	async getCustomerFilters(): Promise<CustomerFilter[]> {
-		const response = await authClient.get<CustomerFilter[]>(SaleApiPath.Customers);
-		return response.body ?? [];
+		const response = await apiClient.get<CustomerFilter[]>({
+			url: SaleApiPath.Customers,
+		});
+		return response;
 	}
 
 	async getEmployeeFilters(): Promise<EmployeeFilter[]> {
-		const response = await authClient.get<EmployeeFilter[]>(SaleApiPath.Employees);
-		return response.body ?? [];
+		const response = await apiClient.get<EmployeeFilter[]>({
+			url: SaleApiPath.Employees,
+		});
+		return response;
 	}
 
 	async getWarehouseFilters(): Promise<WarehouseFilter[]> {
-		const response = await authClient.get<WarehouseFilter[]>(SaleApiPath.Warehouses);
-		return response.body ?? [];
+		const response = await apiClient.get<WarehouseFilter[]>({
+			url: SaleApiPath.Warehouses,
+		});
+		return response;
 	}
 
 	async getSaleCategoryFilters(): Promise<SaleCategoryFilter[]> {
-		const response = await authClient.get<SaleCategoryFilter[]>(SaleApiPath.CategoriesFilters);
-		return response.body ?? [];
+		const response = await apiClient.get<SaleCategoryFilter[]>({
+			url: SaleApiPath.CategoriesFilters,
+		});
+		return response;
 	}
 
 	async getCategories(): Promise<SaleCategory[]> {
-		const response = await authClient.get<SaleCategory[]>(SaleApiPath.Categories);
-		return response.body ?? [];
+		const response = await apiClient.get<SaleCategory[]>({
+			url: SaleApiPath.Categories,
+		});
+		return response;
 	}
 
 	async getProduct(id: string | number): Promise<SaleProduct> {
-		const response = await authClient.get<SaleProduct>(`${SaleApiPath.Product}/${id}`);
-		return response.body ?? ({} as SaleProduct);
+		const response = await apiClient.get<SaleProduct>({
+			url: `${SaleApiPath.Product}/${id}`,
+		});
+		return response;
 	}
 
 	async getProducts(params: {
@@ -77,8 +89,9 @@ export class SaleApiImpl implements SaleApi {
 		filters?: SaleFilters;
 		categoryIds?: (string | number)[];
 	}): Promise<Pagination<SaleProduct>> {
-		const response = await authClient.get<Pagination<SaleProduct>>(SaleApiPath.Products, {
-			queryParameters: {
+		const response = await apiClient.get<Pagination<SaleProduct>>({
+			url: SaleApiPath.Products,
+			params: {
 				page: params.page,
 				limit: params.limit ?? 20,
 				search: params.search,
@@ -86,7 +99,7 @@ export class SaleApiImpl implements SaleApi {
 				...params.filters,
 			},
 		});
-		return response.body ?? ({ list: [], total: 0, page: 1, pageSize: 0, pageCount: 0 } as Pagination<SaleProduct>);
+		return response;
 	}
 }
 

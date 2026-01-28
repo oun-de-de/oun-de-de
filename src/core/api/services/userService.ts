@@ -1,5 +1,5 @@
 import { AppAuthAccount, AppUserData } from "@/core/services/auth/models/app-auth-account";
-import { authClient, noAuthClient } from "../index";
+import { apiClient, noAuthApi } from "../apiClient";
 
 export interface SignInReq {
 	username: string;
@@ -20,23 +20,33 @@ export enum UserApi {
 
 class UserService {
 	async signin(data: SignInReq) {
-		const response = await noAuthClient.post<AppAuthAccount>(UserApi.SignIn, { data });
-		return response.body;
+		const response = await noAuthApi.post<AppAuthAccount>({
+			url: UserApi.SignIn,
+			data,
+		});
+		return response;
 	}
 
 	async signup(data: SignUpReq) {
-		const response = await noAuthClient.post<AppAuthAccount>(UserApi.SignUp, { data });
-		return response.body;
+		const response = await noAuthApi.post<AppAuthAccount>({
+			url: UserApi.SignUp,
+			data,
+		});
+		return response;
 	}
 
 	async logout() {
-		const response = await authClient.get(UserApi.Logout);
-		return response.body;
+		const response = await apiClient.get({
+			url: UserApi.Logout,
+		});
+		return response;
 	}
 
 	async findById(id: string) {
-		const response = await authClient.get<AppUserData[]>(`${UserApi.User}/${id}`);
-		return response.body;
+		const response = await apiClient.get<AppUserData[]>({
+			url: `${UserApi.User}/${id}`,
+		});
+		return response;
 	}
 }
 

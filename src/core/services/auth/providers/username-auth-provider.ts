@@ -1,8 +1,8 @@
 import { type AuthLoginDTO, type AuthToken, type UsernameAuthCredential, UsernameAuthProvider } from "@auth-service";
 import { createTaggedLogger } from "@/core/utils/logger";
 import { AppAuthAccount } from "../models/app-auth-account";
-import { authClient, noAuthClient } from "@/core/api";
 import { UserApi } from "@/core/api/services/userService";
+import { apiClient, noAuthApi } from "@/core/api/apiClient";
 
 const logger = createTaggedLogger("UsernameAuthProvider");
 
@@ -14,7 +14,8 @@ export class AppUsernameAuthProvider implements UsernameAuthProvider<AppAuthAcco
 
 	async login(credential: UsernameAuthCredential): Promise<AuthLoginDTO<AppAuthAccount>> {
 		// Call API to authenticate (no auth token required)
-		const { body: response } = await noAuthClient.post<AppAuthAccount>(UserApi.SignIn, {
+		const response = await noAuthApi.post<AppAuthAccount>({
+			url: UserApi.SignIn,
 			data: {
 				username: credential.username,
 				password: credential.password,
@@ -35,7 +36,8 @@ export class AppUsernameAuthProvider implements UsernameAuthProvider<AppAuthAcco
 
 	async loginWithAuthToken(token: AuthToken): Promise<AuthLoginDTO<AppAuthAccount>> {
 		// Use refresh token to get new access token (no auth header)
-		const { body: response } = await noAuthClient.post<AppAuthAccount>(UserApi.Refresh, {
+		const response = await noAuthApi.post<AppAuthAccount>({
+			url: UserApi.Refresh,
 			data: { refreshToken: token.value },
 		});
 
@@ -53,7 +55,9 @@ export class AppUsernameAuthProvider implements UsernameAuthProvider<AppAuthAcco
 	async logout(): Promise<void> {
 		try {
 			// Logout requires auth token
-			await authClient.get(UserApi.Logout);
+			await apiClient.get({
+				url: UserApi.Logout,
+			});
 		} catch (error) {
 			// Ignore logout errors
 			logger.warn("Logout API call failed:", error);
@@ -61,7 +65,8 @@ export class AppUsernameAuthProvider implements UsernameAuthProvider<AppAuthAcco
 	}
 
 	async refreshToken(refreshToken: string): Promise<AuthLoginDTO<AppAuthAccount>> {
-		const { body: response } = await noAuthClient.post<AppAuthAccount>(UserApi.Refresh, {
+		const response = await noAuthApi.post<AppAuthAccount>({
+			url: UserApi.Refresh,
 			data: { refreshToken },
 		});
 
