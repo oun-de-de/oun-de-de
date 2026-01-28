@@ -1,4 +1,5 @@
 import { useLoginStateContext } from "@/pages/sys/login/providers/login-provider";
+import userIcon from "@/assets/icons/ic-user.svg";
 import { useRouter } from "@/routes/hooks";
 import { useUserInfo, useSignOut } from "@/core/services/auth/hooks/use-auth";
 import { createTaggedLogger } from "@/core/utils/logger";
@@ -41,15 +42,14 @@ export default function AccountDropdown() {
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<StyledTriggerButton variant="ghost" size="icon" className="rounded-full">
-					<img className="h-6 w-6 rounded-full" src={userInfo?.avatar} alt="" />
+					<img className="h-6 w-6 rounded-full" src={userIcon} alt="" />
 				</StyledTriggerButton>
 			</DropdownMenuTrigger>
 			<StyledDropdownMenuContent className="w-56">
 				<StyledUserInfo>
-					<img className="h-10 w-10 rounded-full" src={userInfo?.avatar} alt="" />
+					<img className="h-10 w-10 rounded-full" src={userIcon} alt="" />
 					<div className="flex flex-col items-start">
 						<StyledUsername>{userInfo?.username}</StyledUsername>
-						<StyledEmail>{userInfo?.email}</StyledEmail>
 					</div>
 				</StyledUserInfo>
 				<DropdownMenuSeparator />
@@ -97,11 +97,6 @@ const StyledUsername = styled.div`
 	color: ${({ theme }) => theme.colors.common.black};
 	font-size: 0.875rem;
 	font-weight: 500;
-`;
-
-const StyledEmail = styled.div`
-	color: ${({ theme }) => theme.colors.text.secondary};
-	font-size: 0.75rem;
 `;
 
 const StyledDropdownMenuItem = styled(DropdownMenuItem)`

@@ -3,7 +3,7 @@ import { AuthAccount } from "../models";
 /**
  * Local storage interface for authentication
  */
-export interface AuthLocalStoragePlatform<T extends AuthAccount> {
+export interface AuthLocalStoragePlatform<T extends AuthAccount<TData>, TData> {
 	/**
 	 * Save authentication to local/secure storage
 	 */

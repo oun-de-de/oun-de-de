@@ -1,10 +1,10 @@
 export const saleNavData = [
 	{
 		path: "/sale/new/cash-sale",
-		auth: ["sale:create", "sale:cash-sale"],
+		auth: [],
 	},
 	{
 		path: "/sale/new/invoice",
-		auth: ["sale:create", "sale:invoice"],
+		auth: [],
 	},
 ];

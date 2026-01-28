@@ -2,6 +2,7 @@ import type { AuthAccount, AuthCredential } from "@auth-service";
 import passwordService from "@/core/api/services/passwordService";
 import type { AppAuthService } from "@/core/services/auth";
 import type { AuthRepository } from "./auth-repository";
+import { AppUserData } from "@/core/services/auth/models/app-auth-account";
 
 /**
  * Authentication repository implementation
@@ -19,7 +20,7 @@ export class AuthRepositoryImpl implements AuthRepository {
 		return this._logoutCount;
 	}
 
-	async login(credential: AuthCredential): Promise<AuthAccount | null> {
+	async login(credential: AuthCredential): Promise<AuthAccount<AppUserData> | null> {
 		const auth = await this._authService.login(credential);
 
 		return auth;

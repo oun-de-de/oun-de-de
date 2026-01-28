@@ -1,8 +1,8 @@
 import { Button } from "@/core/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/core/ui/tooltip";
-import { Icon } from "@/core/components/icon";
 import { Input } from "@/core/ui/input";
 import styled from "styled-components";
+import { Icon as IconifyIcon } from "@iconify/react";
 
 export function CartActions() {
 	return (
@@ -27,7 +27,7 @@ function LeftAction() {
 				<TooltipProvider>
 					<Tooltip>
 						<TooltipTrigger asChild>
-							<StyledIcon icon="mdi:help-circle-outline" size={18} tabIndex={0} />
+							<StyledIcon icon="mdi:help-circle-outline" fontSize={18} />
 						</TooltipTrigger>
 						<TooltipContent side="top" align="start">
 							Use keyboard shortcuts for faster actions
@@ -65,7 +65,7 @@ function RightAction() {
 			<DiscountInputRow>
 				<div className="w-[160px] justify-end flex">
 					<DiscountTypeGroup>
-						<DiscountTypeBtn active>%</DiscountTypeBtn>
+						<DiscountTypeBtn $active>%</DiscountTypeBtn>
 						<DiscountTypeBtn>$</DiscountTypeBtn>
 					</DiscountTypeGroup>
 				</div>
@@ -114,7 +114,7 @@ const ShortcutLabel = styled.div`
   font-size: 16px;
   font-weight: 500;
   color: ${({ theme }) => theme.colors.palette.gray[700]};
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   display: flex;
   align-items: center;
 `;
@@ -125,7 +125,7 @@ const ButtonRow = styled.div`
   margin-bottom: 10px;
 `;
 
-const StyledIcon = styled(Icon)`
+const StyledIcon = styled(IconifyIcon)`
   margin-left: 6px;
   cursor: pointer;
   color: ${({ theme }) => theme.colors.palette.warning.default} !important;
@@ -190,7 +190,6 @@ const CartAmountBox = styled.div`
   padding: 3px 8px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
 `;
 
 const AmountRow = styled.div`
@@ -231,15 +230,15 @@ const DiscountTypeGroup = styled.div`
   height: 36px;
 `;
 
-const DiscountTypeBtn = styled.button.attrs<{ active?: boolean }>(({ active }) => ({
-	className: active ? "bg-blue-400 text-white" : "",
-}))<{ active?: boolean }>`
+const DiscountTypeBtn = styled.button<{ $active?: boolean }>`
   border: none;
   padding: 0 16px;
-  width: fit-content;
   height: 36px;
   font-size: 18px;
   font-weight: 600;
+
+  background: ${({ $active }) => ($active ? "#60a5fa" : "transparent")};
+  color: ${({ $active }) => ($active ? "white" : "inherit")};
 `;
 
 const DiscountInputDivider = styled.span`

@@ -91,7 +91,7 @@ export default function PermissionPage() {
 		if (_username === userInfo?.username) return;
 		const user = DB_USER.find((user) => user.username === _username);
 		if (user) {
-			await signIn(user.username, user.password);
+			await signIn(user.username, "");
 		}
 	};
 	return (

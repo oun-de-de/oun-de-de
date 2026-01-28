@@ -18,23 +18,16 @@ export enum AccountStatus {
 }
 
 /**
- * Data associated with an authentication account
- */
-export type AuthAccountData<T = unknown> = {
-	data: T;
-};
-
-/**
  * Authentication account model
  */
-export type AuthAccount<T = unknown> = {
+export type AuthAccount<T> = {
 	authStatus: AuthenticationStatus;
 	accountStatus: AccountStatus | null;
 	providerId: string | null;
 	identity: string | null;
 	accessToken: AuthToken | null;
 	refreshToken: RefreshToken | null;
-	data: AuthAccountData<T> | null;
+	data: T | null;
 	isAuthenticated: boolean;
 	hasValidAccessToken: boolean;
 	hasValidRefreshToken: boolean;
@@ -43,7 +36,7 @@ export type AuthAccount<T = unknown> = {
 /**
  * Create an unauthenticated account
  */
-export function createUnauthenticatedAccount<T = unknown>(): AuthAccount<T> {
+export function createUnauthenticatedAccount<T>(): AuthAccount<T> {
 	return {
 		authStatus: AuthenticationStatus.Unauthenticated,
 		accountStatus: null,
@@ -61,14 +54,14 @@ export function createUnauthenticatedAccount<T = unknown>(): AuthAccount<T> {
 /**
  * Create an authenticated account
  */
-export function createAuthAccount<T = unknown>(params: {
+export function createAuthAccount<T>(params: {
 	authStatus: AuthenticationStatus;
 	accountStatus?: AccountStatus | null;
 	providerId?: string | null;
 	identity?: string | null;
 	accessToken?: AuthToken | null;
 	refreshToken?: RefreshToken | null;
-	data?: AuthAccountData<T> | null;
+	data?: T | null;
 }): AuthAccount<T> {
 	const hasValidAccessToken = params.accessToken?.isValid ?? false;
 	const hasValidRefreshToken = params.refreshToken?.isValid ?? false;
@@ -91,7 +84,7 @@ export function createAuthAccount<T = unknown>(params: {
 /**
  * Copy account with changes
  */
-export function copyAuthAccount<T = unknown>(
+export function copyAuthAccount<T>(
 	account: AuthAccount<T>,
 	changes: Partial<Omit<AuthAccount<T>, "isAuthenticated" | "hasValidAccessToken" | "hasValidRefreshToken">>,
 ): AuthAccount<T> {

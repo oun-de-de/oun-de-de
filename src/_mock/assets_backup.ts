@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
-import type { Menu, Permission, Role, User } from "@/core/types/entity";
+import type { Menu, Permission, Role } from "@/core/types/entity";
 import { PermissionType } from "@/core/types/enum";
+import { AppUserData } from "@/core/services/auth/models/app-auth-account";
 
 const { GROUP, MENU, CATALOGUE } = PermissionType;
 
@@ -416,27 +417,27 @@ export const DB_MENU: Menu[] = [
 	},
 ];
 
-export const DB_USER: User[] = [
+export const DB_USER: AppUserData[] = [
 	{
-		id: "user_admin_id",
+		user_id: "user_admin_id",
 		username: "admin",
-		password: "demo1234",
-		avatar: faker.image.avatarGitHub(),
-		email: "admin@slash.com",
+		type: "local",
+		roles: ["SUPER_ADMIN"],
+		permissions: [],
 	},
 	{
-		id: "user_test_id",
+		user_id: "user_test_id",
 		username: "test",
-		password: "demo1234",
-		avatar: faker.image.avatarGitHub(),
-		email: "test@slash.com",
+		type: "local",
+		roles: ["TEST"],
+		permissions: [],
 	},
 	{
-		id: "user_guest_id",
+		user_id: "user_guest_id",
 		username: "guest",
-		password: "demo1234",
-		avatar: faker.image.avatarGitHub(),
-		email: "guest@slash.com",
+		type: "local",
+		roles: ["GUEST"],
+		permissions: [],
 	},
 ];
 

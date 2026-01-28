@@ -7,7 +7,7 @@ import type { AppAuthAccount, AppUserData } from "../models/app-auth-account";
  * Local storage adapter for auth-service
  * Bridges auth-service with app's LocalStorageService
  */
-export class AuthLocalStorageAdapter implements AuthLocalStoragePlatform<AppAuthAccount> {
+export class AuthLocalStorageAdapter implements AuthLocalStoragePlatform<AppAuthAccount, AppUserData> {
 	private static readonly AUTH_KEY = "auth_account";
 
 	async saveLocalAuthentication(account: AppAuthAccount): Promise<void> {
@@ -33,7 +33,7 @@ export class AuthLocalStorageAdapter implements AuthLocalStoragePlatform<AppAuth
 	}
 
 	async loadLocalAuthentication(): Promise<AppAuthAccount | null> {
-		const data = LocalStorageService.loadOrNull<any>(AuthLocalStorageAdapter.AUTH_KEY);
+		const data = LocalStorageService.loadOrNull<AppAuthAccount>(AuthLocalStorageAdapter.AUTH_KEY);
 
 		if (!data) {
 			return null;
@@ -57,7 +57,7 @@ export class AuthLocalStorageAdapter implements AuthLocalStoragePlatform<AppAuth
 			identity: data.identity ?? null,
 			accessToken,
 			refreshToken,
-			data: data.data ? { data: data.data.data as AppUserData } : null,
+			data: data.data,
 			isAuthenticated: data.authStatus === AuthenticationStatus.Authenticated,
 			hasValidAccessToken: accessToken?.isValid ?? false,
 			hasValidRefreshToken: refreshToken?.isValid ?? false,

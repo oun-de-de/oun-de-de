@@ -172,7 +172,7 @@ export class AuthNetworkService extends AxiosNetworkService {
 
 	private static createBaseAxios(): AxiosInstance {
 		return axios.create({
-			baseURL: GLOBAL_CONFIG.apiBaseUrl,
+			baseURL: GLOBAL_CONFIG.apiBaseUrl + `/${GLOBAL_CONFIG.apiVersion}`,
 			timeout: 50000,
 			headers: { "Content-Type": "application/json;charset=utf-8" },
 		});
@@ -251,7 +251,7 @@ export class NoAuthNetworkService extends AxiosNetworkService {
 	static getInstance(): NoAuthNetworkService {
 		if (!NoAuthNetworkService._instance) {
 			const axiosInstance = axios.create({
-				baseURL: GLOBAL_CONFIG.apiBaseUrl,
+				baseURL: GLOBAL_CONFIG.apiBaseUrl + `/${GLOBAL_CONFIG.apiVersion}`,
 				timeout: 50000,
 				headers: { "Content-Type": "application/json;charset=utf-8" },
 			});

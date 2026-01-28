@@ -5,7 +5,6 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
 import { worker } from "./_mock";
 import App from "./App";
-import menuService from "./core/api/services/menuService";
 import { registerLocalIcons } from "./core/components/icon";
 import { AppAuthService } from "./core/services/auth";
 import { urlJoin } from "./core/utils";
@@ -21,10 +20,6 @@ await worker.start({
 
 // Initialize auth service to restore session
 await AppAuthService.getInstance().initialize();
-
-if (GLOBAL_CONFIG.routerMode === "backend") {
-	await menuService.getMenuList();
-}
 
 const router = createBrowserRouter(
 	[

@@ -8,6 +8,7 @@ import { Button } from "@/core/ui/button";
 import { useRouter } from "@/routes/hooks";
 import styled from "styled-components";
 import AccountDropdown from "../../components/account-dropdown";
+import userIcon from "@/assets/icons/ic-user.svg";
 
 const logger = createTaggedLogger("NavVerticalFooter");
 
@@ -30,7 +31,6 @@ export function NavVerticalFooter() {
 	};
 
 	const username = userInfo?.username;
-	const avatar = userInfo?.avatar;
 	const userRole = roles?.[0] ?? "User";
 	const isMini = themeLayout === ThemeLayout.Mini;
 
@@ -42,11 +42,7 @@ export function NavVerticalFooter() {
 				</StyledMiniFooter>
 			) : (
 				<StyledVerticalFooter>
-					{avatar ? (
-						<StyledAvatar src={avatar} alt={username} />
-					) : (
-						<StyledAvatarPlaceholder>{username?.[0]?.toUpperCase() || "U"}</StyledAvatarPlaceholder>
-					)}
+					<StyledAvatar src={userIcon} alt={username} />
 					<StyledUserInfo>
 						<StyledUsername>{username}</StyledUsername>
 						<StyledUserRole>{userRole}</StyledUserRole>
@@ -90,18 +86,18 @@ const StyledAvatar = styled.img`
 	object-fit: cover;
 `;
 
-const StyledAvatarPlaceholder = styled.div`
-	height: 2rem;
-	width: 2rem;
-	border-radius: 50%;
-	background-color: ${({ theme }) => theme.colors.palette.primary.default};
-	color: ${({ theme }) => theme.colors.common.white};
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 0.875rem;
-	font-weight: 500;
-`;
+// const StyledAvatarPlaceholder = styled.div`
+// 	height: 2rem;
+// 	width: 2rem;
+// 	border-radius: 50%;
+// 	background-color: ${({ theme }) => theme.colors.palette.primary.default};
+// 	color: ${({ theme }) => theme.colors.common.white};
+// 	display: flex;
+// 	align-items: center;
+// 	justify-content: center;
+// 	font-size: 0.875rem;
+// 	font-weight: 500;
+// `;
 
 const StyledUserInfo = styled.div`
 	flex: 1;

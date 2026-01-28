@@ -40,22 +40,22 @@ export class PhoneAuthCredential extends AuthCredential {
 /**
  * Phone authentication provider
  */
-export abstract class PhoneAuthProvider extends AuthProvider {
+export abstract class PhoneAuthProvider<T> extends AuthProvider<T> {
 	constructor(config: { providerId: string }) {
 		super(config.providerId);
 	}
 
-	abstract login(credential: PhoneAuthCredential): Promise<AuthLoginDTO>;
+	abstract login(credential: PhoneAuthCredential): Promise<AuthLoginDTO<T>>;
 
-	abstract loginWithAuthToken(token: AuthToken): Promise<AuthLoginDTO>;
+	abstract loginWithAuthToken(token: AuthToken): Promise<AuthLoginDTO<T>>;
 
 	/**
 	 * Request OTP for phone number
 	 */
-	abstract requestOtp(credential: PhoneAuthCredential): Promise<AuthOtpDTO>;
+	abstract requestOtp(credential: PhoneAuthCredential): Promise<AuthOtpDTO<T>>;
 
 	/**
 	 * Verify OTP code
 	 */
-	abstract verifyOtp(credential: PhoneAuthCredential): Promise<AuthLoginDTO>;
+	abstract verifyOtp(credential: PhoneAuthCredential): Promise<AuthLoginDTO<T>>;
 }

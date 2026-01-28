@@ -99,7 +99,7 @@ export function useSignOut() {
  */
 export function useUserInfo() {
 	const user = useAuthUser();
-	return user?.data?.data ?? null;
+	return user?.data ?? null;
 }
 
 /**

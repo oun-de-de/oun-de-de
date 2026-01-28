@@ -10,12 +10,12 @@ import { AppAuthProviderManager } from "./providers/provider-manager";
  * Application authentication service
  * Singleton instance managing all authentication flows
  */
-export class AppAuthService extends AuthService<AppAuthAccount> {
+export class AppAuthService extends AuthService<AppAuthAccount, AppUserData> {
 	private static _instance: AppAuthService | null = null;
 
-	private _providerManager: AuthProviderManagerPlatform;
-	private _localStorage: AuthLocalStoragePlatform<AppAuthAccount>;
-	private _accountMapper: AuthAccountMapper<AppAuthAccount>;
+	private _providerManager: AuthProviderManagerPlatform<AppAuthAccount>;
+	private _localStorage: AuthLocalStoragePlatform<AppAuthAccount, AppUserData>;
+	private _accountMapper: AuthAccountMapper<AppAuthAccount, AppUserData>;
 
 	private constructor() {
 		super();
@@ -41,15 +41,15 @@ export class AppAuthService extends AuthService<AppAuthAccount> {
 		AppAuthService._instance = null;
 	}
 
-	protected get providerManager(): AuthProviderManagerPlatform {
+	protected get providerManager(): AuthProviderManagerPlatform<AppAuthAccount> {
 		return this._providerManager;
 	}
 
-	protected get localStorage(): AuthLocalStoragePlatform<AppAuthAccount> {
+	protected get localStorage(): AuthLocalStoragePlatform<AppAuthAccount, AppUserData> {
 		return this._localStorage;
 	}
 
-	protected get accountMapper(): AuthAccountMapper<AppAuthAccount> {
+	protected get accountMapper(): AuthAccountMapper<AppAuthAccount, AppUserData> {
 		return this._accountMapper;
 	}
 
@@ -78,7 +78,7 @@ export class AppAuthService extends AuthService<AppAuthAccount> {
 	 * Get current user info
 	 */
 	getUserInfo(): AppUserData | null {
-		return this.getCurrentUser()?.data?.data ?? null;
+		return this.getCurrentUser()?.data ?? null;
 	}
 
 	/**

@@ -6,19 +6,19 @@ import { PhoneAuthOtp } from "./phone-auth-otp";
 /**
  * Mapper interface for converting DTOs to AuthAccount
  */
-export type AuthAccountMapper<T extends AuthAccount<TData>, TData = unknown, DtoData = unknown> = {
+export type AuthAccountMapper<T extends AuthAccount<TData>, TData> = {
 	/**
 	 * Get auth account from login DTO
 	 */
-	fromLogin(dto: AuthLoginDTO<DtoData>, provider?: AuthProvider<DtoData>, credential?: AuthCredential | null): T;
+	fromLogin(dto: AuthLoginDTO<T>, provider?: AuthProvider<T>, credential?: AuthCredential | null): T;
 };
 
 /**
  * Mapper interface for phone auth OTP
  */
-export type PhoneOtpMapper<D = unknown> = {
+export type PhoneOtpMapper<T extends AuthAccount<TData>, TData> = {
 	/**
 	 * Get phone auth OTP from OTP DTO
 	 */
-	fromRequestOtp(dto: AuthOtpDTO<D>, provider?: AuthProvider<D>, credential?: AuthCredential | null): PhoneAuthOtp<D>;
+	fromRequestOtp(dto: AuthOtpDTO<T>, provider?: AuthProvider<T>, credential?: AuthCredential | null): PhoneAuthOtp<T>;
 };

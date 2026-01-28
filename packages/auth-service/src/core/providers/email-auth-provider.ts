@@ -33,12 +33,12 @@ export class EmailAuthCredential extends AuthCredential {
 /**
  * Email authentication provider
  */
-export abstract class EmailAuthProvider extends AuthProvider {
+export abstract class EmailAuthProvider<T> extends AuthProvider<T> {
 	constructor(config: { providerId: string }) {
 		super(config.providerId);
 	}
 
-	abstract login(credential: EmailAuthCredential): Promise<AuthLoginDTO>;
+	abstract login(credential: EmailAuthCredential): Promise<AuthLoginDTO<T>>;
 
-	abstract loginWithAuthToken(token: AuthToken): Promise<AuthLoginDTO>;
+	abstract loginWithAuthToken(token: AuthToken): Promise<AuthLoginDTO<T>>;
 }

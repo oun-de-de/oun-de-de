@@ -1,3 +1,4 @@
+import { AppUserData } from "@/core/services/auth/models/app-auth-account";
 import type { AuthAccount, AuthCredential } from "@auth-service";
 
 /**
@@ -13,7 +14,7 @@ export interface AuthRepository {
 	/**
 	 * Login with credentials
 	 */
-	login(credential: AuthCredential): Promise<AuthAccount | null>;
+	login(credential: AuthCredential): Promise<AuthAccount<AppUserData> | null>;
 
 	/**
 	 * Logout current user

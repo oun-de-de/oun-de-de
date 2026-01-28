@@ -1,6 +1,6 @@
 import type { NavItemDataProps } from "@/core/components/nav/types";
 import { GLOBAL_CONFIG } from "@/global-config";
-import { useUserPermissions, useUserRoles } from "@/core/services/auth/hooks/use-auth";
+import { useUserRoles } from "@/core/services/auth/hooks/use-auth";
 import { checkAny } from "@/core/utils";
 import { useMemo } from "react";
 import { backendNavData } from "./nav-data-backend";
@@ -17,9 +17,6 @@ const navData = GLOBAL_CONFIG.routerMode === "backend" ? backendNavData : fronte
  */
 const filterItems = (items: NavItemDataProps[], permissions: string[], roles: string[]) => {
 	return items.filter((item) => {
-		// Check if current item has required permissions
-		const hasPermission = item.auth ? checkAny(item.auth, permissions) : true;
-
 		// Check if current item has required roles
 		const hasRole = item.roles ? checkAny(item.roles, roles) : true;
 
@@ -34,7 +31,7 @@ const filterItems = (items: NavItemDataProps[], permissions: string[], roles: st
 			item.children = filteredChildren;
 		}
 
-		return hasPermission && hasRole;
+		return hasRole;
 	});
 };
 
@@ -69,10 +66,8 @@ const filterNavData = (permissions: string[], roles: string[]) => {
  * @returns Filtered navigation data
  */
 export const useFilteredNavData = () => {
-	const permissions = useUserPermissions();
 	const roles = useUserRoles();
-	const permissionCodes = useMemo(() => permissions.map((p) => p), [permissions]);
 	const roleCodes = useMemo(() => roles.map((r) => r), [roles]);
-	const filteredNavData = useMemo(() => filterNavData(permissionCodes, roleCodes), [permissionCodes, roleCodes]);
+	const filteredNavData = useMemo(() => filterNavData([], roleCodes), [roleCodes]);
 	return filteredNavData;
 };

@@ -6,18 +6,6 @@ export interface UserToken {
 	refreshToken?: string;
 }
 
-export interface UserInfo {
-	id: string;
-	email: string;
-	username: string;
-	password?: string;
-	avatar?: string;
-	roles?: Role[];
-	status?: BasicStatus;
-	permissions?: Permission[];
-	menu?: MenuTree[];
-}
-
 export interface Permission_Old {
 	id: string;
 	parentId: string;

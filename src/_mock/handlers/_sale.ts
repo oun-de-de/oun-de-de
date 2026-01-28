@@ -11,7 +11,7 @@ import type { SaleCategory } from "@/core/domain/sales/entities/sale-category";
 import type { SaleProduct } from "@/core/domain/sales/entities/sale-product";
 import type { Pagination } from "@/core/types/pagination";
 
-const saleCustomers = http.get("/api/sale/customers", () => {
+const saleCustomers = http.get("/api/v1/sale/customers", () => {
 	const mock: CustomerFilter[] = [
 		{ id: "1", name: "Customer 1" },
 		{ id: "2", name: "Customer 2" },
@@ -30,7 +30,7 @@ const saleCustomers = http.get("/api/sale/customers", () => {
 	);
 });
 
-const saleEmployees = http.get("/api/sale/employees", () => {
+const saleEmployees = http.get("/api/v1/sale/employees", () => {
 	const mock: EmployeeFilter[] = [
 		{ id: "1", name: "Employee 1" },
 		{ id: "2", name: "Employee 2" },
@@ -49,7 +49,7 @@ const saleEmployees = http.get("/api/sale/employees", () => {
 	);
 });
 
-const saleWarehouses = http.get("/api/sale/warehouses", () => {
+const saleWarehouses = http.get("/api/v1/sale/warehouses", () => {
 	const mock: WarehouseFilter[] = [
 		{ id: "1", name: "Warehouse A" },
 		{ id: "2", name: "Warehouse B" },
@@ -68,7 +68,7 @@ const saleWarehouses = http.get("/api/sale/warehouses", () => {
 	);
 });
 
-const saleCategoryFilter = http.get("/api/sale/category-filters", () => {
+const saleCategoryFilter = http.get("/api/v1/sale/category-filters", () => {
 	const mock: SaleCategoryFilter[] = [
 		{ id: "1", name: "General" },
 		{ id: "2", name: "Category 1" },
@@ -87,7 +87,7 @@ const saleCategoryFilter = http.get("/api/sale/category-filters", () => {
 	);
 });
 
-const saleCategories = http.get("/api/sale/categories", () => {
+const saleCategories = http.get("/api/v1/sale/categories", () => {
 	const mock: SaleCategory[] = [
 		{ name: "NA", id: "na" },
 		{ name: "ទឹកកកនឹម", id: "ice-cream" },
@@ -109,7 +109,7 @@ const saleCategories = http.get("/api/sale/categories", () => {
 	);
 });
 
-const saleGetProduct = http.get("/api/sale/products/:id", ({ params }) => {
+const saleGetProduct = http.get("/api/v1/sale/products/:id", ({ params }) => {
 	const { id } = params;
 	const product = {
 		id: id,
@@ -131,7 +131,7 @@ const saleGetProduct = http.get("/api/sale/products/:id", ({ params }) => {
 	);
 });
 
-const saleGetProducts = http.get("/api/sale/products", ({ request }) => {
+const saleGetProducts = http.get("/api/v1/sale/products", ({ request }) => {
 	const url = new URL(request.url);
 	const page = parseInt(url.searchParams.get("page") ?? "1");
 	const limit = parseInt(url.searchParams.get("limit") ?? "10");

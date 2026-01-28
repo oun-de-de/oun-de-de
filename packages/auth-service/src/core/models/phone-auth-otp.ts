@@ -3,8 +3,8 @@ import type { PhoneAuthProvider, PhoneAuthCredential } from "../providers";
 /**
  * Phone authentication OTP model
  */
-export type PhoneAuthOtp<D = unknown> = {
-	provider: PhoneAuthProvider | null;
+export type PhoneAuthOtp<D> = {
+	provider: PhoneAuthProvider<D> | null;
 	credential: PhoneAuthCredential | null;
 	otp: string | null;
 	sendDate: Date | null;
@@ -17,8 +17,8 @@ export type PhoneAuthOtp<D = unknown> = {
 /**
  * Create phone auth OTP
  */
-export function createPhoneAuthOtp<D = unknown>(params: {
-	provider?: PhoneAuthProvider | null;
+export function createPhoneAuthOtp<D>(params: {
+	provider?: PhoneAuthProvider<D> | null;
 	credential?: PhoneAuthCredential | null;
 	sendDate?: Date | null;
 	otp?: string | null;
@@ -46,7 +46,7 @@ export function createPhoneAuthOtp<D = unknown>(params: {
 /**
  * Copy phone auth OTP with changes
  */
-export function copyPhoneAuthOtp<D = unknown>(
+export function copyPhoneAuthOtp<D>(
 	phoneOtp: PhoneAuthOtp<D>,
 	changes: Partial<Omit<PhoneAuthOtp<D>, "isExpired" | "isValid">>,
 ): PhoneAuthOtp<D> {

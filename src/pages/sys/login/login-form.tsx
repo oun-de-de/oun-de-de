@@ -27,7 +27,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 	const form = useForm<SignInReq>({
 		defaultValues: {
 			username: DB_USER[0].username,
-			password: DB_USER[0].password,
+			password: "",
 		},
 	});
 
@@ -84,7 +84,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 										id="password"
 										type="password"
 										autoComplete="current-password"
-										placeholder={DB_USER[0].password}
+										placeholder={""}
 										{...field}
 										suppressHydrationWarning
 									/>

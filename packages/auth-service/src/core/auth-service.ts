@@ -23,29 +23,29 @@ import type { AuthToken } from "./tokens";
  * Abstract authentication service
  * Handles user authentication, token management, and state tracking
  */
-export abstract class AuthService<T extends AuthAccount> {
+export abstract class AuthService<T extends AuthAccount<TData>, TData> {
 	/**
 	 * Provider manager containing registered auth providers
 	 */
-	protected abstract get providerManager(): AuthProviderManagerPlatform;
+	protected abstract get providerManager(): AuthProviderManagerPlatform<T>;
 
 	/**
 	 * Local storage for persisting authentication state
 	 * Return null to disable local storage
 	 */
-	protected get localStorage(): AuthLocalStoragePlatform<T> | null {
+	protected get localStorage(): AuthLocalStoragePlatform<T, TData> | null {
 		return null;
 	}
 
 	/**
 	 * Account mapper for converting DTOs to AuthAccount
 	 */
-	protected abstract get accountMapper(): AuthAccountMapper<T>;
+	protected abstract get accountMapper(): AuthAccountMapper<T, TData>;
 
 	/**
 	 * Phone OTP mapper (optional)
 	 */
-	protected get phoneOtpMapper(): PhoneOtpMapper | null {
+	protected get phoneOtpMapper(): PhoneOtpMapper<T, TData> | null {
 		return null;
 	}
 
@@ -164,8 +164,8 @@ export abstract class AuthService<T extends AuthAccount> {
 			notify: boolean;
 		},
 	): Promise<T | null> {
-		let authLoginDTO: AuthLoginDTO;
-		let provider: AuthProvider | null = null;
+		let authLoginDTO: AuthLoginDTO<T>;
+		let provider: AuthProvider<T> | null = null;
 		let credential: AuthCredential | null = null;
 
 		if (value instanceof AuthCredential) {
@@ -273,7 +273,7 @@ export abstract class AuthService<T extends AuthAccount> {
 	/**
 	 * Request OTP for phone authentication
 	 */
-	public async requestOtp(credential: PhoneAuthCredential): Promise<PhoneAuthOtp> {
+	public async requestOtp(credential: PhoneAuthCredential): Promise<PhoneAuthOtp<T>> {
 		const provider = this.providerManager.getProvider(credential.providerId);
 
 		if (!provider) {

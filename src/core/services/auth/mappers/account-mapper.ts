@@ -1,25 +1,14 @@
 import type { AuthAccount, AuthAccountMapper, AuthCredential, AuthLoginDTO, AuthProvider } from "@auth-service";
 import { AccountStatus, AuthenticationStatus, createAuthAccount, JWTToken, RefreshToken } from "@auth-service";
-import type { AppUserData } from "../models/app-auth-account";
-
-/**
- * Expected structure of login response data
- */
-export interface LoginResponseData {
-	accessToken: string;
-	refreshToken: string;
-	user: AppUserData;
-}
+import type { AppAuthAccount, AppUserData } from "../models/app-auth-account";
 
 /**
  * Mapper for converting AuthLoginDTO to AppAuthAccount
  */
-export class AppAuthAccountMapper
-	implements AuthAccountMapper<AuthAccount<AppUserData>, AppUserData, LoginResponseData>
-{
+export class AppAuthAccountMapper implements AuthAccountMapper<AppAuthAccount, AppUserData> {
 	fromLogin(
-		dto: AuthLoginDTO<LoginResponseData>,
-		provider?: AuthProvider<LoginResponseData>,
+		dto: AuthLoginDTO<AppAuthAccount>,
+		provider?: AuthProvider<AppAuthAccount>,
 		credential?: AuthCredential | null,
 	): AuthAccount<AppUserData> {
 		const data = dto.data;
@@ -29,9 +18,9 @@ export class AppAuthAccountMapper
 			accountStatus: AccountStatus.Registered,
 			providerId: provider?.providerId ?? null,
 			identity: credential?.identity ?? null,
-			accessToken: JWTToken.fromValue(data.accessToken),
-			refreshToken: new RefreshToken(data.refreshToken),
-			data: { data: data.user },
+			accessToken: JWTToken.fromValue(data.accessToken?.value || ""),
+			refreshToken: new RefreshToken(data.refreshToken?.value || ""),
+			data: data.data,
 		});
 	}
 }

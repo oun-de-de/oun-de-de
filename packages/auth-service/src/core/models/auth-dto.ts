@@ -3,7 +3,7 @@ import { AuthCredential } from "../providers";
 /**
  * Base data transfer object for authentication
  */
-export type AuthDTO<D = unknown> = {
+export type AuthDTO<D> = {
 	credential: AuthCredential | null;
 	data: D;
 };
@@ -11,7 +11,7 @@ export type AuthDTO<D = unknown> = {
 /**
  * Data transfer object for login operations
  */
-export type AuthLoginDTO<D = unknown> = {
+export type AuthLoginDTO<D> = {
 	credential: AuthCredential | null;
 	data: D;
 };
@@ -19,10 +19,7 @@ export type AuthLoginDTO<D = unknown> = {
 /**
  * Create auth login DTO
  */
-export function createAuthLoginDTO<D = unknown>(params: {
-	credential?: AuthCredential | null;
-	data: D;
-}): AuthLoginDTO<D> {
+export function createAuthLoginDTO<D>(params: { credential?: AuthCredential | null; data: D }): AuthLoginDTO<D> {
 	return {
 		credential: params.credential ?? null,
 		data: params.data,
@@ -32,7 +29,7 @@ export function createAuthLoginDTO<D = unknown>(params: {
 /**
  * Data transfer object for OTP operations
  */
-export type AuthOtpDTO<D = unknown> = {
+export type AuthOtpDTO<D> = {
 	credential: AuthCredential | null;
 	data: D;
 };
@@ -40,7 +37,7 @@ export type AuthOtpDTO<D = unknown> = {
 /**
  * Create auth OTP DTO
  */
-export function createAuthOtpDTO<D = unknown>(params: { credential?: AuthCredential | null; data: D }): AuthOtpDTO<D> {
+export function createAuthOtpDTO<D>(params: { credential?: AuthCredential | null; data: D }): AuthOtpDTO<D> {
 	return {
 		credential: params.credential ?? null,
 		data: params.data,

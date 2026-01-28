@@ -27,7 +27,7 @@ export abstract class AuthCredential {
  * Base authentication provider
  * Handles the authentication process only
  */
-export abstract class AuthProvider<D = unknown> {
+export abstract class AuthProvider<D> {
 	constructor(public readonly providerId: string) {}
 
 	/**

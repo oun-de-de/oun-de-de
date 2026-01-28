@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { XCircle } from "lucide-react";
 import React from "react";
 
-export const ClearButton = styled.button`
+export const ClearButton = styled.span`
   position: absolute;
   right: 8px;
   top: 50%;
@@ -32,8 +32,22 @@ export interface ClearIconButtonProps {
 }
 
 export function ClearIconButton({ onClick, icon, ariaLabel = "Clear", size = 18, style }: ClearIconButtonProps) {
+	const handleKey = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" || e.key === " ") {
+			e.preventDefault();
+			onClick(e as any as React.MouseEvent);
+		}
+	};
+
 	return (
-		<ClearButton type="button" tabIndex={-1} aria-label={ariaLabel} onClick={onClick} style={style}>
+		<ClearButton
+			role="button"
+			tabIndex={0}
+			aria-label={ariaLabel}
+			onClick={onClick}
+			onKeyDown={handleKey}
+			style={style}
+		>
 			{icon ?? <XCircle size={size} />}
 		</ClearButton>
 	);
