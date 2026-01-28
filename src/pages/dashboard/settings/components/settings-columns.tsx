@@ -8,7 +8,7 @@ export const columns: ColumnDef<SettingsRow>[] = [
 	{
 		header: "Name",
 		accessorKey: "name",
-		meta: { className: "text-sky-600" },
+		meta: { bodyClassName: "text-sky-600" },
 		cell: ({ row }) => (
 			<Button
 				variant="linkSecondary"
@@ -23,7 +23,7 @@ export const columns: ColumnDef<SettingsRow>[] = [
 		header: "Type",
 		accessorKey: "type",
 		accessorFn: (row) => row.type || "System",
-		meta: { className: "text-gray-600" },
+		meta: { bodyClassName: "text-gray-600" },
 	},
 	{
 		id: "actions",
@@ -38,6 +38,6 @@ export const columns: ColumnDef<SettingsRow>[] = [
 				<Icon icon="mdi:pencil" className="h-4 w-4" />
 			</Button>
 		),
-		meta: { className: "w-12" },
+		meta: { headerClassName: "w-12" },
 	},
 ];
