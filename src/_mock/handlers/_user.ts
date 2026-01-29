@@ -1,48 +1,46 @@
-import { UserApi } from "@/core/api/services/userService";
 import { ResultStatus } from "@/core/types/enum";
-import { convertFlatToTree } from "@/core/utils/tree";
 import { faker } from "@faker-js/faker";
 import { http, HttpResponse } from "msw";
-import { DB_MENU, DB_PERMISSION, DB_ROLE, DB_ROLE_PERMISSION, DB_USER, DB_USER_ROLE } from "../assets_backup";
+import { DB_USER } from "../assets_backup";
+import { UserApi } from "@/core/api/services/userService";
 
-const signIn = http.post(`/api${UserApi.SignIn}`, async ({ request }) => {
-	const { username, password } = (await request.json()) as Record<string, string>;
+// Accept both /api/auth/... and /api/v1/auth/... (optional version segment)
+const signIn = http.post(new RegExp(`/api/v1${UserApi.SignIn}`), async () => {
+	return HttpResponse.json({
+		status: ResultStatus.SUCCESS,
+		message: "",
+		data: {
+			data: DB_USER[0],
+			accessToken: { value: faker.string.uuid() },
+			refreshToken: { value: faker.string.uuid() },
+		},
+	});
+});
 
-	const user = DB_USER.find((item) => item.username === username);
+const refresh = http.post(new RegExp(`/api/v1${UserApi.Refresh}`), async ({ request }) => {
+	const { refreshToken } = (await request.json()) as Record<string, string>;
 
-	if (!user || user.password !== password) {
+	if (!refreshToken) {
 		return HttpResponse.json({
-			status: 10001,
-			message: "Incorrect username or password.",
+			status: 10002,
+			message: "Refresh token is required.",
 		});
 	}
-	// delete password
-	const { password: _, ...userWithoutPassword } = user;
 
-	// user role
-	const roles = DB_USER_ROLE.filter((item) => item.userId === user.id).map((item) =>
-		DB_ROLE.find((role) => role.id === item.roleId),
-	);
-
-	// user permissions
-	const permissions = DB_ROLE_PERMISSION.filter((item) => roles.some((role) => role?.id === item.roleId)).map((item) =>
-		DB_PERMISSION.find((permission) => permission.id === item.permissionId),
-	);
-
-	const menu = convertFlatToTree(DB_MENU);
+	const user = DB_USER[0];
 
 	return HttpResponse.json({
 		status: ResultStatus.SUCCESS,
 		message: "",
 		data: {
-			user: { ...userWithoutPassword, roles, permissions, menu },
-			accessToken: faker.string.uuid(),
-			refreshToken: faker.string.uuid(),
+			data: user,
+			accessToken: { value: faker.string.uuid() },
+			refreshToken: { value: faker.string.uuid() },
 		},
 	});
 });
 
-const userList = http.get("/api/user", async () => {
+const userList = http.get(new RegExp(`/api/v1${UserApi.User}$`), async () => {
 	return HttpResponse.json(
 		Array.from({ length: 10 }).map(() => ({
 			fullname: faker.person.fullName(),
@@ -56,4 +54,4 @@ const userList = http.get("/api/user", async () => {
 	);
 });
 
-export { signIn, userList };
+export { signIn, refresh, userList };

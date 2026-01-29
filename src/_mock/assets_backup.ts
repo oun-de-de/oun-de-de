@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
-import type { Menu, Permission, Role, User } from "@/core/types/entity";
+import type { Menu, Permission, Role } from "@/core/types/entity";
 import { PermissionType } from "@/core/types/enum";
+import { AppUserData } from "@/core/services/auth/models/app-auth-account";
 
 const { GROUP, MENU, CATALOGUE } = PermissionType;
 
@@ -416,27 +417,27 @@ export const DB_MENU: Menu[] = [
 	},
 ];
 
-export const DB_USER: User[] = [
+export const DB_USER: AppUserData[] = [
 	{
-		id: "user_admin_id",
+		user_id: "user_admin_id",
 		username: "admin",
-		password: "demo1234",
-		avatar: faker.image.avatarGitHub(),
-		email: "admin@slash.com",
+		type: "local",
+		roles: ["SUPER_ADMIN"],
+		permissions: [],
 	},
 	{
-		id: "user_test_id",
+		user_id: "user_test_id",
 		username: "test",
-		password: "demo1234",
-		avatar: faker.image.avatarGitHub(),
-		email: "test@slash.com",
+		type: "local",
+		roles: ["TEST"],
+		permissions: [],
 	},
 	{
-		id: "user_guest_id",
+		user_id: "user_guest_id",
 		username: "guest",
-		password: "demo1234",
-		avatar: faker.image.avatarGitHub(),
-		email: "guest@slash.com",
+		type: "local",
+		roles: ["GUEST"],
+		permissions: [],
 	},
 ];
 
@@ -450,6 +451,9 @@ export const DB_PERMISSION: Permission[] = [
 	{ id: "permission_read", name: "permission-read", code: "permission:read" },
 	{ id: "permission_update", name: "permission-update", code: "permission:update" },
 	{ id: "permission_delete", name: "permission-delete", code: "permission:delete" },
+	{ id: "sale_create", name: "sale-create", code: "sale:create" },
+	{ id: "sale_cash_sale", name: "sale-cash-sale", code: "sale:cash-sale" },
+	{ id: "sale_invoice", name: "sale-invoice", code: "sale:invoice" },
 ];
 
 export const DB_USER_ROLE = [
@@ -462,7 +466,12 @@ export const DB_ROLE_PERMISSION = [
 	{ id: faker.string.uuid(), roleId: "role_admin_id", permissionId: "permission_read" },
 	{ id: faker.string.uuid(), roleId: "role_admin_id", permissionId: "permission_update" },
 	{ id: faker.string.uuid(), roleId: "role_admin_id", permissionId: "permission_delete" },
+	{ id: faker.string.uuid(), roleId: "role_admin_id", permissionId: "sale_create" },
+	{ id: faker.string.uuid(), roleId: "role_admin_id", permissionId: "sale_cash_sale" },
+	{ id: faker.string.uuid(), roleId: "role_admin_id", permissionId: "sale_invoice" },
 
 	{ id: faker.string.uuid(), roleId: "role_test_id", permissionId: "permission_read" },
 	{ id: faker.string.uuid(), roleId: "role_test_id", permissionId: "permission_update" },
+	{ id: faker.string.uuid(), roleId: "role_test_id", permissionId: "sale_create" },
+	{ id: faker.string.uuid(), roleId: "role_test_id", permissionId: "sale_cash_sale" },
 ];

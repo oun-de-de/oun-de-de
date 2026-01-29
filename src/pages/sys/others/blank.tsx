@@ -1,4 +1,4 @@
-import { Card } from "@/ui/card";
+import { Card } from "@/core/ui/card";
 
 export default function BlankPage() {
 	return <Card />;

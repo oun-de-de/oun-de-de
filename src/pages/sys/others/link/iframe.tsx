@@ -1,4 +1,4 @@
-import { LineLoading } from "@/components/loading";
+import { LineLoading } from "@/core/components/loading";
 import { useState } from "react";
 
 type Props = {

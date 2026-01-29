@@ -1,4 +1,4 @@
-import type { NavProps } from "@/components/nav/types";
+import type { NavProps } from "@/core/components/nav/types";
 import { useSettings } from "@/core/store/settingStore";
 import { ThemeLayout } from "@/core/types/enum";
 import styled from "styled-components";
@@ -34,7 +34,7 @@ const StyledNav = styled.nav<{ $width: string }>`
 	flex-direction: column;
 	height: 100%;
 	width: ${({ $width }) => $width};
-	background-color: ${({ theme }) => theme.colors.background.default};
+	background-color: ${({ theme }) => theme.colors.common.black};
 	z-index: 20;
 	transition: width 0.3s ease-in-out;
 `;

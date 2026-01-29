@@ -1,4 +1,4 @@
-import { Icon } from "@/components/icon";
+import { Icon } from "@/core/components/icon";
 import { Button } from "@/core/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/core/ui/form";
 import { Input } from "@/core/ui/input";

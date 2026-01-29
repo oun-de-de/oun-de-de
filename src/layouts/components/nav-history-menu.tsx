@@ -1,8 +1,8 @@
-import { Icon } from "@/components/icon";
+import { Icon } from "@/core/components/icon";
 import { useFilteredNavData } from "@/layouts/dashboard/nav/nav-data/index";
 import { RouterLink } from "@/routes/components/router-link";
 import { useLocation, useNavigate } from "react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import { ScrollArea } from "@/core/ui/scroll-area";
 
@@ -36,6 +36,24 @@ export default function NavHistoryMenu() {
 		return [{ path: DEFAULT_DASHBOARD_PATH, title: DEFAULT_DASHBOARD_TITLE }];
 	});
 
+	const scrollRef = useRef<HTMLDivElement>(null);
+	const [canScrollLeft, setCanScrollLeft] = useState(false);
+	const [canScrollRight, setCanScrollRight] = useState(false);
+
+	const updateScrollState = useCallback(() => {
+		const el = scrollRef.current;
+		if (!el) return;
+		const { scrollLeft, clientWidth, scrollWidth } = el;
+		setCanScrollLeft(scrollLeft > 0);
+		setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
+	}, []);
+
+	const scrollByAmount = (delta: number) => {
+		const el = scrollRef.current;
+		if (!el) return;
+		el.scrollBy({ left: delta, behavior: "smooth" });
+	};
+
 	// Create path to title mapping from nav data
 	const pathToTitleMap = useMemo(() => {
 		const map = new Map<string, string>();
@@ -65,7 +83,10 @@ export default function NavHistoryMenu() {
 		map.set("/dashboard/reports", "Reports");
 		map.set("/dashboard/settings", "Settings");
 		map.set("/dashboard/audit-log", "Audit Log");
-		
+		map.set("/dashboard/borrow", "Borrow");
+		map.set("/dashboard/borrow/new", "New Borrow Center");
+		map.set("/dashboard/borrow/payment", "Borrow Payment Center");
+
 		// Add nested routes that might be accessed
 		map.set("/dashboard/reports/customer-list", "Customer List Report");
 		map.set("/dashboard/reports/sale-detail-by-customer", "Sale Detail By Customer");
@@ -105,7 +126,7 @@ export default function NavHistoryMenu() {
 	// Update history when pathname changes
 	useEffect(() => {
 		const currentPath = location.pathname;
-		
+
 		// Only track dashboard routes
 		if (!currentPath.startsWith("/dashboard") && currentPath !== DEFAULT_DASHBOARD_PATH) {
 			return;
@@ -128,20 +149,26 @@ export default function NavHistoryMenu() {
 		});
 	}, [location.pathname, getTitleFromPath]);
 
+	useEffect(() => {
+		updateScrollState();
+	}, [history, updateScrollState]);
+
+	useEffect(() => {
+		window.addEventListener("resize", updateScrollState);
+		return () => window.removeEventListener("resize", updateScrollState);
+	}, [updateScrollState]);
+
 	// Save to localStorage whenever history changes
 	useEffect(() => {
 		localStorage.setItem("nav-history", JSON.stringify(history));
 	}, [history]);
 
-	const handleRemove = useCallback(
-		(path: string, e: React.MouseEvent) => {
-			e.preventDefault();
-			e.stopPropagation();
+	const handleRemove = useCallback((path: string, e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
 
-			setHistory((prev) => prev.filter((item) => item.path !== path));
-		},
-		[],
-	);
+		setHistory((prev) => prev.filter((item) => item.path !== path));
+	}, []);
 
 	const handleClick = useCallback(
 		(path: string) => {
@@ -157,8 +184,13 @@ export default function NavHistoryMenu() {
 
 	return (
 		<StyledContainer>
+			{canScrollLeft && (
+				<ArrowButton $side="left" type="button" onClick={() => scrollByAmount(-160)} aria-label="Scroll left">
+					<Icon icon="mdi:chevron-left" size={16} />
+				</ArrowButton>
+			)}
 			<StyledScrollArea>
-				<StyledHistoryList>
+				<StyledHistoryList ref={scrollRef} onScroll={updateScrollState}>
 					{history.map((item) => {
 						const active = isActive(item.path);
 						const removable = canRemove(item.path);
@@ -177,10 +209,7 @@ export default function NavHistoryMenu() {
 									<StyledHistoryText $active={active}>{item.title}</StyledHistoryText>
 								</StyledHistoryLink>
 								{removable && (
-									<StyledRemoveButton
-										onClick={(e: React.MouseEvent) => handleRemove(item.path, e)}
-										aria-label="Remove"
-									>
+									<StyledRemoveButton onClick={(e: React.MouseEvent) => handleRemove(item.path, e)} aria-label="Remove">
 										<Icon icon="lucide:x" size={14} />
 									</StyledRemoveButton>
 								)}
@@ -189,15 +218,23 @@ export default function NavHistoryMenu() {
 					})}
 				</StyledHistoryList>
 			</StyledScrollArea>
+
+			{canScrollRight && (
+				<ArrowButton $side="right" type="button" onClick={() => scrollByAmount(160)} aria-label="Scroll right">
+					<Icon icon="mdi:chevron-right" size={16} />
+				</ArrowButton>
+			)}
 		</StyledContainer>
 	);
 }
 
 //#region Styled Components
 const StyledContainer = styled.div`
+	position: relative;
 	flex: 1;
 	overflow: hidden;
 	margin-left: 1rem;
+	margin-right: 1rem;
 	min-width: 0;
 `;
 
@@ -212,22 +249,34 @@ const StyledHistoryList = styled.div`
 	padding: 0;
 	overflow-x: auto;
 	overflow-y: hidden;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
 
 	&::-webkit-scrollbar {
-		height: 4px;
+		display: none;
 	}
+`;
 
-	&::-webkit-scrollbar-track {
-		background: transparent;
-	}
+const ArrowButton = styled.button<{ $side: "left" | "right" }>`
+	position: absolute;
+	top: 50%;
+	${({ $side }) => ($side === "left" ? "left: 0px;" : "right: 0px;")}
+	transform: translateY(-50%);
+	width: 32px;
+	height: 32px;
+	border: 1px solid ${({ theme }) => theme.colors.palette.gray[300]};
+	border-radius: 50%;
+	background: ${({ theme }) => theme.colors.common.white};
+	color: ${({ theme }) => theme.colors.palette.gray[600]};
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+	z-index: 5;
 
-	&::-webkit-scrollbar-thumb {
-		background: ${({ theme }) => theme.colors.palette.gray[300]};
-		border-radius: 2px;
-	}
-
-	&::-webkit-scrollbar-thumb:hover {
-		background: ${({ theme }) => theme.colors.palette.gray[400]};
+	&:hover {
+		background: ${({ theme }) => theme.colors.palette.gray[100]};
 	}
 `;
 
@@ -238,8 +287,7 @@ const StyledHistoryItem = styled.div<{ $active: boolean }>`
 	flex-shrink: 0;
 	border-radius: 4px;
 	border: 1px solid ${({ theme }) => theme.colors.palette.gray[300]};
-	background-color: ${({ theme, $active }) =>
-		$active ? "#2065D1" : theme.colors.common.white};
+	background-color: ${({ theme, $active }) => ($active ? "#60a5fa" : theme.colors.common.white)};
 
 	&:hover {
 		background-color: ${({ theme, $active }) => ($active ? "" : theme.colors.palette.gray[200])};
@@ -255,11 +303,10 @@ const StyledHistoryLink = styled(RouterLink as any)<{ $active: boolean }>`
 	text-decoration: none;
 	transition: all 0.2s ease;
 	white-space: nowrap;
-	background-color: ${({ theme, $active }) =>
-		$active ? "#2065D1" : theme.colors.palette.gray[100]};
+	background-color: ${({ theme, $active }) => ($active ? "#60a5fa" : theme.colors.palette.gray[100])};
 	color: ${({ theme, $active }) => ($active ? theme.colors.common.white : theme.colors.palette.gray[700])};
 	font-size: 0.875rem;
-	font-weight: ${({ $active }) => ($active ? 500 : 400)};
+	font-weight: ${({ $active }) => ($active ? 600 : 400)};
 
 	&:hover {
 		background-color: ${({ theme, $active }) => ($active ? "" : theme.colors.palette.gray[200])};

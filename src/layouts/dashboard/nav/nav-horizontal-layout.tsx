@@ -1,5 +1,5 @@
-import { NavHorizontal } from "@/components/nav";
-import type { NavProps } from "@/components/nav/types";
+import { NavHorizontal } from "@/core/components/nav";
+import type { NavProps } from "@/core/components/nav/types";
 import { ScrollBar } from "@/core/ui/scroll-area";
 import { ScrollArea } from "@/core/ui/scroll-area";
 

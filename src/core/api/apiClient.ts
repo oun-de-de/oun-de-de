@@ -1,61 +1,127 @@
-import { GLOBAL_CONFIG } from "@/global-config";
-import { t } from "@/core/locales/i18n";
-import userStore from "@/core/store/userStore";
-import axios, { type AxiosRequestConfig, type AxiosError, type AxiosResponse } from "axios";
-import { toast } from "sonner";
-import type { Result } from "@/core/types/api";
-import { ResultStatus } from "@/core/types/enum";
+import { type AxiosRequestConfig } from "axios";
+import { AuthNetworkService, NoAuthNetworkService } from "./network-service";
 
-const axiosInstance = axios.create({
-	baseURL: GLOBAL_CONFIG.apiBaseUrl,
-	timeout: 50000,
-	headers: { "Content-Type": "application/json;charset=utf-8" },
-});
-
-axiosInstance.interceptors.request.use(
-	(config) => {
-		config.headers.Authorization = "Bearer Token";
-		return config;
-	},
-	(error) => Promise.reject(error),
-);
-
-axiosInstance.interceptors.response.use(
-	(res: AxiosResponse<Result<any>>) => {
-		if (!res.data) throw new Error(t("sys.api.apiRequestFailed"));
-		const { status, data, message } = res.data;
-		if (status === ResultStatus.SUCCESS) {
-			return data;
-		}
-		throw new Error(message || t("sys.api.apiRequestFailed"));
-	},
-	(error: AxiosError<Result>) => {
-		const { response, message } = error || {};
-		const errMsg = response?.data?.message || message || t("sys.api.errorMessage");
-		toast.error(errMsg, { position: "top-center" });
-		if (response?.status === 401) {
-			userStore.getState().actions.clearUserInfoAndToken();
-		}
-		return Promise.reject(error);
-	},
-);
-
+// Legacy API Client for backward compatibility with Auth
 class APIClient {
-	get<T = unknown>(config: AxiosRequestConfig): Promise<T> {
-		return this.request<T>({ ...config, method: "GET" });
+	private service: AuthNetworkService;
+
+	constructor() {
+		this.service = AuthNetworkService.getInstance();
 	}
-	post<T = unknown>(config: AxiosRequestConfig): Promise<T> {
-		return this.request<T>({ ...config, method: "POST" });
+
+	async get<T>(config: AxiosRequestConfig): Promise<T> {
+		const response = await this.service.get<T>(config.url || "", {
+			queryParameters: config.params,
+			headers: config.headers,
+			data: config.data,
+			responseType: config.responseType,
+			cancelToken: config.cancelToken,
+			receiveTimeout: config.timeout,
+		});
+		return response.body as T;
 	}
-	put<T = unknown>(config: AxiosRequestConfig): Promise<T> {
-		return this.request<T>({ ...config, method: "PUT" });
+
+	async post<T>(config: AxiosRequestConfig): Promise<T> {
+		const response = await this.service.post<T>(config.url || "", {
+			queryParameters: config.params,
+			headers: config.headers,
+			data: config.data,
+			responseType: config.responseType,
+			cancelToken: config.cancelToken,
+			receiveTimeout: config.timeout,
+		});
+		return response.body as T;
 	}
-	delete<T = unknown>(config: AxiosRequestConfig): Promise<T> {
-		return this.request<T>({ ...config, method: "DELETE" });
+
+	async put<T>(config: AxiosRequestConfig): Promise<T> {
+		const response = await this.service.put<T>(config.url || "", {
+			queryParameters: config.params,
+			headers: config.headers,
+			data: config.data,
+			responseType: config.responseType,
+			cancelToken: config.cancelToken,
+			receiveTimeout: config.timeout,
+		});
+		return response.body as T;
 	}
-	request<T = unknown>(config: AxiosRequestConfig): Promise<T> {
-		return axiosInstance.request<any, T>(config);
+
+	async delete<T>(config: AxiosRequestConfig): Promise<T> {
+		const response = await this.service.delete<T>(config.url || "", {
+			queryParameters: config.params,
+			headers: config.headers,
+			data: config.data,
+			responseType: config.responseType,
+			cancelToken: config.cancelToken,
+			receiveTimeout: config.timeout,
+		});
+		return response.body as T;
+	}
+
+	async request<T>(config: AxiosRequestConfig): Promise<T> {
+		return this.service.axiosInstance.request<unknown, T>(config);
 	}
 }
 
-export default new APIClient();
+// No-Auth API Client for backward compatibility without Auth
+class NoAuthAPIClient {
+	private service: NoAuthNetworkService;
+
+	constructor() {
+		this.service = NoAuthNetworkService.getInstance();
+	}
+
+	async get<T>(config: AxiosRequestConfig): Promise<T> {
+		const response = await this.service.get<T>(config.url || "", {
+			queryParameters: config.params,
+			headers: config.headers,
+			data: config.data,
+			responseType: config.responseType,
+			cancelToken: config.cancelToken,
+			receiveTimeout: config.timeout,
+		});
+		return response.body as T;
+	}
+
+	async post<T>(config: AxiosRequestConfig): Promise<T> {
+		const response = await this.service.post<T>(config.url || "", {
+			queryParameters: config.params,
+			headers: config.headers,
+			data: config.data,
+			responseType: config.responseType,
+			cancelToken: config.cancelToken,
+			receiveTimeout: config.timeout,
+		});
+		return response.body as T;
+	}
+
+	async put<T>(config: AxiosRequestConfig): Promise<T> {
+		const response = await this.service.put<T>(config.url || "", {
+			queryParameters: config.params,
+			headers: config.headers,
+			data: config.data,
+			responseType: config.responseType,
+			cancelToken: config.cancelToken,
+			receiveTimeout: config.timeout,
+		});
+		return response.body as T;
+	}
+
+	async delete<T>(config: AxiosRequestConfig): Promise<T> {
+		const response = await this.service.delete<T>(config.url || "", {
+			queryParameters: config.params,
+			headers: config.headers,
+			data: config.data,
+			responseType: config.responseType,
+			cancelToken: config.cancelToken,
+			receiveTimeout: config.timeout,
+		});
+		return response.body as T;
+	}
+
+	async request<T>(config: AxiosRequestConfig): Promise<T> {
+		return this.service.axiosInstance.request<unknown, T>(config);
+	}
+}
+
+export const apiClient = new APIClient();
+export const noAuthApi = new NoAuthAPIClient();

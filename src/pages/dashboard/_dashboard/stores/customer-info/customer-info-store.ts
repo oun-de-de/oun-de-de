@@ -5,61 +5,60 @@ import {
 	CustomerInfoLoadFirstLoadingState,
 	CustomerInfoLoadFirstSuccessState,
 } from "./states/get-state";
-import { createBoundStore } from "@/core/utils/create-bound-store";
-import { BaseStore } from "@/core/types/base-store";
+import { BaseStore } from "@/core/interfaces/base-store";
 import { GetCustomerInfoUseCase } from "@/core/domain/dashboard/usecases/get-customer-info-use-case";
 import {
 	CustomerInfoRepository,
 	CustomerInfoRepositoryImpl,
 } from "@/core/domain/dashboard/repositories/customer-info-repository";
-import Repository from "@/service-locator";
+import { createBoundStore } from "@/core/utils/create-bound-store";
+import { Repository } from "@/service-locator";
 
-type Deps = {
-	customerRepo: CustomerInfoRepository;
+type CustomerInfoActions = {
+	fetch: () => Promise<void>;
 };
 
-const depsValue: Deps = {
-	customerRepo: Repository.get<CustomerInfoRepository>(CustomerInfoRepositoryImpl),
-};
-
-export interface CustomerInfoStore extends BaseStore {
+export interface CustomerInfoStore extends BaseStore<CustomerInfoState, CustomerInfoActions> {
 	state: CustomerInfoState;
 	actions: {
 		fetch: () => Promise<void>;
 	};
 }
 
-export const { useState, useAction } = createBoundStore<CustomerInfoStore, Deps>({
-	deps: depsValue,
-	createStore: ({ customerRepo }) =>
-		create<CustomerInfoStore>((set, get) => ({
-			state: CustomerInfoInitialState(),
-			actions: {
-				async fetch() {
-					const currentState = get().state;
+type Deps = {
+	customerRepo: CustomerInfoRepository;
+};
 
-					set({
-						state: CustomerInfoLoadFirstLoadingState(currentState),
-					});
+const createCustomerInfoStore = ({ customerRepo }: Deps) =>
+	create<CustomerInfoStore>((set, get) => ({
+		state: CustomerInfoInitialState(),
+		actions: {
+			async fetch() {
+				set({
+					state: CustomerInfoLoadFirstLoadingState(get().state),
+				});
 
-					const result = await new GetCustomerInfoUseCase(customerRepo).getCustomerInfo();
+				const result = await new GetCustomerInfoUseCase(customerRepo).getCustomerInfo();
 
-					result.fold(
-						(failure) => {
-							set({
-								state: CustomerInfoLoadFirstErrorState(currentState, failure),
-							});
-						},
-						(list) => {
-							set({
-								state: CustomerInfoLoadFirstSuccessState(currentState, list),
-							});
-						},
-					);
-				},
+				result.fold(
+					(failure) => {
+						set({
+							state: CustomerInfoLoadFirstErrorState(get().state, failure),
+						});
+					},
+					(list) => {
+						set({
+							state: CustomerInfoLoadFirstSuccessState(get().state, list),
+						});
+					},
+				);
 			},
-		})),
-});
+		},
+	}));
 
-export const useCustomerInfoState = useState;
-export const useCustomerInfoActions = useAction;
+export const customerInfoBoundStore = createBoundStore<CustomerInfoStore>({
+	createStore: () =>
+		createCustomerInfoStore({
+			customerRepo: Repository.get<CustomerInfoRepository>(CustomerInfoRepositoryImpl),
+		}),
+});

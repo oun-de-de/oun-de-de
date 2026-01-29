@@ -1,7 +1,15 @@
-import type { NavItemDataProps } from "@/components/nav";
+import type { NavItemDataProps } from "@/core/components/nav";
 import { useFilteredNavData } from "@/layouts/dashboard/nav";
 import useLocale from "@/core/locales/use-locale";
-import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/core/ui/breadcrumb";
+import {
+	Breadcrumb,
+	BreadcrumbEllipsis,
+	BreadcrumbItem,
+	BreadcrumbLink,
+	BreadcrumbList,
+	BreadcrumbPage,
+	BreadcrumbSeparator,
+} from "@/core/ui/breadcrumb";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/core/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import * as React from "react";
@@ -49,7 +57,7 @@ export default function BreadCrumb({ maxItems = 3 }: BreadCrumbProps) {
 	const breadCrumbs = useMemo(() => {
 		const dashboardItem: BreadcrumbItemData = {
 			key: "/",
-			label: t("Dashboard"),
+			label: "Dashboard",
 			items: [],
 		};
 
@@ -66,12 +74,12 @@ export default function BreadCrumb({ maxItems = 3 }: BreadCrumbProps) {
 				const children =
 					currentItem.children?.map((child) => ({
 						key: child.path,
-						label: t(child.title),
+						label: child.title,
 					})) ?? [];
 
 				return {
 					key: currentItem.path,
-					label: t(currentItem.title),
+					label: currentItem.title,
 					items: children,
 				};
 			})

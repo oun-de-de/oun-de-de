@@ -12,9 +12,7 @@ export function NavVerticalHeader() {
 		<StyledHeader $isMini={themeLayout === ThemeLayout.Mini}>
 			<StyledTitleWrapper>
 				<StyledTitleLink href="/" $isMini={themeLayout === ThemeLayout.Mini}>
-					<StyledTitle $isMini={themeLayout === ThemeLayout.Mini}>
-						{GLOBAL_CONFIG.appName}
-					</StyledTitle>
+					<StyledTitle $isMini={themeLayout === ThemeLayout.Mini}>{GLOBAL_CONFIG.appName}</StyledTitle>
 				</StyledTitleLink>
 			</StyledTitleWrapper>
 		</StyledHeader>
@@ -50,6 +48,6 @@ const StyledTitle = styled.span<{ $isMini: boolean }>`
 	font-weight: 700;
 	transition: all 0.3s ease-in-out;
 	white-space: nowrap;
-	color: ${({ theme }) => theme.colors.text.primary};
+	color: ${({ theme }) => theme.colors.common.white};
 `;
 //#endregion

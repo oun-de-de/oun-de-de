@@ -1,30 +1,37 @@
-import { Icon } from "@/components/icon";
+import { Icon } from "@/core/components/icon";
 import { useSettings } from "@/core/store/settingStore";
-import { useUserActions, useUserInfo } from "@/core/store/userStore";
+import { useUserInfo, useUserRoles, useSignOut } from "@/core/services/auth/hooks/use-auth";
 import { ThemeLayout } from "@/core/types/enum";
 import { rgbAlpha } from "@/core/utils/theme";
+import { createTaggedLogger } from "@/core/utils/logger";
 import { Button } from "@/core/ui/button";
 import { useRouter } from "@/routes/hooks";
 import styled from "styled-components";
 import AccountDropdown from "../../components/account-dropdown";
+import userIcon from "@/assets/icons/ic-user.svg";
+
+const logger = createTaggedLogger("NavVerticalFooter");
 
 export function NavVerticalFooter() {
 	const { themeLayout } = useSettings();
-	const { username, avatar, roles } = useUserInfo();
-	const { clearUserInfoAndToken } = useUserActions();
+	const userInfo = useUserInfo();
+	const roles = useUserRoles();
+	const signOut = useSignOut();
 	const { replace } = useRouter();
 
-	const handleLogout = () => {
+	const handleLogout = async () => {
 		try {
-			clearUserInfoAndToken();
+			await signOut();
+			replace("/auth/login");
 		} catch (error) {
-			console.log(error);
-		} finally {
+			logger.error("Logout failed:", error);
+			// Still redirect on error
 			replace("/auth/login");
 		}
 	};
 
-	const userRole = roles?.[0]?.name || "Sale";
+	const username = userInfo?.username;
+	const userRole = roles?.[0] ?? "User";
 	const isMini = themeLayout === ThemeLayout.Mini;
 
 	return (
@@ -35,13 +42,7 @@ export function NavVerticalFooter() {
 				</StyledMiniFooter>
 			) : (
 				<StyledVerticalFooter>
-					{avatar ? (
-						<StyledAvatar src={avatar} alt={username} />
-					) : (
-						<StyledAvatarPlaceholder>
-							{username?.[0]?.toUpperCase() || "U"}
-						</StyledAvatarPlaceholder>
-					)}
+					<StyledAvatar src={userIcon} alt={username} />
 					<StyledUserInfo>
 						<StyledUsername>{username}</StyledUsername>
 						<StyledUserRole>{userRole}</StyledUserRole>
@@ -85,18 +86,18 @@ const StyledAvatar = styled.img`
 	object-fit: cover;
 `;
 
-const StyledAvatarPlaceholder = styled.div`
-	height: 2rem;
-	width: 2rem;
-	border-radius: 50%;
-	background-color: ${({ theme }) => theme.colors.palette.primary.default};
-	color: ${({ theme }) => theme.colors.common.white};
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 0.875rem;
-	font-weight: 500;
-`;
+// const StyledAvatarPlaceholder = styled.div`
+// 	height: 2rem;
+// 	width: 2rem;
+// 	border-radius: 50%;
+// 	background-color: ${({ theme }) => theme.colors.palette.primary.default};
+// 	color: ${({ theme }) => theme.colors.common.white};
+// 	display: flex;
+// 	align-items: center;
+// 	justify-content: center;
+// 	font-size: 0.875rem;
+// 	font-weight: 500;
+// `;
 
 const StyledUserInfo = styled.div`
 	flex: 1;

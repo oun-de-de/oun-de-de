@@ -1,12 +1,12 @@
-import { Chart } from "@/components/chart/chart";
-import { useChart } from "@/components/chart/useChart";
-import Icon from "@/components/icon/icon";
-import { Button } from "@/ui/button";
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/ui/card";
-import { Progress } from "@/ui/progress";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
-import { Text, Title } from "@/ui/typography";
-import { cn } from "@/utils";
+import { Chart } from "@/core/components/chart/chart";
+import { useChart } from "@/core/components/chart/useChart";
+import Icon from "@/core/components/icon/icon";
+import { Button } from "@/core/ui/button";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/core/ui/card";
+import { Progress } from "@/core/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/ui/select";
+import { Text, Title } from "@/core/ui/typography";
+import { cn } from "@/core/utils";
 import { useState } from "react";
 
 // ---------------------- 数据区 ----------------------

@@ -1,23 +1,16 @@
-import { useUserToken } from "@/core/store/userStore";
-import { useCallback, useEffect } from "react";
-import { useRouter } from "../hooks";
+import { useIsAuthenticated } from "@/core/services/auth/hooks/use-auth";
+import { Navigate } from "react-router";
 
 type Props = {
 	children: React.ReactNode;
 };
+
 export default function LoginAuthGuard({ children }: Props) {
-	const router = useRouter();
-	const { accessToken } = useUserToken();
+	const isAuthenticated = useIsAuthenticated();
 
-	const check = useCallback(() => {
-		if (!accessToken) {
-			router.replace("/auth/login");
-		}
-	}, [router, accessToken]);
-
-	useEffect(() => {
-		check();
-	}, [check]);
+	if (!isAuthenticated) {
+		return <Navigate to="/auth/login" replace />;
+	}
 
 	return <>{children}</>;
 }

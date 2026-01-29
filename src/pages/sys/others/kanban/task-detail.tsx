@@ -1,15 +1,15 @@
-import { Icon } from "@/components/icon";
-import { themeVars } from "@/theme/theme.css";
-import { Avatar, AvatarImage } from "@/ui/avatar";
-import { Badge } from "@/ui/badge";
-import { Button } from "@/ui/button";
-import { Calendar } from "@/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/ui/popover";
-import { Textarea } from "@/ui/textarea";
-import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
-import { Text, Title } from "@/ui/typography";
 import dayjs from "dayjs";
 import styled from "styled-components";
+import { Icon } from "@/core/components/icon";
+import { themeVars } from "@/core/theme/theme.css.ts";
+import { Avatar, AvatarImage } from "@/core/ui/avatar";
+import { Badge } from "@/core/ui/badge";
+import { Button } from "@/core/ui/button";
+import { Calendar } from "@/core/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/core/ui/popover";
+import { Textarea } from "@/core/ui/textarea";
+import { ToggleGroup, ToggleGroupItem } from "@/core/ui/toggle-group";
+import { Text, Title } from "@/core/ui/typography";
 import { type Task, TaskPriority } from "./types";
 
 type Props = {

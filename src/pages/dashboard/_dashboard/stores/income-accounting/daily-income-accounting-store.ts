@@ -7,15 +7,20 @@ import {
 } from "./states/get-state";
 import { FilterData } from "../../../../../core/domain/dashboard/entities/filter";
 import { GetIncomeAccountingListUseCase } from "../../../../../core/domain/dashboard/usecases/get-income-account-list-use-case";
-import { BaseStore } from "@/core/types/base-store";
-import { createBoundStore } from "@/core/utils/create-bound-store";
+import { BaseStore } from "@/core/interfaces/base-store";
 import {
 	DailyIncomeAccountingRepository,
 	DailyIncomeAccountingRepositoryImpl,
 } from "@/core/domain/dashboard/repositories/daily-income-accounting-repository";
-import Repository from "@/service-locator";
+import { Repository } from "@/service-locator";
+import { createBoundStore } from "@/core/utils/create-bound-store";
 
-export interface DailyIncomeAccountingStore extends BaseStore {
+type DailyIncomeAccountingActions = {
+	fetch: (id: FilterData) => Promise<void>;
+};
+
+export interface DailyIncomeAccountingStore
+	extends BaseStore<DailyIncomeAccountingState, DailyIncomeAccountingActions> {
 	state: DailyIncomeAccountingState;
 	actions: {
 		fetch: (id: FilterData) => Promise<void>;
@@ -26,41 +31,36 @@ type Deps = {
 	accountingRepo: DailyIncomeAccountingRepository;
 };
 
-const depsValue: Deps = {
-	accountingRepo: Repository.get<DailyIncomeAccountingRepository>(DailyIncomeAccountingRepositoryImpl),
-};
+const createDailyIncomeAccountingStore = ({ accountingRepo }: Deps) =>
+	create<DailyIncomeAccountingStore>((set, get) => ({
+		state: DailyIncomeAccountingInitialState(),
+		actions: {
+			async fetch(id: FilterData) {
+				set({
+					state: DailyIncomeAccountingLoadFirstLoadingState(get().state, id),
+				});
 
-const { useState, useAction } = createBoundStore<DailyIncomeAccountingStore, Deps>({
-	deps: depsValue,
-	createStore: ({ accountingRepo }) =>
-		create<DailyIncomeAccountingStore>((set, get) => ({
-			state: DailyIncomeAccountingInitialState(),
-			actions: {
-				async fetch(id: FilterData) {
-					const currentState = get().state;
+				const result = await new GetIncomeAccountingListUseCase(accountingRepo).getIncomeAccountingList(id);
 
-					set({
-						state: DailyIncomeAccountingLoadFirstLoadingState(currentState, id),
-					});
-
-					const result = await new GetIncomeAccountingListUseCase(accountingRepo).getIncomeAccountingList(id);
-
-					result.fold(
-						(failure) => {
-							set({
-								state: DailyIncomeAccountingLoadFirstErrorState(currentState, failure),
-							});
-						},
-						(list) => {
-							set({
-								state: DailyIncomeAccountingLoadFirstSuccessState(currentState, list),
-							});
-						},
-					);
-				},
+				result.fold(
+					(failure) => {
+						set({
+							state: DailyIncomeAccountingLoadFirstErrorState(get().state, failure),
+						});
+					},
+					(list) => {
+						set({
+							state: DailyIncomeAccountingLoadFirstSuccessState(get().state, list),
+						});
+					},
+				);
 			},
-		})),
-});
+		},
+	}));
 
-export const useDailyIncomeAccountingState = useState;
-export const useDailyIncomeAccountingActions = useAction;
+export const dailyIncomeAccountingBoundStore = createBoundStore<DailyIncomeAccountingStore>({
+	createStore: () =>
+		createDailyIncomeAccountingStore({
+			accountingRepo: Repository.get<DailyIncomeAccountingRepository>(DailyIncomeAccountingRepositoryImpl),
+		}),
+});

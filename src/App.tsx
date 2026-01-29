@@ -1,14 +1,16 @@
-import Logo from "@/assets/icons/ic-logo-badge.svg";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/react";
+import { useEffect } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { MotionLazy } from "./components/animate/motion-lazy";
-import { RouteLoadingProgress } from "./components/loading";
-import Toast from "./components/toast";
-import { GLOBAL_CONFIG } from "./global-config";
+import Logo from "@/assets/icons/ic-logo-badge.svg";
+import { MotionLazy } from "./core/components/animate/motion-lazy";
+import { RouteLoadingProgress } from "./core/components/loading";
+import Toast from "./core/components/toast";
 import { AntdAdapter } from "./core/theme/adapter/antd.adapter";
 import { ThemeProvider } from "./core/theme/theme-provider";
+import { GLOBAL_CONFIG } from "./global-config";
+import Repository from "./service-locator";
+import { GlobalLoadingOverlay } from "./core/components/loading/global-loading-overlay";
 
 if (import.meta.env.DEV) {
 	import("react-scan").then(({ scan }) => {
@@ -22,6 +24,9 @@ if (import.meta.env.DEV) {
 }
 
 function App({ children }: { children: React.ReactNode }) {
+	useEffect(() => {
+		Repository.initialize();
+	}, []);
 	return (
 		<HelmetProvider>
 			<QueryClientProvider client={new QueryClient()}>
@@ -33,6 +38,7 @@ function App({ children }: { children: React.ReactNode }) {
 					</Helmet>
 					<Toast />
 					<RouteLoadingProgress />
+					<GlobalLoadingOverlay />
 					<MotionLazy>{children}</MotionLazy>
 				</ThemeProvider>
 			</QueryClientProvider>

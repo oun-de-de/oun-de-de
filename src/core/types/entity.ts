@@ -1,21 +1,9 @@
-import type { NavItemDataProps } from "@/components/nav/types";
+import type { NavItemDataProps } from "@/core/components/nav/types";
 import type { BasicStatus, PermissionType } from "./enum";
 
 export interface UserToken {
 	accessToken?: string;
 	refreshToken?: string;
-}
-
-export interface UserInfo {
-	id: string;
-	email: string;
-	username: string;
-	password?: string;
-	avatar?: string;
-	roles?: Role[];
-	status?: BasicStatus;
-	permissions?: Permission[];
-	menu?: MenuTree[];
 }
 
 export interface Permission_Old {

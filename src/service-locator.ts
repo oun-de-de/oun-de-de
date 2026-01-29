@@ -1,31 +1,43 @@
-import { GetIt } from "./core/services/service-factory";
-import { DisposeAble, isDisposeAble } from "./core/types/dispose-able";
-import { InitAble, isInitAble } from "./core/types/init-able";
+import { GetIt } from "@service-locator";
 import {
 	DailyIncomeAccountingApiImpl,
 	DailyIncomePosApiImpl,
 	DashboardApiImpl,
 } from "./core/api/services/dashboardService";
+import { type AuthRepository, AuthRepositoryImpl } from "./core/domain/auth/repositories";
 import {
-	CustomerInfoRepository,
+	type CustomerInfoRepository,
 	CustomerInfoRepositoryImpl,
 } from "./core/domain/dashboard/repositories/customer-info-repository";
 import {
-	DailyIncomeAccountingRepository,
+	type DailyIncomeAccountingRepository,
 	DailyIncomeAccountingRepositoryImpl,
 } from "./core/domain/dashboard/repositories/daily-income-accounting-repository";
 import {
-	DailyIncomePosRepository,
+	type DailyIncomePosRepository,
 	DailyIncomePosRepositoryImpl,
 } from "./core/domain/dashboard/repositories/daily-income-pos-repository";
 import {
-	DashboardRepository,
+	type DashboardRepository,
 	DashboardRepositoryImpl,
 } from "./core/domain/dashboard/repositories/dashboard-repository";
 import {
-	PerformanceRepository,
+	type PerformanceRepository,
 	PerformanceRepositoryImpl,
 } from "./core/domain/dashboard/repositories/performance-repository";
+import { AppAuthService } from "./core/services/auth";
+import {
+	SaleFilterRepository,
+	SaleFilterRepositoryImpl,
+} from "./core/domain/sales/repositories/sale-filter-repository";
+import {
+	SaleProductRepository,
+	SaleProductRepositoryImpl,
+} from "./core/domain/sales/repositories/sale-product-repository";
+import { SaleApiImpl } from "./core/api/services/saleService";
+import { InitAble, isInitAble } from "./core/interfaces/init-able";
+import { DisposeAble, isDisposeAble } from "./core/interfaces/dispose-able";
+import { SaleCartRepository, SaleCartRepositoryImpl } from "./core/domain/sales/repositories/sale-cart-repository";
 
 class Repository {
 	private constructor() {}
@@ -110,6 +122,9 @@ class Repository {
 	}
 
 	repositoryRegister(): void {
+		// Auth Repository
+		Repository.register<AuthRepository>(new AuthRepositoryImpl(AppAuthService.getInstance()));
+
 		// Dashboard - Income POS
 		Repository.register<DashboardRepository>(
 			new DashboardRepositoryImpl(new DashboardApiImpl(), "dashboard:selectedFilter:income-pos"),
@@ -135,6 +150,15 @@ class Repository {
 
 		// Performance
 		Repository.register<PerformanceRepository>(new PerformanceRepositoryImpl(new DashboardApiImpl()));
+
+		// Sale Filter
+		Repository.register<SaleFilterRepository>(new SaleFilterRepositoryImpl(new SaleApiImpl()));
+
+		// Sale Product
+		Repository.register<SaleProductRepository>(new SaleProductRepositoryImpl(new SaleApiImpl()));
+
+		// Sale Cart
+		Repository.register<SaleCartRepository>(new SaleCartRepositoryImpl());
 	}
 }
 
