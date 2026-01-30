@@ -26,6 +26,7 @@ type ListFooterProps = VariantProps<typeof listFooterVariants> & {
 	showControls?: boolean;
 	hasPrev?: boolean;
 	hasNext?: boolean;
+	isCollapsed?: boolean;
 };
 
 export function ListFooter({
@@ -38,8 +39,39 @@ export function ListFooter({
 	showControls = true,
 	hasPrev = true,
 	hasNext = true,
+	isCollapsed,
 }: ListFooterProps) {
 	const isMinimal = variant === "minimal";
+
+	if (isCollapsed) {
+		return (
+			<div className={cn("flex flex-col items-center gap-1 mt-4", className)}>
+				<span className="text-[10px] font-medium">{total} total</span>
+				{showControls && (
+					<span className="flex items-center gap-1">
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-6 w-6"
+							onClick={hasPrev ? onPrev : undefined}
+							disabled={!hasPrev}
+						>
+							<Icon icon="mdi:chevron-left" />
+						</Button>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-6 w-6"
+							onClick={hasNext ? onNext : undefined}
+							disabled={!hasNext}
+						>
+							<Icon icon="mdi:chevron-right" />
+						</Button>
+					</span>
+				)}
+			</div>
+		);
+	}
 
 	return (
 		<div className={cn(listFooterVariants({ variant, className }))}>

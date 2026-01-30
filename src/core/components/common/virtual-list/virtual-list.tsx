@@ -1,11 +1,12 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef, isValidElement, cloneElement } from "react";
+import { cloneElement, isValidElement, useRef } from "react";
 import styled from "styled-components";
 
 export function VirtualList<T>({
 	data,
 	renderItem,
 	estimateSize = 50,
+	gap = 0,
 	className,
 	height = "100%",
 	overscan = 5,
@@ -14,6 +15,7 @@ export function VirtualList<T>({
 	data: T[];
 	renderItem: (item: T, style: React.CSSProperties, index: number) => React.ReactNode;
 	estimateSize?: number;
+	gap?: number;
 	className?: string;
 	height?: string | number;
 	overscan?: number;
@@ -23,7 +25,7 @@ export function VirtualList<T>({
 	const rowVirtualizer = useVirtualizer({
 		count: data.length,
 		getScrollElement: () => parentRef.current,
-		estimateSize: () => estimateSize,
+		estimateSize: () => estimateSize + gap,
 		overscan,
 	});
 
@@ -37,7 +39,6 @@ export function VirtualList<T>({
 						top: 0,
 						left: 0,
 						width: "100%",
-						height: `${virtualItem.size}px`,
 						transform: `translateY(${virtualItem.start}px)`,
 					};
 					const rendered = renderItem(item, style, virtualItem.index);
@@ -61,7 +62,7 @@ export function VirtualList<T>({
 const VirtualListContainer = styled.div<{ $height: string | number }>`
 	height: ${({ $height }) => (typeof $height === "number" ? `${$height}px` : $height)};
 	overflow-y: auto;
-	contain: strict;
+	contain: layout;
 	padding-right: 2px;
 	scrollbar-width: none;
 
@@ -110,6 +111,6 @@ const VirtualListContainer = styled.div<{ $height: string | number }>`
 
 const InnerContainer = styled.div<{ $height: number }>`
 	height: ${({ $height }) => $height}px;
-	width: calc(100% - 12px);
+	width: 100%;
 	position: relative;
 `;

@@ -13,6 +13,8 @@ export default function ProductsPage() {
 	const listState = useProductsList();
 	const { updateState } = useProductsListActions();
 
+	const [isCollapsed, setIsCollapsed] = useState(false);
+
 	const filteredTransactions = useMemo(() => {
 		const normalizedType = normalizeToken(listState.typeFilter);
 		const normalizedQuery = listState.searchValue.trim().toLowerCase();
@@ -60,7 +62,15 @@ export default function ProductsPage() {
 
 	return (
 		<DashboardSplitView
-			sidebar={<ProductSidebar activeProductId={activeProductId} onSelect={setActiveProductId} />}
+			sidebarClassName={isCollapsed ? "lg:w-20" : "lg:w-1/4"}
+			sidebar={
+				<ProductSidebar
+					activeProductId={activeProductId}
+					onSelect={setActiveProductId}
+					onToggle={() => setIsCollapsed((prev) => !prev)}
+					isCollapsed={isCollapsed}
+				/>
+			}
 			content={
 				<ProductContent
 					activeProductId={activeProductId}

@@ -18,6 +18,7 @@ export default function SettingsPage() {
 function SettingsView() {
 	const [activeTab, setActiveTab] = useState(settingsTopTabs[0]);
 	const [activeItem, setActiveItem] = useState(settingsLeftMenu[0]);
+	const [isCollapsed, setIsCollapsed] = useState(false);
 
 	return (
 		<div className="flex w-full flex-col gap-4">
@@ -37,7 +38,15 @@ function SettingsView() {
 			</Card>
 
 			<DashboardSplitView
-				sidebar={<SettingsSidebar activeItem={activeItem} onSelect={setActiveItem} />}
+				sidebarClassName={isCollapsed ? "lg:w-20" : "lg:w-1/4"}
+				sidebar={
+					<SettingsSidebar
+						activeItem={activeItem}
+						onSelect={setActiveItem}
+						onToggle={() => setIsCollapsed((prev) => !prev)}
+						isCollapsed={isCollapsed}
+					/>
+				}
 				content={<SettingsContent activeItem={activeItem} />}
 			/>
 		</div>

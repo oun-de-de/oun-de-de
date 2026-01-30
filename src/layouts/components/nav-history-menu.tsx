@@ -1,10 +1,10 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router";
+import styled from "styled-components";
 import { Icon } from "@/core/components/icon";
 import { useFilteredNavData } from "@/layouts/dashboard/nav/nav-data/index";
 import { RouterLink } from "@/routes/components/router-link";
-import { useLocation, useNavigate } from "react-router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import styled from "styled-components";
-import { ScrollArea } from "@/core/ui/scroll-area";
+import { getRouteTitle } from "./route-mappings";
 
 type HistoryItem = {
 	path: string;
@@ -13,17 +13,30 @@ type HistoryItem = {
 
 const DEFAULT_DASHBOARD_PATH = "/";
 const DEFAULT_DASHBOARD_TITLE = "Dashboard";
+const MAX_HISTORY_ITEMS = 12;
 
 export default function NavHistoryMenu() {
 	const location = useLocation();
-	const navigate = useNavigate();
 	const navData = useFilteredNavData();
+	const rafRef = useRef<number | null>(null);
 	const [history, setHistory] = useState<HistoryItem[]>(() => {
 		// Initialize with Dashboard
 		const saved = localStorage.getItem("nav-history");
 		if (saved) {
 			try {
 				const parsed = JSON.parse(saved);
+				const isHistoryItemArray = (value: unknown): value is HistoryItem[] =>
+					Array.isArray(value) &&
+					value.every(
+						(item) =>
+							item &&
+							typeof item === "object" &&
+							typeof (item as HistoryItem).path === "string" &&
+							typeof (item as HistoryItem).title === "string",
+					);
+				if (!isHistoryItemArray(parsed)) {
+					return [{ path: DEFAULT_DASHBOARD_PATH, title: DEFAULT_DASHBOARD_TITLE }];
+				}
 				// Ensure Dashboard is always first
 				if (parsed.length > 0 && parsed[0].path !== DEFAULT_DASHBOARD_PATH) {
 					return [{ path: DEFAULT_DASHBOARD_PATH, title: DEFAULT_DASHBOARD_TITLE }, ...parsed];
@@ -41,11 +54,17 @@ export default function NavHistoryMenu() {
 	const [canScrollRight, setCanScrollRight] = useState(false);
 
 	const updateScrollState = useCallback(() => {
-		const el = scrollRef.current;
-		if (!el) return;
-		const { scrollLeft, clientWidth, scrollWidth } = el;
-		setCanScrollLeft(scrollLeft > 0);
-		setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
+		if (rafRef.current) {
+			cancelAnimationFrame(rafRef.current);
+			rafRef.current = null;
+		}
+		rafRef.current = requestAnimationFrame(() => {
+			const el = scrollRef.current;
+			if (!el) return;
+			const { scrollLeft, clientWidth, scrollWidth } = el;
+			setCanScrollLeft(scrollLeft > 0);
+			setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
+		});
 	}, []);
 
 	const scrollByAmount = (delta: number) => {
@@ -55,7 +74,7 @@ export default function NavHistoryMenu() {
 	};
 
 	// Create path to title mapping from nav data
-	const pathToTitleMap = useMemo(() => {
+	const { pathToTitleMap } = useMemo(() => {
 		const map = new Map<string, string>();
 		map.set(DEFAULT_DASHBOARD_PATH, DEFAULT_DASHBOARD_TITLE);
 
@@ -74,40 +93,30 @@ export default function NavHistoryMenu() {
 			flattenNavItems(group.items);
 		});
 
-		// Add specific route mappings from frontend routes
-		map.set("/dashboard/sale/new", "Create Sale");
-		map.set("/dashboard/customers", "Customer Center");
-		map.set("/dashboard/vendors", "Vendor Center");
-		map.set("/dashboard/products", "Product/Service Center");
-		map.set("/dashboard/accounting", "Accounting Center");
-		map.set("/dashboard/reports", "Reports");
-		map.set("/dashboard/settings", "Settings");
-		map.set("/dashboard/audit-log", "Audit Log");
-		map.set("/dashboard/borrow", "Borrow");
-		map.set("/dashboard/borrow/new", "New Borrow Center");
-		map.set("/dashboard/borrow/payment", "Borrow Payment Center");
-
-		// Add nested routes that might be accessed
-		map.set("/dashboard/reports/customer-list", "Customer List Report");
-		map.set("/dashboard/reports/sale-detail-by-customer", "Sale Detail By Customer");
-
-		return map;
+		return { pathToTitleMap: map };
 	}, [navData]);
 
 	// Get title from pathname
 	const getTitleFromPath = useCallback(
 		(pathname: string): string => {
 			// Try exact match first
-			if (pathToTitleMap.has(pathname)) {
-				return pathToTitleMap.get(pathname)!;
+			const mappedTitle = getRouteTitle(pathname);
+			if (mappedTitle) {
+				return mappedTitle;
+			}
+
+			const exactTitle = pathToTitleMap.get(pathname);
+			if (exactTitle) {
+				return exactTitle;
 			}
 
 			// Try matching parent paths
 			const pathParts = pathname.split("/").filter(Boolean);
 			for (let i = pathParts.length; i > 0; i--) {
-				const testPath = "/" + pathParts.slice(0, i).join("/");
-				if (pathToTitleMap.has(testPath)) {
-					return pathToTitleMap.get(testPath)!;
+				const testPath = `/${pathParts.slice(0, i).join("/")}`;
+				const parentTitle = pathToTitleMap.get(testPath);
+				if (parentTitle) {
+					return parentTitle;
 				}
 			}
 
@@ -123,9 +132,12 @@ export default function NavHistoryMenu() {
 		[pathToTitleMap],
 	);
 
+	const normalizePath = (path: string) => path.replace(/\/+$/, "") || DEFAULT_DASHBOARD_PATH;
+
 	// Update history when pathname changes
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		const currentPath = location.pathname;
+		const currentPath = normalizePath(location.pathname);
 
 		// Only track dashboard routes
 		if (!currentPath.startsWith("/dashboard") && currentPath !== DEFAULT_DASHBOARD_PATH) {
@@ -145,17 +157,32 @@ export default function NavHistoryMenu() {
 			if (exists) return prev;
 
 			// Only append when the route is not in stack yet (e.g. navigated from navbar)
-			return [...prev, { path: currentPath, title: currentTitle }];
+			const next = [...prev, { path: currentPath, title: currentTitle }];
+			if (next.length <= MAX_HISTORY_ITEMS) return next;
+
+			const dashboard =
+				next[0]?.path === DEFAULT_DASHBOARD_PATH
+					? next[0]
+					: { path: DEFAULT_DASHBOARD_PATH, title: DEFAULT_DASHBOARD_TITLE };
+			const tail = next.filter((item) => item.path !== DEFAULT_DASHBOARD_PATH);
+			return [dashboard, ...tail.slice(-(MAX_HISTORY_ITEMS - 1))];
 		});
 	}, [location.pathname, getTitleFromPath]);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		updateScrollState();
 	}, [history, updateScrollState]);
 
 	useEffect(() => {
 		window.addEventListener("resize", updateScrollState);
-		return () => window.removeEventListener("resize", updateScrollState);
+		return () => {
+			window.removeEventListener("resize", updateScrollState);
+			if (rafRef.current) {
+				cancelAnimationFrame(rafRef.current);
+				rafRef.current = null;
+			}
+		};
 	}, [updateScrollState]);
 
 	// Save to localStorage whenever history changes
@@ -170,14 +197,7 @@ export default function NavHistoryMenu() {
 		setHistory((prev) => prev.filter((item) => item.path !== path));
 	}, []);
 
-	const handleClick = useCallback(
-		(path: string) => {
-			navigate(path);
-		},
-		[navigate],
-	);
-
-	const currentPath = location.pathname;
+	const currentPath = normalizePath(location.pathname);
 	const isActive = (path: string) => path === currentPath;
 	const isDashboard = (path: string) => path === DEFAULT_DASHBOARD_PATH;
 	const canRemove = (path: string) => !isDashboard(path) && !isActive(path);
@@ -189,35 +209,26 @@ export default function NavHistoryMenu() {
 					<Icon icon="mdi:chevron-left" size={16} />
 				</ArrowButton>
 			)}
-			<StyledScrollArea>
-				<StyledHistoryList ref={scrollRef} onScroll={updateScrollState}>
-					{history.map((item) => {
-						const active = isActive(item.path);
-						const removable = canRemove(item.path);
+			<StyledHistoryList ref={scrollRef} onScroll={updateScrollState}>
+				{history.map((item) => {
+					const active = isActive(item.path);
+					const removable = canRemove(item.path);
 
-						return (
-							<StyledHistoryItem key={item.path} $active={active}>
-								<StyledHistoryLink
-									href={item.path}
-									onClick={(e: React.MouseEvent) => {
-										e.preventDefault();
-										handleClick(item.path);
-									}}
-									$active={active}
-								>
-									{active && <StyledActiveDot />}
-									<StyledHistoryText $active={active}>{item.title}</StyledHistoryText>
-								</StyledHistoryLink>
-								{removable && (
-									<StyledRemoveButton onClick={(e: React.MouseEvent) => handleRemove(item.path, e)} aria-label="Remove">
-										<Icon icon="lucide:x" size={14} />
-									</StyledRemoveButton>
-								)}
-							</StyledHistoryItem>
-						);
-					})}
-				</StyledHistoryList>
-			</StyledScrollArea>
+					return (
+						<StyledHistoryItem key={item.path} $active={active}>
+							<StyledHistoryLink href={item.path} $active={active}>
+								{active && <StyledActiveDot />}
+								<StyledHistoryText $active={active}>{item.title}</StyledHistoryText>
+							</StyledHistoryLink>
+							{removable && (
+								<StyledRemoveButton onClick={(e: React.MouseEvent) => handleRemove(item.path, e)} aria-label="Remove">
+									<Icon icon="lucide:x" size={14} />
+								</StyledRemoveButton>
+							)}
+						</StyledHistoryItem>
+					);
+				})}
+			</StyledHistoryList>
 
 			{canScrollRight && (
 				<ArrowButton $side="right" type="button" onClick={() => scrollByAmount(160)} aria-label="Scroll right">
@@ -236,10 +247,6 @@ const StyledContainer = styled.div`
 	margin-left: 1rem;
 	margin-right: 1rem;
 	min-width: 0;
-`;
-
-const StyledScrollArea = styled(ScrollArea)`
-	width: 100%;
 `;
 
 const StyledHistoryList = styled.div`

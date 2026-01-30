@@ -13,6 +13,8 @@ export default function VendorsPage() {
 	const listState = useVendorsList();
 	const { updateState } = useVendorsListActions();
 
+	const [isCollapsed, setIsCollapsed] = useState(false);
+
 	const filteredTransactions = useMemo(() => {
 		const normalizedType = normalizeToken(listState.typeFilter);
 		const normalizedQuery = listState.searchValue.trim().toLowerCase();
@@ -63,7 +65,15 @@ export default function VendorsPage() {
 
 	return (
 		<DashboardSplitView
-			sidebar={<VendorSidebar activeVendorId={activeVendorId} onSelect={setActiveVendorId} />}
+			sidebarClassName={isCollapsed ? "lg:w-20" : "lg:w-1/4"}
+			sidebar={
+				<VendorSidebar
+					activeVendorId={activeVendorId}
+					onSelect={setActiveVendorId}
+					onToggle={() => setIsCollapsed((prev) => !prev)}
+					isCollapsed={isCollapsed}
+				/>
+			}
 			content={
 				<VendorContent
 					activeVendorId={activeVendorId}

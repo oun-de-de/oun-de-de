@@ -7,6 +7,7 @@ export type MenuItemProps = {
 	label: string;
 	isActive: boolean;
 	onSelect: (item: string) => void;
+	isCollapsed?: boolean;
 };
 
 const ICONS = {
@@ -31,8 +32,23 @@ const StyledButton = styled(Button)<{ $isActive: boolean }>`
 		`}
 `;
 
-export const MenuItem = memo(function MenuItem({ label, isActive, onSelect }: MenuItemProps) {
+export const MenuItem = memo(function MenuItem({ label, isActive, onSelect, isCollapsed }: MenuItemProps) {
 	const handleClick = useCallback(() => onSelect(label), [label, onSelect]);
+
+	if (isCollapsed) {
+		return (
+			<StyledButton
+				variant="ghost"
+				size="icon"
+				onClick={handleClick}
+				$isActive={isActive}
+				className="w-8 h-8 mx-auto rounded-lg mb-1"
+				title={label}
+			>
+				<span className="font-bold text-lg">{label.charAt(0)}</span>
+			</StyledButton>
+		);
+	}
 
 	return (
 		<StyledButton variant="ghost" size="sm" onClick={handleClick} $isActive={isActive}>

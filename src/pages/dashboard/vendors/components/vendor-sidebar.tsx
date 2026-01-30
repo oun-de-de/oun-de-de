@@ -6,6 +6,8 @@ import type { SelectOption } from "@/core/types/common";
 type VendorSidebarProps = {
 	activeVendorId: string | null;
 	onSelect: (id: string | null) => void;
+	onToggle?: () => void;
+	isCollapsed?: boolean;
 };
 
 const MAIN_TYPE_OPTIONS: SelectOption[] = [
@@ -18,18 +20,19 @@ const STATUS_OPTIONS: SelectOption[] = [
 	{ value: "inactive", label: "Inactive" },
 ];
 
-export function VendorSidebar({ activeVendorId, onSelect }: VendorSidebarProps) {
+export function VendorSidebar({ activeVendorId, onSelect, onToggle, isCollapsed }: VendorSidebarProps) {
 	return (
 		<SidebarList>
 			<SidebarList.Header
 				mainTypeOptions={MAIN_TYPE_OPTIONS}
 				mainTypePlaceholder="Vendor Type"
 				onMainTypeChange={() => {}}
-				onMenuClick={() => {}}
+				onMenuClick={onToggle}
 				searchPlaceholder="Search..."
 				onSearchChange={() => {}}
 				statusOptions={STATUS_OPTIONS}
 				onStatusChange={() => {}}
+				isCollapsed={isCollapsed}
 			/>
 
 			<SidebarList.Body
@@ -44,11 +47,12 @@ export function VendorSidebar({ activeVendorId, onSelect }: VendorSidebarProps) 
 						isActive={vendor.id === activeVendorId}
 						onSelect={onSelect}
 						style={style}
+						isCollapsed={isCollapsed}
 					/>
 				)}
 			/>
 
-			<SidebarList.Footer total={200} />
+			<SidebarList.Footer total={200} isCollapsed={isCollapsed} />
 		</SidebarList>
 	);
 }
