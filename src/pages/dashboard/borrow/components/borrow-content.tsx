@@ -134,6 +134,8 @@ export function BorrowContent({ activeBorrowId, listState, updateState }: Props)
 			</div>
 
 			<SmartDataTable
+				className="flex-1 min-h-0"
+				maxBodyHeight="100%"
 				data={paginatedData}
 				columns={borrowColumns}
 				filterConfig={filterConfig}

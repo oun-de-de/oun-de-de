@@ -1,8 +1,7 @@
-import Icon from "@/core/components/icon/icon";
-import { Button } from "@/core/ui/button";
 import { Input } from "@/core/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/ui/select";
 import { cn } from "@/core/utils";
+import { SidebarToggleButton } from "./sidebar-list";
 
 export type SidebarListHeaderProps = {
 	className?: string;
@@ -25,6 +24,8 @@ export type SidebarListHeaderProps = {
 	statusPlaceholder?: string;
 	statusValue?: string;
 	onStatusChange?: (value: string) => void;
+
+	isCollapsed?: boolean;
 };
 
 export function SidebarListHeader({
@@ -44,9 +45,18 @@ export function SidebarListHeader({
 	statusPlaceholder = "Active",
 	statusValue,
 	onStatusChange,
+	isCollapsed,
 }: SidebarListHeaderProps) {
+	if (isCollapsed) {
+		return (
+			<div className={cn("flex w-full justify-center p-2", className)}>
+				<SidebarToggleButton onClick={onMenuClick} isCollapsed={isCollapsed} variant="outline" />
+			</div>
+		);
+	}
+
 	return (
-		<div className={cn("flex flex-col gap-3", className)}>
+		<div className={cn("flex flex-col gap-3 pb-2 md:pb-4", className)}>
 			{/* Top Row: Type Select + Menu */}
 			<div className="flex items-center gap-2">
 				<Select value={mainTypeValue} onValueChange={onMainTypeChange}>
@@ -62,9 +72,7 @@ export function SidebarListHeader({
 						))}
 					</SelectContent>
 				</Select>
-				<Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={onMenuClick}>
-					<Icon icon="mdi:menu" />
-				</Button>
+				<SidebarToggleButton onClick={onMenuClick} isCollapsed={false} variant="outline" />
 			</div>
 
 			{/* Bottom Row: Search + Status */}

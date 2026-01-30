@@ -5,6 +5,8 @@ import type { SelectOption } from "@/core/types/common";
 type Props = {
 	activeBorrowId: string | null;
 	onSelect: (id: string | null) => void;
+	onToggle?: () => void;
+	isCollapsed?: boolean;
 };
 
 const STATUS_OPTIONS: SelectOption[] = [
@@ -25,7 +27,7 @@ const MOCK_LIST = [
 	{ id: "3", name: "Alice Johnson", code: "BR-2025-003", status: "Returned" },
 ];
 
-export function BorrowSidebar({ activeBorrowId, onSelect }: Props) {
+export function BorrowSidebar({ activeBorrowId, onSelect, onToggle, isCollapsed }: Props) {
 	const [searchValue, setSearchValue] = useState("");
 	const [statusFilter, setStatusFilter] = useState("active");
 	const [typeFilter, setTypeFilter] = useState("all");
@@ -43,13 +45,15 @@ export function BorrowSidebar({ activeBorrowId, onSelect }: Props) {
 				statusOptions={STATUS_OPTIONS}
 				statusValue={statusFilter}
 				onStatusChange={setStatusFilter}
-				onMenuClick={() => console.log("Menu clicked")}
+				onMenuClick={onToggle}
+				isCollapsed={isCollapsed}
 			/>
 
 			<SidebarList.Body
 				className="flex-1 min-h-0"
 				data={MOCK_LIST} // In real app, filter this based on search/status
-				estimateSize={56}
+				estimateSize={40}
+				gap={8}
 				height="100%"
 				renderItem={(item, style) => (
 					<EntityListItem
@@ -58,11 +62,12 @@ export function BorrowSidebar({ activeBorrowId, onSelect }: Props) {
 						isActive={item.id === activeBorrowId}
 						onSelect={onSelect}
 						style={style}
+						isCollapsed={isCollapsed}
 					/>
 				)}
 			/>
 
-			<SidebarList.Footer total={MOCK_LIST.length} />
+			<SidebarList.Footer total={MOCK_LIST.length} isCollapsed={isCollapsed} />
 		</SidebarList>
 	);
 }

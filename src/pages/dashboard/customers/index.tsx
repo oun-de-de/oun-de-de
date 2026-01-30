@@ -13,6 +13,8 @@ export default function CustomersPage() {
 	const listState = useCustomersList();
 	const { updateState } = useCustomersListActions();
 
+	const [isCollapsed, setIsCollapsed] = useState(false);
+
 	const filteredTransactions = useMemo(() => {
 		const normalizedType = normalizeToken(listState.typeFilter);
 		const normalizedQuery = listState.searchValue.trim().toLowerCase();
@@ -63,7 +65,15 @@ export default function CustomersPage() {
 
 	return (
 		<DashboardSplitView
-			sidebar={<CustomerSidebar activeCustomerId={activeCustomerId} onSelect={setActiveCustomerId} />}
+			sidebarClassName={isCollapsed ? "lg:w-20" : "lg:w-1/4"}
+			sidebar={
+				<CustomerSidebar
+					activeCustomerId={activeCustomerId}
+					onSelect={setActiveCustomerId}
+					onToggle={() => setIsCollapsed((prev) => !prev)}
+					isCollapsed={isCollapsed}
+				/>
+			}
 			content={
 				<CustomerContent
 					activeCustomerId={activeCustomerId}

@@ -8,10 +8,19 @@ export default function BorrowPage() {
 	const [activeBorrowId, setActiveBorrowId] = useState<string | null>(null);
 	const listState = useBorrowList();
 	const { updateState } = useBorrowListActions();
+	const [isCollapsed, setIsCollapsed] = useState(false);
 
 	return (
 		<DashboardSplitView
-			sidebar={<BorrowSidebar activeBorrowId={activeBorrowId} onSelect={setActiveBorrowId} />}
+			sidebarClassName={isCollapsed ? "lg:w-20" : "lg:w-1/4"}
+			sidebar={
+				<BorrowSidebar
+					activeBorrowId={activeBorrowId}
+					onSelect={setActiveBorrowId}
+					onToggle={() => setIsCollapsed((prev) => !prev)}
+					isCollapsed={isCollapsed}
+				/>
+			}
 			content={<BorrowContent activeBorrowId={activeBorrowId} listState={listState} updateState={updateState} />}
 		/>
 	);

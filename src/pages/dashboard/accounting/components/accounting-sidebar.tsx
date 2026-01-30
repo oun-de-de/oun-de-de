@@ -8,6 +8,8 @@ type AccountingAccount = (typeof accountingAccountList)[number];
 type AccountingSidebarProps = {
 	activeAccountId: string | null;
 	onSelect: (id: string | null) => void;
+	onToggle?: () => void;
+	isCollapsed?: boolean;
 };
 
 const MAIN_TYPE_OPTIONS = [
@@ -15,7 +17,7 @@ const MAIN_TYPE_OPTIONS = [
 	{ value: "liability", label: "Liability" },
 ];
 
-export function AccountingSidebar({ activeAccountId, onSelect }: AccountingSidebarProps) {
+export function AccountingSidebar({ activeAccountId, onSelect, onToggle, isCollapsed }: AccountingSidebarProps) {
 	const [typeFilter, setTypeFilter] = useState("type");
 	const [searchValue, setSearchValue] = useState("");
 	const [statusFilter, setStatusFilter] = useState("active");
@@ -55,6 +57,8 @@ export function AccountingSidebar({ activeAccountId, onSelect }: AccountingSideb
 				onSearchChange={setSearchValue}
 				statusValue={statusFilter}
 				onStatusChange={setStatusFilter}
+				onMenuClick={onToggle}
+				isCollapsed={isCollapsed}
 			/>
 
 			<SidebarList.Body
@@ -69,11 +73,12 @@ export function AccountingSidebar({ activeAccountId, onSelect }: AccountingSideb
 						isActive={account.id === activeAccountId}
 						onSelect={onSelect}
 						style={style}
+						isCollapsed={isCollapsed}
 					/>
 				)}
 			/>
 
-			<SidebarList.Footer total={filteredAccounts.length} />
+			<SidebarList.Footer total={filteredAccounts.length} isCollapsed={isCollapsed} />
 		</SidebarList>
 	);
 }

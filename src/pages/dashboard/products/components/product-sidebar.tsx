@@ -8,6 +8,8 @@ import { normalizeToken } from "@/core/utils/dashboard-utils";
 type ProductSidebarProps = {
 	activeProductId: string | null;
 	onSelect: (id: string | null) => void;
+	onToggle?: () => void;
+	isCollapsed?: boolean;
 };
 
 const MAIN_TYPE_OPTIONS: SelectOption[] = [
@@ -22,7 +24,7 @@ const STATUS_OPTIONS: SelectOption[] = [
 	{ value: "inactive", label: "Inactive" },
 ];
 
-export function ProductSidebar({ activeProductId, onSelect }: ProductSidebarProps) {
+export function ProductSidebar({ activeProductId, onSelect, onToggle, isCollapsed }: ProductSidebarProps) {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [mainType, setMainType] = useState("all");
 	const [status, setStatus] = useState("all");
@@ -64,11 +66,12 @@ export function ProductSidebar({ activeProductId, onSelect }: ProductSidebarProp
 				mainTypeOptions={MAIN_TYPE_OPTIONS}
 				mainTypePlaceholder="Item Type"
 				onMainTypeChange={setMainType}
-				onMenuClick={() => {}}
+				onMenuClick={onToggle}
 				searchPlaceholder="Search..."
 				onSearchChange={setSearchTerm}
 				statusOptions={STATUS_OPTIONS}
 				onStatusChange={setStatus}
+				isCollapsed={isCollapsed}
 			/>
 
 			<SidebarList.Body
@@ -83,11 +86,12 @@ export function ProductSidebar({ activeProductId, onSelect }: ProductSidebarProp
 						isActive={item.id === activeProductId}
 						onSelect={onSelect}
 						style={style}
+						isCollapsed={isCollapsed}
 					/>
 				)}
 			/>
 
-			<SidebarList.Footer total={filteredProducts.length} />
+			<SidebarList.Footer total={filteredProducts.length} isCollapsed={isCollapsed} />
 		</SidebarList>
 	);
 }
