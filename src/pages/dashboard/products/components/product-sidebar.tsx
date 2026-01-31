@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 
 import * as dashboard from "@/_mock/data/dashboard";
 import { EntityListItem, SidebarList } from "@/core/components/common";
+import { up, useMediaQuery } from "@/core/hooks/use-media-query";
+import { useSidebarPagination } from "@/core/hooks/use-sidebar-pagination";
 import type { SelectOption } from "@/core/types/common";
 import { normalizeToken } from "@/core/utils/dashboard-utils";
 
@@ -28,6 +30,7 @@ export function ProductSidebar({ activeProductId, onSelect, onToggle, isCollapse
 	const [searchTerm, setSearchTerm] = useState("");
 	const [mainType, setMainType] = useState("all");
 	const [status, setStatus] = useState("all");
+	const isLgUp = useMediaQuery(up("lg"));
 
 	const filteredProducts = useMemo(() => {
 		const normalizedSearch = normalizeToken(searchTerm);
@@ -60,6 +63,11 @@ export function ProductSidebar({ activeProductId, onSelect, onToggle, isCollapse
 		});
 	}, [searchTerm, mainType, status]);
 
+	const pagination = useSidebarPagination({
+		data: filteredProducts,
+		enabled: !isLgUp,
+	});
+
 	return (
 		<SidebarList>
 			<SidebarList.Header
@@ -76,7 +84,7 @@ export function ProductSidebar({ activeProductId, onSelect, onToggle, isCollapse
 
 			<SidebarList.Body
 				className="mt-4 divide-y divide-border-gray-300 flex-1 min-h-0"
-				data={filteredProducts}
+				data={pagination.pagedData}
 				estimateSize={56}
 				height="100%"
 				renderItem={(item, style) => (
@@ -91,7 +99,15 @@ export function ProductSidebar({ activeProductId, onSelect, onToggle, isCollapse
 				)}
 			/>
 
-			<SidebarList.Footer total={filteredProducts.length} isCollapsed={isCollapsed} />
+			<SidebarList.Footer
+				total={pagination.total}
+				isCollapsed={isCollapsed}
+				onPrev={pagination.handlePrev}
+				onNext={pagination.handleNext}
+				hasPrev={pagination.hasPrev}
+				hasNext={pagination.hasNext}
+				showControls={!isLgUp && pagination.totalPages > 1}
+			/>
 		</SidebarList>
 	);
 }
