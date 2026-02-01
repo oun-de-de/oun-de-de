@@ -1,5 +1,6 @@
 import type React from "react";
 import { type RegisterOptions, useFormContext } from "react-hook-form";
+import { Textarea } from "@/core/ui/textarea";
 import { cn } from "@/core/utils";
 import { FormField } from "./form-field";
 import { textareaVariants } from "./styles/variants";
@@ -46,7 +47,7 @@ export function FormTextarea({
 			containerClassName={containerClassName}
 		>
 			{({ error }) => (
-				<textarea
+				<Textarea
 					{...register(name, rules)}
 					placeholder={placeholder}
 					disabled={disabled}

@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { useDebounce } from "@/core/hooks";
 import { Input } from "@/core/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/ui/select";
 import { cn } from "@/core/utils";
@@ -36,7 +38,7 @@ export function SidebarListHeader({
 	onMainTypeChange,
 	onMenuClick,
 	searchPlaceholder = "Search...",
-	searchValue,
+	searchValue = "",
 	onSearchChange,
 	statusOptions = [
 		{ value: "active", label: "Active" },
@@ -47,6 +49,19 @@ export function SidebarListHeader({
 	onStatusChange,
 	isCollapsed,
 }: SidebarListHeaderProps) {
+	const [localSearch, setLocalSearch] = useState(searchValue);
+	const debouncedSearch = useDebounce(localSearch, 500);
+
+	useEffect(() => {
+		setLocalSearch(searchValue);
+	}, [searchValue]);
+
+	useEffect(() => {
+		if (debouncedSearch !== searchValue) {
+			onSearchChange?.(debouncedSearch);
+		}
+	}, [debouncedSearch, onSearchChange, searchValue]);
+
 	if (isCollapsed) {
 		return (
 			<div className={cn("flex w-full justify-center p-2", className)}>
@@ -79,8 +94,8 @@ export function SidebarListHeader({
 			<div className="flex gap-2">
 				<Input
 					placeholder={searchPlaceholder}
-					value={searchValue}
-					onChange={(e) => onSearchChange?.(e.target.value)}
+					value={localSearch}
+					onChange={(e) => setLocalSearch(e.target.value)}
 					className="flex-1"
 				/>
 				<Select value={statusValue} onValueChange={onStatusChange} defaultValue="active">

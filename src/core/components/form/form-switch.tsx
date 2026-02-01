@@ -1,4 +1,5 @@
 import type React from "react";
+import { Label } from "@/core/ui/label";
 import { Switch } from "@/core/ui/switch";
 import { cn } from "@/core/utils";
 import { FormControllerField } from "./form-controller-field";
@@ -35,9 +36,9 @@ export function FormSwitch({
 						className={cn(switchClassName)}
 					/>
 					{label && (
-						<label htmlFor={name} className="text-sm font-medium cursor-pointer">
+						<Label htmlFor={name} className="text-sm font-medium cursor-pointer">
 							{label}
-						</label>
+						</Label>
 					)}
 				</div>
 			)}
