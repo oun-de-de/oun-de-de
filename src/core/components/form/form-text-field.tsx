@@ -1,5 +1,6 @@
 import type React from "react";
 import { type RegisterOptions, useFormContext } from "react-hook-form";
+import { Input } from "@/core/ui/input";
 import { cn } from "@/core/utils";
 import { FormField } from "./form-field";
 import { inputVariants } from "./styles/variants";
@@ -52,7 +53,7 @@ export function FormTextField({
 			{({ error }) => (
 				<div className="flex items-center gap-2">
 					{startAdornment}
-					<input
+					<Input
 						{...register(name, rules)}
 						type={type}
 						placeholder={placeholder}

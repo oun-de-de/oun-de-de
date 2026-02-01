@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router";
 import { couponSummaryCards } from "@/_mock/data/dashboard";
 import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
 import Icon from "@/core/components/icon/icon";
@@ -44,6 +45,7 @@ export function CouponContent({
 	paginationItems,
 }: CouponContentProps) {
 	// const activeCoupon = pagedCoupons.find((item) => item.id === activeCouponId);
+	const navigate = useNavigate();
 
 	return (
 		<>
@@ -57,10 +59,9 @@ export function CouponContent({
 						{activeCustomerName ? `${activeCustomerName} selected` : "No customer selected"}
 					</Text>
 				</div>
-				<Button size="sm" className="gap-2">
+				<Button size="sm" className="gap-2" onClick={() => navigate("/dashboard/coupons/create")}>
 					<Icon icon="mdi:plus" />
 					New Coupon
-					<Icon icon="mdi:chevron-down" />
 				</Button>
 			</div>
 

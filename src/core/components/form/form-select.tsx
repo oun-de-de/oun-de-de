@@ -1,5 +1,6 @@
 import type React from "react";
-import { type RegisterOptions, useFormContext } from "react-hook-form";
+import { Controller, type RegisterOptions, useFormContext } from "react-hook-form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/ui/select";
 import { cn } from "@/core/utils";
 import { FormField } from "./form-field";
 import { selectVariants } from "./styles/variants";
@@ -16,7 +17,7 @@ type FormSelectProps = {
 	options: Option[];
 	containerClassName?: string;
 	selectClassName?: string;
-	selectProps?: React.SelectHTMLAttributes<HTMLSelectElement>;
+	selectProps?: React.ComponentPropsWithoutRef<typeof Select>;
 	placeholder?: string;
 	disabled?: boolean;
 	rules?: RegisterOptions;
@@ -37,7 +38,7 @@ export function FormSelect({
 	disabled,
 	rules,
 }: FormSelectProps) {
-	const { register } = useFormContext();
+	const { control } = useFormContext();
 
 	return (
 		<FormField
@@ -48,23 +49,37 @@ export function FormSelect({
 			containerClassName={containerClassName}
 		>
 			{({ error }) => (
-				<select
-					{...register(name, rules)}
-					disabled={disabled}
-					{...selectProps}
-					className={cn(selectVariants({ variant, size, state: error ? "error" : "normal" }), selectClassName)}
-				>
-					{placeholder && (
-						<option value="" disabled>
-							{placeholder}
-						</option>
+				<Controller
+					name={name}
+					control={control}
+					rules={rules}
+					render={({ field }) => (
+						<Select
+							name={field.name}
+							value={field.value}
+							onValueChange={field.onChange}
+							disabled={disabled}
+							{...selectProps}
+						>
+							<SelectTrigger
+								ref={field.ref}
+								className={cn(selectVariants({ variant, size, state: error ? "error" : "normal" }), selectClassName)}
+								aria-invalid={!!error}
+								data-testid={`${name}-select`}
+								onBlur={field.onBlur}
+							>
+								<SelectValue placeholder={placeholder} />
+							</SelectTrigger>
+							<SelectContent>
+								{options.map((o) => (
+									<SelectItem key={o.value} value={o.value}>
+										{o.label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
 					)}
-					{options.map((o) => (
-						<option key={o.value} value={o.value}>
-							{o.label}
-						</option>
-					))}
-				</select>
+				/>
 			)}
 		</FormField>
 	);

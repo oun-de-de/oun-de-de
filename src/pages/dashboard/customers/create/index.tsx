@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import customerService from "@/core/api/services/customerService";
 import employeeService from "@/core/api/services/employeeService";
@@ -7,6 +8,8 @@ import { Text } from "@/core/ui/typography";
 import { CustomerForm, type CustomerFormData } from "./components/customer-form";
 
 export default function CreateCustomerPage() {
+	const navigate = useNavigate();
+
 	const { data: employees = [] } = useQuery({
 		queryKey: ["employees", "all"],
 		queryFn: () => employeeService.getEmployeeList(),
@@ -46,6 +49,7 @@ export default function CreateCustomerPage() {
 			await customerService.createCustomer(customerData);
 
 			toast.success("Customer has been created successfully");
+			navigate("/dashboard/customers");
 		} catch (error) {
 			toast.error("Failed to create customer");
 			console.error(error);
