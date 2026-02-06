@@ -20,13 +20,6 @@ type ProductContentProps = {
 
 const summaryCards = productSummaryCards;
 
-const FILTER_TYPE_OPTIONS = [
-	{ value: "all", label: "All" },
-	{ value: "cash-sale", label: "Cash Sale" },
-	{ value: "invoice", label: "Invoice" },
-	{ value: "receipt", label: "Receipt" },
-];
-
 const FILTER_FIELD_OPTIONS = [
 	{ value: "all", label: "All" },
 	{ value: "name", label: "Field name" },
@@ -76,13 +69,9 @@ export function ProductContent({
 				data={pagedData}
 				columns={columns}
 				filterConfig={{
-					typeOptions: FILTER_TYPE_OPTIONS,
 					fieldOptions: FILTER_FIELD_OPTIONS,
-					typeValue: listState.typeFilter,
 					fieldValue: listState.fieldFilter,
 					searchValue: listState.searchValue,
-					typePlaceholder: "Cash Sale",
-					onTypeChange: (value: string) => updateState({ typeFilter: value, page: 1 }),
 					onFieldChange: (value: string) => updateState({ fieldFilter: value, page: 1 }),
 					onSearchChange: (value: string) => updateState({ searchValue: value, page: 1 }),
 				}}

@@ -13,11 +13,13 @@ type CustomerSidebarProps = {
 };
 
 const MAIN_TYPE_OPTIONS: SelectOption[] = [
+	{ value: "all", label: "All" },
 	{ value: "vip", label: "VIP" },
 	{ value: "retail", label: "Retail" },
 ];
 
 const STATUS_OPTIONS: SelectOption[] = [
+	{ value: "all", label: "All" },
 	{ value: "active", label: "Active" },
 	{ value: "inactive", label: "Inactive" },
 ];

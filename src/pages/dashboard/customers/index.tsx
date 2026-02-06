@@ -32,13 +32,19 @@ export default function CustomersPage() {
 			listState.typeFilter,
 			listState.fieldFilter,
 			activeCustomer?.name,
+			activeCustomer?.code,
 		],
 		queryFn: () => {
-			const searchValue = activeCustomer?.name || listState.searchValue || undefined;
+			let searchValue: string | undefined;
+			if (activeCustomer) {
+				searchValue = listState.fieldFilter === "code" ? activeCustomer.code : activeCustomer.name;
+			} else {
+				searchValue = listState.searchValue || undefined;
+			}
+
 			return customerService.getCustomerList({
 				page: listState.page,
 				limit: listState.pageSize,
-				// Use fieldFilter to determine which field to search by
 				name: listState.fieldFilter === "name" || listState.fieldFilter === "all" ? searchValue : undefined,
 				code: listState.fieldFilter === "code" ? searchValue : undefined,
 				status: listState.typeFilter !== "all" ? listState.typeFilter : undefined,
