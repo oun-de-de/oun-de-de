@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import customerService from "@/core/api/services/customerService";
+import customerService from "@/core/api/services/customer-service";
 import { EntityListItem, SidebarList } from "@/core/components/common";
 import type { SelectOption } from "@/core/types/common";
 import type { Customer } from "@/core/types/customer";
@@ -13,11 +13,13 @@ type CustomerSidebarProps = {
 };
 
 const MAIN_TYPE_OPTIONS: SelectOption[] = [
+	{ value: "all", label: "All" },
 	{ value: "vip", label: "VIP" },
 	{ value: "retail", label: "Retail" },
 ];
 
 const STATUS_OPTIONS: SelectOption[] = [
+	{ value: "all", label: "All" },
 	{ value: "active", label: "Active" },
 	{ value: "inactive", label: "Inactive" },
 ];
@@ -34,6 +36,8 @@ export function CustomerSidebar({ activeCustomerId, onSelect, onToggle, isCollap
 				page: pageParam,
 				limit: 20,
 				name: searchTerm || undefined,
+				status: status !== "all" ? status : undefined,
+				customerType: customerType !== "all" ? customerType : undefined,
 			}),
 		initialPageParam: 1,
 		getNextPageParam: (lastPage) => (lastPage.page < lastPage.pageCount ? lastPage.page + 1 : undefined),

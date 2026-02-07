@@ -1,15 +1,17 @@
-import { productList, productSummaryCards } from "@/_mock/data/dashboard";
+import { useNavigate } from "react-router";
+import { productSummaryCards } from "@/_mock/data/dashboard";
 import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
 import Icon from "@/core/components/icon/icon";
-import type { ProductRow } from "@/core/types/common";
+import type { Product } from "@/core/types/product";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
+import { columns } from "./product-columns";
 
 type ProductContentProps = {
-	activeProductId: string | null;
-	listState: any; // Ideally import store state type
+	activeProduct: Product | null;
+	listState: any;
 	updateState: (state: any) => void;
-	pagedTransactions: ProductRow[];
+	pagedData: Product[];
 	totalItems: number;
 	totalPages: number;
 	currentPage: number;
@@ -18,30 +20,22 @@ type ProductContentProps = {
 
 const summaryCards = productSummaryCards;
 
-const filterTypeOptions = [
+const FILTER_FIELD_OPTIONS = [
 	{ value: "all", label: "All" },
-	{ value: "cash-sale", label: "Cash Sale" },
-	{ value: "invoice", label: "Invoice" },
-	{ value: "receipt", label: "Receipt" },
-];
-
-const filterFieldOptions = [
-	{ value: "field-name", label: "Field name" },
+	{ value: "name", label: "Field name" },
 	{ value: "ref-no", label: "Ref No" },
 ];
 
-import { columns } from "./product-columns";
-
 export function ProductContent({
-	activeProductId,
+	activeProduct,
 	listState,
 	updateState,
-	pagedTransactions,
+	pagedData,
 	totalItems,
 	totalPages,
 	paginationItems,
 }: ProductContentProps) {
-	const activeProduct = productList.find((item) => item.id === activeProductId);
+	const navigate = useNavigate();
 
 	return (
 		<>
@@ -55,11 +49,12 @@ export function ProductContent({
 						{activeProduct ? `${activeProduct.name} selected` : "No item selected"}
 					</Text>
 				</div>
-				<Button size="sm" className="gap-2">
-					<Icon icon="mdi:plus" />
-					Create Sale
-					<Icon icon="mdi:chevron-down" />
-				</Button>
+				<div className="flex gap-2">
+					<Button size="sm" className="gap-2" onClick={() => navigate("/dashboard/products/create")}>
+						<Icon icon="mdi:plus" />
+						Create Product
+					</Button>
+				</div>
 			</div>
 
 			<div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -71,16 +66,12 @@ export function ProductContent({
 			<SmartDataTable
 				className="flex-1 min-h-0"
 				maxBodyHeight="100%"
-				data={pagedTransactions}
+				data={pagedData}
 				columns={columns}
 				filterConfig={{
-					typeOptions: filterTypeOptions,
-					fieldOptions: filterFieldOptions,
-					typeValue: listState.typeFilter,
+					fieldOptions: FILTER_FIELD_OPTIONS,
 					fieldValue: listState.fieldFilter,
 					searchValue: listState.searchValue,
-					typePlaceholder: "Cash Sale",
-					onTypeChange: (value: string) => updateState({ typeFilter: value, page: 1 }),
 					onFieldChange: (value: string) => updateState({ fieldFilter: value, page: 1 }),
 					onSearchChange: (value: string) => updateState({ searchValue: value, page: 1 }),
 				}}
