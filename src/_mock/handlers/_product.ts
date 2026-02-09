@@ -11,6 +11,17 @@ const getProductList = http.get("/api/v1/products", async () => {
 		quantity: faker.number.int({ min: 1, max: 100 }),
 		cost: parseFloat(faker.commerce.price()),
 		price: parseFloat(faker.commerce.price()),
+		unit: {
+			id: faker.string.uuid(),
+			name: faker.helpers.arrayElement(["kg", "g", "l", "ml", "pcs"]),
+			descr: faker.lorem.words(2),
+			type: faker.helpers.arrayElement(["COUNT", "WEIGHT", "LENGTH"]),
+		},
+		defaultProductSetting: {
+			id: faker.string.uuid(),
+			price: parseFloat(faker.commerce.price()),
+			quantity: faker.number.int({ min: 1, max: 20 }),
+		},
 	}));
 
 	return HttpResponse.json(products, { status: 200 });
@@ -26,6 +37,17 @@ const getProductById = http.get("/api/v1/products/:id", async ({ params }) => {
 		quantity: faker.number.int({ min: 1, max: 100 }),
 		cost: parseFloat(faker.commerce.price()),
 		price: parseFloat(faker.commerce.price()),
+		unit: {
+			id: faker.string.uuid(),
+			name: faker.helpers.arrayElement(["kg", "g", "l", "ml", "pcs"]),
+			descr: faker.lorem.words(2),
+			type: faker.helpers.arrayElement(["COUNT", "WEIGHT", "LENGTH"]),
+		},
+		defaultProductSetting: {
+			id: faker.string.uuid(),
+			price: parseFloat(faker.commerce.price()),
+			quantity: faker.number.int({ min: 1, max: 20 }),
+		},
 	};
 
 	return HttpResponse.json(product, { status: 200 });

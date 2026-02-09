@@ -4,10 +4,12 @@ import { toast } from "sonner";
 import productService from "@/core/api/services/product-service";
 import type { CreateProduct } from "@/core/types/product";
 import { Text } from "@/core/ui/typography";
+import { useGetUnitList } from "@/pages/dashboard/settings/hooks/use-settings";
 import { ProductForm, type ProductFormData } from "./components/product-form";
 
 export default function CreateProductPage() {
 	const navigate = useNavigate();
+	const { data: units = [] } = useGetUnitList();
 
 	const { mutateAsync: createProduct } = useMutation({
 		mutationFn: async (data: CreateProduct) => {
@@ -31,6 +33,9 @@ export default function CreateProductPage() {
 			quantity: Number(data.quantity),
 			cost: Number(data.cost),
 			price: Number(data.price),
+			unitId: data.unitId as string,
+			defaultQuantity: Number(data.defaultQuantity ?? 0),
+			defaultPrice: Number(data.defaultPrice ?? 0),
 		};
 
 		await createProduct(productData);
@@ -39,6 +44,11 @@ export default function CreateProductPage() {
 	const handleCancel = () => {
 		navigate("/dashboard/products");
 	};
+
+	const unitOptions = units.map((unit) => ({
+		label: unit.name,
+		value: unit.id,
+	}));
 
 	return (
 		<div className="flex flex-col h-full p-6 gap-6">
@@ -50,7 +60,13 @@ export default function CreateProductPage() {
 			{/* Form */}
 			<div className="flex-1 overflow-y-auto">
 				<div className="w-full">
-					<ProductForm onSubmit={handleSubmit} onCancel={handleCancel} mode="create" showTitle={false} />
+					<ProductForm
+						onSubmit={handleSubmit}
+						onCancel={handleCancel}
+						mode="create"
+						showTitle={false}
+						unitOptions={unitOptions}
+					/>
 				</div>
 			</div>
 		</div>

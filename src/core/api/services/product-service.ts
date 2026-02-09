@@ -17,7 +17,14 @@ const createProduct = (data: CreateProduct): Promise<Product> =>
 		data,
 	});
 
+const updateProduct = (productId: string, data: Partial<CreateProduct>): Promise<Product> =>
+	apiClient.put<Product>({
+		url: `${ProductApi.Create}/${productId}`,
+		data,
+	});
+
 export default {
 	getProductList,
 	createProduct,
+	updateProduct,
 };
