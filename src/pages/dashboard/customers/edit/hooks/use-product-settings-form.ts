@@ -4,12 +4,7 @@ import { toast } from "sonner";
 import productService from "@/core/api/services/product-service";
 import type { CreateProductSettings } from "@/core/types/customer";
 import type { Product } from "@/core/types/product";
-import {
-	useCreateProductSetting,
-	useDeleteProductSetting,
-	useGetProductSettings,
-	useUpdateProductSetting,
-} from "../../hooks/use-product-settings";
+import { useCreateProductSetting, useGetProductSettings } from "../../hooks/use-product-settings";
 
 export interface ProductSettingItem extends CreateProductSettings {
 	productName: string;
@@ -36,8 +31,6 @@ export const useProductSettingsForm = (customerId?: string) => {
 
 	const { data: currentSettings, isLoading: isLoadingSettings } = useGetProductSettings(customerId);
 	const { mutateAsync: createSetting } = useCreateProductSetting(customerId);
-	const { mutateAsync: updateSetting } = useUpdateProductSetting(customerId);
-	const { mutateAsync: deleteSetting } = useDeleteProductSetting(customerId);
 
 	const [settings, setSettings] = useState<ProductSettingItem[]>([]);
 	const [isInitialized, setIsInitialized] = useState(false);
@@ -74,7 +67,7 @@ export const useProductSettingsForm = (customerId?: string) => {
 			{
 				productId: product.id,
 				price: product.price,
-				unit: product.unit,
+				unit: product.unit.name,
 				quantity: 0,
 				productName: product.name,
 				productRef: product.refNo,
@@ -82,22 +75,20 @@ export const useProductSettingsForm = (customerId?: string) => {
 		]);
 	};
 
+	const existingProductIds = useMemo(() => new Set(currentSettings?.map((s) => s.productId) || []), [currentSettings]);
+
 	const handleRemove = async (productId: string) => {
-		const isExisting = currentSettings?.some((s) => s.productId === productId);
-
-		if (isExisting) {
-			try {
-				await deleteSetting(productId);
-				toast.success("Product setting deleted");
-			} catch {
-				return;
-			}
+		if (existingProductIds.has(productId)) {
+			toast.info("Delete product setting is not supported yet");
+			return;
 		}
-
 		setSettings((prev) => prev.filter((item) => item.productId !== productId));
 	};
 
 	const handleChange = (productId: string, field: "price" | "unit" | "quantity", value: string) => {
+		if (existingProductIds.has(productId)) {
+			return;
+		}
 		setSettings((prev) =>
 			prev.map((item) => {
 				if (item.productId !== productId) return item;
@@ -120,16 +111,13 @@ export const useProductSettingsForm = (customerId?: string) => {
 
 		setIsSaving(true);
 		try {
-			const existingProductIds = new Set(currentSettings?.map((s) => s.productId) || []);
-
+			const newSettings = settings.filter((setting) => !existingProductIds.has(setting.productId));
+			if (newSettings.length === 0) {
+				toast.info("Only create product setting is supported. No new products to save.");
+				return;
+			}
 			await Promise.all(
-				settings.map(({ productId, price, unit, quantity }) => {
-					const settingData = { productId, price, unit, quantity };
-					if (existingProductIds.has(productId)) {
-						return updateSetting({ productId, setting: settingData });
-					}
-					return createSetting(settingData);
-				}),
+				newSettings.map(({ productId, price, unit, quantity }) => createSetting({ productId, price, unit, quantity })),
 			);
 			toast.success("Product settings saved successfully");
 		} catch {
@@ -141,6 +129,7 @@ export const useProductSettingsForm = (customerId?: string) => {
 
 	return {
 		settings,
+		existingProductIds,
 		availableProducts,
 		isLoading: isLoadingSettings && !isInitialized,
 		isSaving,

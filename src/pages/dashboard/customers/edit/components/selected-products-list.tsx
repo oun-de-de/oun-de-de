@@ -9,11 +9,12 @@ import type { ProductSettingItem } from "../hooks/use-product-settings-form";
 
 interface SelectedProductsListProps {
 	settings: ProductSettingItem[];
+	existingProductIds: Set<string>;
 	onChange: (productId: string, field: "price" | "unit" | "quantity", value: string) => void;
 	onRemove: (productId: string) => void;
 }
 
-export function SelectedProductsList({ settings, onChange, onRemove }: SelectedProductsListProps) {
+export function SelectedProductsList({ settings, existingProductIds, onChange, onRemove }: SelectedProductsListProps) {
 	const columns = useMemo<ColumnDef<ProductSettingItem>[]>(
 		() => [
 			{
@@ -26,7 +27,7 @@ export function SelectedProductsList({ settings, onChange, onRemove }: SelectedP
 				},
 			},
 			{
-				header: "Product",
+				header: "Product Name",
 				accessorFn: (row) => `${row.productRef} - ${row.productName}`,
 				cell: ({ row }) => (
 					<div className="flex items-center justify-between gap-2">
@@ -58,6 +59,7 @@ export function SelectedProductsList({ settings, onChange, onRemove }: SelectedP
 						value={row.original.unit}
 						onChange={(e) => onChange(row.original.productId, "unit", e.target.value)}
 						className="w-full h-8"
+						disabled={existingProductIds.has(row.original.productId)}
 					/>
 				),
 			},
@@ -71,6 +73,7 @@ export function SelectedProductsList({ settings, onChange, onRemove }: SelectedP
 						value={row.original.quantity}
 						onChange={(e) => onChange(row.original.productId, "quantity", e.target.value)}
 						className="w-full h-8"
+						disabled={existingProductIds.has(row.original.productId)}
 					/>
 				),
 			},
@@ -84,6 +87,7 @@ export function SelectedProductsList({ settings, onChange, onRemove }: SelectedP
 						value={row.original.price}
 						onChange={(e) => onChange(row.original.productId, "price", e.target.value)}
 						className="w-full h-8"
+						disabled={existingProductIds.has(row.original.productId)}
 					/>
 				),
 			},
@@ -97,7 +101,8 @@ export function SelectedProductsList({ settings, onChange, onRemove }: SelectedP
 							variant="ghost"
 							size="icon"
 							onClick={() => onRemove(row.original.productId)}
-							className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+							className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 disabled:opacity-50"
+							disabled={existingProductIds.has(row.original.productId)}
 						>
 							<Trash2 className="h-4 w-4" />
 						</Button>
@@ -105,7 +110,7 @@ export function SelectedProductsList({ settings, onChange, onRemove }: SelectedP
 				),
 			},
 		],
-		[onChange, onRemove],
+		[existingProductIds, onChange, onRemove],
 	);
 
 	return (

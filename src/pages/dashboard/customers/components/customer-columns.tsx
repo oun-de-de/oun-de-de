@@ -1,10 +1,18 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Customer } from "@/core/types/customer";
 import { Badge } from "@/core/ui/badge";
+import { getDefaultPriceLabel, getDefaultPriceVariant } from "@/core/utils/get-default-price-badge";
 import { getStatusVariant } from "@/core/utils/get-status-variant";
 import { CustomerActions } from "./customer-actions";
 
 export const columns: ColumnDef<Customer>[] = [
+	{
+		header: "Register Date",
+		size: 80,
+		accessorKey: "registerDate",
+		cell: ({ row }) => new Date(row.original.registerDate).toLocaleDateString(),
+		meta: { bodyClassName: "text-center" },
+	},
 	{
 		header: "Code",
 		accessorKey: "code",
@@ -18,6 +26,7 @@ export const columns: ColumnDef<Customer>[] = [
 	},
 	{
 		header: "Phone",
+		size: 100,
 		accessorKey: "telephone",
 	},
 	{
@@ -29,7 +38,8 @@ export const columns: ColumnDef<Customer>[] = [
 		accessorKey: "defaultPrice",
 		size: 100,
 		cell: ({ row }) => {
-			return <span className="font-medium text-sky-600">{row.original.defaultPrice}</span>;
+			const value = row.original.defaultPrice;
+			return <Badge variant={getDefaultPriceVariant(value)}>{getDefaultPriceLabel(value)}</Badge>;
 		},
 		meta: { bodyClassName: "text-center" },
 	},

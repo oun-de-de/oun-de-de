@@ -12,6 +12,7 @@ type ProductFormProps = {
 	defaultValues?: ProductFormData;
 	mode?: "create" | "edit";
 	showTitle?: boolean;
+	unitOptions?: { label: string; value: string }[];
 };
 
 export function ProductForm({
@@ -20,6 +21,7 @@ export function ProductForm({
 	defaultValues,
 	mode = "create",
 	showTitle = true,
+	unitOptions = [],
 }: ProductFormProps) {
 	const title = mode === "create" ? "Add Product" : "Edit Product";
 
@@ -28,9 +30,12 @@ export function ProductForm({
 			if (field.name === "refNo") {
 				return { ...field, endAdornment: <GenerateProductCodeButton /> };
 			}
+			if (field.name === "unitId") {
+				return { ...field, options: unitOptions };
+			}
 			return field;
 		});
-	}, []);
+	}, [unitOptions]);
 
 	return (
 		<DefaultForm<ProductFormData>

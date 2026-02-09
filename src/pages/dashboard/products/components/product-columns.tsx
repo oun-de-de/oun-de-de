@@ -20,23 +20,50 @@ export const columns: ColumnDef<Product>[] = [
 		accessorKey: "name",
 	},
 	{
+		header: "Unit",
+		size: 80,
+		id: "unit",
+		cell: ({ row }) => row.original.unit?.name || "-",
+	},
+	{
 		header: "Quantity",
-		size: 60,
+		size: 80,
 		accessorKey: "quantity",
 		meta: { bodyClassName: "text-right" },
 	},
 	{
 		header: "Cost",
-		size: 60,
+		size: 70,
 		accessorKey: "cost",
 		cell: ({ row }) => (row.original.cost || 0).toLocaleString(),
 		meta: { bodyClassName: "text-right" },
 	},
 	{
 		header: "Price",
-		size: 60,
+		size: 70,
 		accessorKey: "price",
 		cell: ({ row }) => <span className="font-semibold">{(row.original.price || 0).toLocaleString()}</span>,
+		meta: { bodyClassName: "text-right" },
+	},
+	{
+		header: "Default Qty",
+		size: 90,
+		id: "defaultQuantity",
+		cell: ({ row }) =>
+			row.original.defaultProductSetting?.quantity !== null &&
+			row.original.defaultProductSetting?.quantity !== undefined
+				? row.original.defaultProductSetting.quantity
+				: "-",
+		meta: { bodyClassName: "text-right" },
+	},
+	{
+		header: "Default Price",
+		size: 100,
+		id: "defaultPrice",
+		cell: ({ row }) => {
+			const price = row.original.defaultProductSetting?.price;
+			return price !== null && price !== undefined ? Number(price).toLocaleString() : "-";
+		},
 		meta: { bodyClassName: "text-right" },
 	},
 	{

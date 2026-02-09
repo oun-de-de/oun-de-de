@@ -46,6 +46,7 @@ const getCustomer = (id: string) =>
 	apiClient.get<CustomerDetail>({
 		url: `${CustomerApi.List}/${id}`,
 	});
+
 const createCustomer = (customer: CreateCustomer) =>
 	apiClient.post<Customer>({ url: CustomerApi.Create, data: customer });
 
@@ -72,17 +73,6 @@ const createProductSetting = (customerId: string, setting: CreateProductSettings
 		data: setting,
 	});
 
-const updateProductSetting = (customerId: string, productId: string, setting: CreateProductSettings) =>
-	apiClient.put<ProductSettings>({
-		url: `${CustomerApi.List}/${customerId}/product-settings/${productId}`,
-		data: setting,
-	});
-
-const deleteProductSetting = (customerId: string, productId: string) =>
-	apiClient.delete({
-		url: `${CustomerApi.List}/${customerId}/product-settings/${productId}`,
-	});
-
 const getProductSettings = (customerId: string) =>
 	apiClient.get<ProductSettings[]>({
 		url: `${CustomerApi.List}/${customerId}/product-settings`,
@@ -97,6 +87,4 @@ export default {
 	createCustomerVehicle,
 	getProductSettings,
 	createProductSetting,
-	updateProductSetting,
-	deleteProductSetting,
 };

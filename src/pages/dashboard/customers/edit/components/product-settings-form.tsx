@@ -7,8 +7,17 @@ import { SelectedProductsList } from "./selected-products-list";
 
 export function ProductSettingsForm() {
 	const { id: customerId } = useParams<{ id: string }>();
-	const { settings, availableProducts, isLoading, isSaving, handleAdd, handleRemove, handleChange, handleSave } =
-		useProductSettingsForm(customerId);
+	const {
+		settings,
+		existingProductIds,
+		availableProducts,
+		isLoading,
+		isSaving,
+		handleAdd,
+		handleRemove,
+		handleChange,
+		handleSave,
+	} = useProductSettingsForm(customerId);
 
 	if (isLoading) {
 		return <div>Loading settings...</div>;
@@ -29,7 +38,12 @@ export function ProductSettingsForm() {
 
 				{/* Right Column: Selected Products */}
 				<div className="md:col-span-2">
-					<SelectedProductsList settings={settings} onChange={handleChange} onRemove={handleRemove} />
+					<SelectedProductsList
+						settings={settings}
+						existingProductIds={existingProductIds}
+						onChange={handleChange}
+						onRemove={handleRemove}
+					/>
 				</div>
 			</div>
 		</div>
