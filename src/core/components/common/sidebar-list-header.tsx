@@ -12,6 +12,7 @@ export type SidebarListHeaderProps = {
 	mainTypePlaceholder?: string;
 	mainTypeValue?: string;
 	onMainTypeChange?: (value: string) => void;
+	mainTypeFilter?: React.ReactNode;
 
 	// Menu Button
 	onMenuClick?: () => void;
@@ -36,6 +37,7 @@ export function SidebarListHeader({
 	mainTypePlaceholder = "Select Type",
 	mainTypeValue,
 	onMainTypeChange,
+	mainTypeFilter,
 	onMenuClick,
 	searchPlaceholder = "Search...",
 	searchValue = "",
@@ -51,6 +53,14 @@ export function SidebarListHeader({
 }: SidebarListHeaderProps) {
 	const [localSearch, setLocalSearch] = useState(searchValue);
 	const debouncedSearch = useDebounce(localSearch, 300);
+	const resolvedMainTypeLabel =
+		mainTypeValue !== undefined
+			? (mainTypeOptions.find((opt) => opt.value === mainTypeValue)?.label ?? mainTypeValue)
+			: undefined;
+	const resolvedStatusLabel =
+		statusValue !== undefined
+			? (statusOptions.find((opt) => opt.value === statusValue)?.label ?? statusValue)
+			: undefined;
 
 	useEffect(() => {
 		setLocalSearch(searchValue);
@@ -74,19 +84,21 @@ export function SidebarListHeader({
 		<div className={cn("flex flex-col gap-3 pb-2 md:pb-4", className)}>
 			{/* Top Row: Type Select + Menu */}
 			<div className="flex items-center gap-2">
-				<Select value={mainTypeValue} onValueChange={onMainTypeChange}>
-					<SelectTrigger className="w-full">
-						<SelectValue placeholder={mainTypePlaceholder} />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="type">{mainTypePlaceholder}</SelectItem>
-						{mainTypeOptions.map((opt) => (
-							<SelectItem key={opt.value} value={opt.value}>
-								{opt.label}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+				{mainTypeFilter ?? (
+					<Select value={mainTypeValue} onValueChange={onMainTypeChange}>
+						<SelectTrigger className="w-full">
+							<SelectValue placeholder={mainTypePlaceholder}>{resolvedMainTypeLabel}</SelectValue>
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="type">{mainTypePlaceholder}</SelectItem>
+							{mainTypeOptions.map((opt) => (
+								<SelectItem key={opt.value} value={opt.value}>
+									{opt.label}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				)}
 				<SidebarToggleButton onClick={onMenuClick} isCollapsed={false} variant="outline" />
 			</div>
 
@@ -100,7 +112,7 @@ export function SidebarListHeader({
 				/>
 				<Select value={statusValue} onValueChange={onStatusChange} defaultValue="active">
 					<SelectTrigger className="w-[110px] shrink-0">
-						<SelectValue placeholder={statusPlaceholder} />
+						<SelectValue placeholder={statusPlaceholder}>{resolvedStatusLabel}</SelectValue>
 					</SelectTrigger>
 					<SelectContent>
 						{statusOptions.map((opt) => (

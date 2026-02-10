@@ -4,6 +4,7 @@ import customerService from "@/core/api/services/customer-service";
 import { EntityListItem, SidebarList } from "@/core/components/common";
 import type { SelectOption } from "@/core/types/common";
 import type { Customer } from "@/core/types/customer";
+import { CustomerTypeCombobox } from "./customer-type-combobox";
 
 type CustomerSidebarProps = {
 	activeCustomerId: string | null;
@@ -11,12 +12,6 @@ type CustomerSidebarProps = {
 	onToggle?: () => void;
 	isCollapsed?: boolean;
 };
-
-const MAIN_TYPE_OPTIONS: SelectOption[] = [
-	{ value: "all", label: "All" },
-	{ value: "vip", label: "VIP" },
-	{ value: "retail", label: "Retail" },
-];
 
 const STATUS_OPTIONS: SelectOption[] = [
 	{ value: "all", label: "All" },
@@ -28,9 +23,37 @@ export function CustomerSidebar({ activeCustomerId, onSelect, onToggle, isCollap
 	const [searchTerm, setSearchTerm] = useState("");
 	const [status, setStatus] = useState("active");
 	const [customerType, setCustomerType] = useState("all");
+	const [customerTypeInput, setCustomerTypeInput] = useState("all");
+	const [paymentTerm, setPaymentTerm] = useState("");
+
+	const handleCustomerTypeChange = (value: string) => {
+		const nextValue = value.trim().toLowerCase();
+		setCustomerTypeInput(nextValue);
+
+		if (!nextValue || nextValue === "all") {
+			setCustomerType("all");
+			setPaymentTerm("");
+			return;
+		}
+
+		if (/^\d+$/.test(nextValue)) {
+			setCustomerType("all");
+			setPaymentTerm(nextValue);
+			return;
+		}
+
+		if (nextValue !== "vip" && nextValue !== "retail") {
+			setCustomerType("all");
+			setPaymentTerm("");
+			return;
+		}
+
+		setPaymentTerm("");
+		setCustomerType(nextValue);
+	};
 
 	const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
-		queryKey: ["customers", "sidebar", { name: searchTerm, status, customerType }],
+		queryKey: ["customers", "sidebar", { name: searchTerm, status, customerType, paymentTerm }],
 		queryFn: ({ pageParam = 1 }) =>
 			customerService.getCustomerList({
 				page: pageParam,
@@ -38,6 +61,7 @@ export function CustomerSidebar({ activeCustomerId, onSelect, onToggle, isCollap
 				name: searchTerm || undefined,
 				status: status !== "all" ? status : undefined,
 				customerType: customerType !== "all" ? customerType : undefined,
+				paymentTerm: paymentTerm || undefined,
 			}),
 		initialPageParam: 1,
 		getNextPageParam: (lastPage) => (lastPage.page < lastPage.pageCount ? lastPage.page + 1 : undefined),
@@ -49,9 +73,8 @@ export function CustomerSidebar({ activeCustomerId, onSelect, onToggle, isCollap
 	return (
 		<SidebarList>
 			<SidebarList.Header
-				mainTypeOptions={MAIN_TYPE_OPTIONS}
 				mainTypePlaceholder="Customer Type"
-				onMainTypeChange={setCustomerType}
+				mainTypeFilter={<CustomerTypeCombobox value={customerTypeInput} onChange={handleCustomerTypeChange} />}
 				onMenuClick={onToggle}
 				searchPlaceholder="Search..."
 				onSearchChange={setSearchTerm}

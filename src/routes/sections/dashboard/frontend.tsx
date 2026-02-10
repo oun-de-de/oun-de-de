@@ -8,6 +8,8 @@ export function getFrontendDashboardRoutes(): RouteObject[] {
 		{ path: "dashboard/customers/create", element: Component("/pages/dashboard/customers/create") },
 		{ path: "dashboard/customers/edit/:id", element: Component("/pages/dashboard/customers/edit") },
 		{ path: "dashboard/customers/create-receipt", element: Component("/pages/dashboard/customers/create-receipt") },
+		{ path: "dashboard/invoice", element: Component("/pages/dashboard/invoice") },
+		{ path: "dashboard/invoice/create", element: Component("/pages/dashboard/invoice/create") },
 		{ path: "dashboard/vendors", element: Component("/pages/dashboard/vendors") },
 		{ path: "dashboard/products", element: Component("/pages/dashboard/products") },
 		{ path: "dashboard/products/create", element: Component("/pages/dashboard/products/create") },
