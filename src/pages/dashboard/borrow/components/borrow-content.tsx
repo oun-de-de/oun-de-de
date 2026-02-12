@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
 import { SplitButton } from "@/core/components/common/split-button";
@@ -7,60 +7,72 @@ import type { SummaryStatCardData } from "@/core/types/common";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
 
-import type { BorrowListState } from "@/pages/dashboard/borrow/stores/borrowStore";
-import { type BorrowRow, borrowColumns } from "./borrow-columns";
-
-// Mock Stats
-const SUMMARY_CARDS: SummaryStatCardData[] = [
-	{ label: "Active Borrows", value: 12, color: "bg-blue-500", icon: "mdi:clipboard-clock-outline" },
-	{ label: "Overdue", value: 2, color: "bg-red-500", icon: "mdi:alert-circle-outline" },
-	{ label: "Returned Today", value: 5, color: "bg-emerald-500", icon: "mdi:check-circle-outline" },
-];
-
-const MOCK_BORROWS: BorrowRow[] = [
-	{ id: "1", refNo: "BR-2025-001", borrower: "John Doe", date: "2025-01-20", status: "Active", itemCount: 2 },
-	{ id: "2", refNo: "BR-2025-002", borrower: "Jane Smith", date: "2025-01-18", status: "Active", itemCount: 1 },
-	{ id: "3", refNo: "BR-2025-003", borrower: "Alice Johnson", date: "2025-01-15", status: "Returned", itemCount: 3 },
-	{ id: "4", refNo: "BR-2025-004", borrower: "Bob Brown", date: "2025-01-10", status: "Overdue", itemCount: 1 },
-];
+import type { BorrowState } from "@/pages/dashboard/borrow/stores/borrow-store";
+import { MOCK_LOAN_RECORDS } from "../constants/loan-records";
+import { mapLoanRecordToBorrowRow } from "../utils/loan-utils";
+import { borrowColumns } from "./borrow-columns";
 
 type Props = {
 	activeBorrowId: string | null;
-	listState: BorrowListState;
-	updateState: (updates: Partial<BorrowListState>) => void;
+	listState: BorrowState;
+	updateState: (updates: Partial<Omit<BorrowState, "type">>) => void;
 };
 
 export function BorrowContent({ activeBorrowId, listState, updateState }: Props) {
 	const navigate = useNavigate();
+	const loanRows = useMemo(() => MOCK_LOAN_RECORDS.map((record) => mapLoanRecordToBorrowRow(record)), []);
 
 	const filteredData = useMemo(() => {
-		let data = MOCK_BORROWS;
+		let data = loanRows;
 		if (listState.searchValue) {
 			const q = listState.searchValue.toLowerCase();
-			data = data.filter((row) => row.refNo.toLowerCase().includes(q) || row.borrower.toLowerCase().includes(q));
+			if (listState.fieldFilter === "borrower") {
+				data = data.filter((row) => row.borrower.toLowerCase().includes(q));
+			} else if (listState.fieldFilter === "borrowerType") {
+				data = data.filter((row) => row.borrowerType.toLowerCase().includes(q));
+			} else {
+				data = data.filter((row) => row.refNo.toLowerCase().includes(q));
+			}
 		}
 		if (listState.typeFilter !== "all") {
 			data = data.filter((row) => row.status === listState.typeFilter);
 		}
 		return data;
-	}, [listState.searchValue, listState.typeFilter]);
+	}, [listState.fieldFilter, listState.searchValue, listState.typeFilter, loanRows]);
+
+	const summaryCards = useMemo<SummaryStatCardData[]>(() => {
+		const activeCount = loanRows.filter((row) => row.status === "Active").length;
+		const overdueCount = loanRows.filter((row) => row.status === "Overdue").length;
+		const closedCount = loanRows.filter((row) => row.status === "Returned").length;
+		return [
+			{ label: "Active Loans", value: activeCount, color: "bg-blue-500", icon: "mdi:cash-multiple" },
+			{ label: "Overdue Loans", value: overdueCount, color: "bg-red-500", icon: "mdi:alert-circle-outline" },
+			{ label: "Closed Loans", value: closedCount, color: "bg-emerald-500", icon: "mdi:check-circle-outline" },
+		];
+	}, [loanRows]);
 
 	const totalItems = filteredData.length;
-	const totalPages = Math.ceil(totalItems / listState.pageSize);
+	const totalPages = Math.max(1, Math.ceil(totalItems / listState.pageSize));
 	const paginatedData = filteredData.slice(
 		(listState.page - 1) * listState.pageSize,
 		listState.page * listState.pageSize,
 	);
 
-	const activeBorrow = MOCK_BORROWS.find((b) => b.id === activeBorrowId);
+	useEffect(() => {
+		if (listState.page > totalPages) {
+			updateState({ page: totalPages });
+		}
+	}, [listState.page, totalPages, updateState]);
+
+	const activeBorrow = loanRows.find((row) => row.id === activeBorrowId);
 
 	const mainAction = {
-		label: listState.activeView === "requests" ? "Requests" : "All Borrowings",
+		label: listState.activeView === "requests" ? "Requests" : "All Loans",
 		onClick: () => {},
 	};
 
 	const options = [
-		{ label: "All Borrowings", onClick: () => updateState({ activeView: "all" }) },
+		{ label: "All Loans", onClick: () => updateState({ activeView: "all" }) },
 		{ label: "Requests", onClick: () => updateState({ activeView: "requests" }) },
 	];
 
@@ -68,15 +80,15 @@ export function BorrowContent({ activeBorrowId, listState, updateState }: Props)
 		label: (
 			<span className="flex items-center gap-2">
 				<Icon icon="mdi:plus" />
-				New Borrowing
+				New Loan
 			</span>
 		),
 		onClick: () => navigate("/dashboard/borrow/new"),
 	};
 
 	const newBorrowOptions = [
-		{ label: "Return Equipment", onClick: () => {} },
-		{ label: "Report Issue", onClick: () => {} },
+		{ label: "Record Monthly Payment", onClick: () => {} },
+		{ label: "Adjust Schedule", onClick: () => {} },
 	];
 
 	const filterConfig = {
@@ -89,12 +101,13 @@ export function BorrowContent({ activeBorrowId, listState, updateState }: Props)
 		fieldOptions: [
 			{ label: "Ref No", value: "refNo" },
 			{ label: "Borrower", value: "borrower" },
+			{ label: "Type", value: "borrowerType" },
 		],
 		typeValue: listState.typeFilter,
 		fieldValue: listState.fieldFilter || "refNo",
 		searchValue: listState.searchValue,
 		onTypeChange: (v: string) => updateState({ typeFilter: v, page: 1 }),
-		onFieldChange: (v: string) => updateState({ fieldFilter: v }),
+		onFieldChange: (v: string) => updateState({ fieldFilter: v, page: 1 }),
 		onSearchChange: (v: string) => updateState({ searchValue: v, page: 1 }),
 	};
 
@@ -128,7 +141,7 @@ export function BorrowContent({ activeBorrowId, listState, updateState }: Props)
 			</div>
 
 			<div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4 mb-4">
-				{SUMMARY_CARDS.map((card) => (
+				{summaryCards.map((card) => (
 					<SummaryStatCard key={card.label} {...card} />
 				))}
 			</div>

@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { DashboardSplitView } from "@/core/components/common/dashboard-split-view";
 import { useSidebarCollapse } from "@/core/hooks/use-sidebar-collapse";
-import { useBorrowList, useBorrowListActions } from "@/pages/dashboard/borrow/stores/borrowStore";
+import { useBorrowActions, useBorrowState } from "@/pages/dashboard/borrow/stores/borrow-store";
 import { BorrowContent } from "./components/borrow-content";
 import { BorrowSidebar } from "./components/borrow-sidebar";
 
 export default function BorrowPage() {
 	const [activeBorrowId, setActiveBorrowId] = useState<string | null>(null);
-	const listState = useBorrowList();
-	const { updateState } = useBorrowListActions();
+	const listState = useBorrowState();
+	const { updateState } = useBorrowActions();
 	const { isCollapsed, handleToggle } = useSidebarCollapse();
 
 	return (

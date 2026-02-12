@@ -8,7 +8,7 @@ import {
 	useBorrowCartActions,
 	useBorrowCartState,
 	useCartTotal,
-} from "@/pages/dashboard/borrow/stores/borrowCartStore";
+} from "@/pages/dashboard/borrow/stores/borrow-cart-store";
 
 export function BorrowCreateCartPanel() {
 	const navigate = useNavigate();

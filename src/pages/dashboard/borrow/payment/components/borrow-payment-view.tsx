@@ -5,7 +5,7 @@ import {
 	useBorrowCartActions,
 	useBorrowCartState,
 	useCartTotal,
-} from "@/pages/dashboard/borrow/stores/borrowCartStore";
+} from "@/pages/dashboard/borrow/stores/borrow-cart-store";
 import { BorrowPaymentBorrowerInfo } from "./borrow-payment-borrower-info";
 import { BorrowPaymentHeader } from "./borrow-payment-header";
 import { BorrowPaymentItems } from "./borrow-payment-items";

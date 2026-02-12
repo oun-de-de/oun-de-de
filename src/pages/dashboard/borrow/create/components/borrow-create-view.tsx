@@ -3,7 +3,7 @@ import { List } from "lucide-react";
 import { useMemo, useState } from "react";
 import { SmartDataTable } from "@/core/components/common/smart-data-table";
 import { SectionHeader } from "@/pages/dashboard/borrow/components/borrow-section-header";
-import { useBorrowCartActions } from "@/pages/dashboard/borrow/stores/borrowCartStore";
+import { useBorrowCartActions } from "@/pages/dashboard/borrow/stores/borrow-cart-store";
 import { BorrowCreateCartPanel } from "./borrow-create-cart-panel";
 import { type Equipment, getBorrowCreateColumns } from "./borrow-create-columns";
 import { BorrowCreateFilter } from "./borrow-create-filter";

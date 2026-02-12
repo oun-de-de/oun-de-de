@@ -2,7 +2,7 @@ import { ShoppingCart } from "lucide-react";
 import { useMemo } from "react";
 import { SmartDataTable } from "@/core/components/common/smart-data-table";
 import { SectionHeader } from "@/pages/dashboard/borrow/components/borrow-section-header";
-import type { CartItem } from "@/pages/dashboard/borrow/stores/borrowCartStore";
+import type { CartItem } from "@/pages/dashboard/borrow/stores/borrow-cart-store";
 import { getBorrowPaymentColumns } from "./borrow-payment-columns";
 
 interface BorrowPaymentItemsProps {
