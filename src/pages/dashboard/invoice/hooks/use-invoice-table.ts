@@ -1,83 +1,166 @@
-import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type { OnChangeFn, SortingState } from "@tanstack/react-table";
+import isEqual from "fast-deep-equal";
+import { useCallback, useEffect, useMemo } from "react";
+import { useDebounce } from "@/core/hooks/use-debounce";
+import invoiceService from "@/core/services/invoice-service";
+import type { InvoiceStatus, InvoiceType } from "@/core/types/invoice";
 import { buildPagination } from "@/core/utils/dashboard-utils";
-import { INVOICE_ROWS } from "../constants";
+import { getInvoiceState, useInvoiceActions, useInvoiceState } from "../stores/invoice-store";
 
 type UseInvoiceTableParams = {
 	customerName?: string | null;
-	customerCode?: string | null;
+	customerId?: string | null;
 };
 
-export function useInvoiceTable({ customerName, customerCode }: UseInvoiceTableParams = {}) {
-	const [page, setPage] = useState(1);
-	const [pageSize, setPageSize] = useState(10);
-	const [typeFilter, setTypeFilter] = useState("all");
-	const [fieldFilter, setFieldFilter] = useState("all");
-	const [searchValue, setSearchValue] = useState("");
+const getCurrentListState = () => getInvoiceState();
+const isInvoiceStatus = (value: string): value is InvoiceStatus =>
+	value === "OPEN" || value === "CLOSED" || value === "OVERDUE";
+const isInvoiceType = (value: string): value is InvoiceType => value === "INVOICE" || value === "RECEIPT";
 
-	const filteredData = useMemo(() => {
-		const query = searchValue.trim().toLowerCase();
+export function useInvoiceTable({ customerName, customerId }: UseInvoiceTableParams = {}) {
+	const { page, pageSize, typeFilter, fieldFilter, searchValue, sorting } = useInvoiceState();
+	const { updateState } = useInvoiceActions();
 
-		return INVOICE_ROWS.filter((row) => {
-			if (customerName || customerCode) {
-				const normalizedCustomer = row.customer.trim().toLowerCase();
-				const normalizedName = customerName?.trim().toLowerCase();
-				const normalizedCode = customerCode?.trim().toLowerCase();
-				const matchesName = normalizedName ? normalizedCustomer.includes(normalizedName) : false;
-				const matchesCode = normalizedCode ? normalizedCustomer.includes(`(${normalizedCode})`) : false;
+	const debouncedSearchValue = useDebounce(searchValue, 300);
 
-				if (!matchesName && !matchesCode) {
-					return false;
-				}
-			}
-
-			if (typeFilter !== "all" && row.status !== typeFilter) {
-				return false;
-			}
-
-			if (!query) {
-				return true;
-			}
+	const query = useQuery({
+		queryKey: [
+			"invoices",
+			{
+				page,
+				size: pageSize,
+				status: typeFilter,
+				search: debouncedSearchValue,
+				field: fieldFilter,
+				customerName,
+				customerId,
+				sorting,
+			},
+		],
+		queryFn: () => {
+			let searchRefNo: string | undefined;
+			let searchCustomerName: string | undefined;
+			let searchStatus: InvoiceStatus | undefined;
+			let searchType: InvoiceType | undefined;
 
 			if (fieldFilter === "refNo") {
-				return row.refNo.toLowerCase().includes(query);
+				searchRefNo = debouncedSearchValue;
+			} else if (fieldFilter === "customerName") {
+				searchCustomerName = debouncedSearchValue;
+			} else if (fieldFilter === "all") {
+				searchCustomerName = debouncedSearchValue;
+			} else if (fieldFilter === "status" && debouncedSearchValue) {
+				const normalized = debouncedSearchValue.toUpperCase();
+				searchStatus = isInvoiceStatus(normalized) ? normalized : undefined;
+			} else if (fieldFilter === "type" && debouncedSearchValue) {
+				const normalized = debouncedSearchValue.toUpperCase();
+				searchType = isInvoiceType(normalized) ? normalized : undefined;
 			}
 
-			if (fieldFilter === "customer") {
-				return row.customer.toLowerCase().includes(query);
-			}
+			const sortParam = sorting.map((s) => `${s.id},${s.desc ? "desc" : "asc"}`).join(",");
+			const selectedStatus = isInvoiceStatus(typeFilter) ? typeFilter : undefined;
 
-			return row.refNo.toLowerCase().includes(query) || row.customer.toLowerCase().includes(query);
-		});
-	}, [customerCode, customerName, fieldFilter, searchValue, typeFilter]);
+			return invoiceService.getInvoices({
+				page: page,
+				size: pageSize,
+				status: searchStatus || selectedStatus,
+				type: searchType,
+				refNo: searchRefNo,
+				customerName: (customerName ?? searchCustomerName) || undefined,
+				customerId: customerId || undefined,
+				sort: sortParam || "date,desc",
+			});
+		},
+	});
 
-	const summaryCards = useMemo(() => {
-		const total = filteredData.reduce((sum, row) => sum + row.total, 0);
-		const outstanding = filteredData.reduce((sum, row) => sum + row.balance, 0);
-		const paidCount = filteredData.filter((row) => row.status === "Paid").length;
-		const overdueCount = filteredData.filter((row) => row.status === "Overdue").length;
-
-		return [
-			{ label: "Total Invoice", value: total, color: "bg-sky-500", icon: "mdi:file-document-outline" },
-			{ label: "Outstanding", value: outstanding, color: "bg-amber-500", icon: "mdi:cash-remove" },
-			{ label: "Paid", value: paidCount, color: "bg-emerald-500", icon: "mdi:check-circle-outline" },
-			{ label: "Overdue", value: overdueCount, color: "bg-red-500", icon: "mdi:alert-circle-outline" },
-		];
-	}, [filteredData]);
-
-	const totalItems = filteredData.length;
-	const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+	const invoicePage = query.data;
+	const invoices = invoicePage?.list ?? [];
+	const totalPages = Math.max(1, invoicePage?.pageCount ?? 0);
 	const currentPage = Math.min(page, totalPages);
 
 	useEffect(() => {
 		if (page > totalPages) {
-			setPage(totalPages);
+			updateState({ page: totalPages });
 		}
-	}, [page, totalPages]);
+	}, [page, totalPages, updateState]);
 
-	const pagedData = useMemo(() => {
-		const start = (currentPage - 1) * pageSize;
-		return filteredData.slice(start, start + pageSize);
-	}, [currentPage, filteredData, pageSize]);
+	const pagedData = useMemo(() => invoices, [invoices]);
+
+	const summaryCards = useMemo(() => {
+		const totalInvoice = invoicePage?.total ?? invoices.length;
+		const openCount = invoices.filter((row) => row.status === "OPEN").length;
+		const closedCount = invoices.filter((row) => row.status === "CLOSED").length;
+		const overdueCount = invoices.filter((row) => row.status === "OVERDUE").length;
+
+		return [
+			{ label: "Total Invoice", value: totalInvoice, color: "bg-sky-500", icon: "mdi:file-document-outline" },
+			{ label: "Open", value: openCount, color: "bg-amber-500", icon: "mdi:cash-remove" },
+			{ label: "Closed", value: closedCount, color: "bg-emerald-500", icon: "mdi:check-circle-outline" },
+			{ label: "Overdue", value: overdueCount, color: "bg-red-500", icon: "mdi:alert-circle-outline" },
+		];
+	}, [invoicePage?.total, invoices]);
+
+	const onTypeFilterChange = useCallback(
+		(value: string) => {
+			const current = getCurrentListState();
+			const shouldResetSearch = value === "all" && current.searchValue !== "";
+			if (value === current.typeFilter && current.page === 1 && !shouldResetSearch) return;
+			updateState({
+				typeFilter: value,
+				searchValue: value === "all" ? "" : current.searchValue,
+				page: 1,
+			});
+		},
+		[updateState],
+	);
+
+	const onFieldFilterChange = useCallback(
+		(value: string) => {
+			const current = getCurrentListState();
+			const shouldResetSearch = current.searchValue !== "";
+			if (value === current.fieldFilter && current.page === 1 && !shouldResetSearch) return;
+			updateState({ fieldFilter: value, searchValue: "", page: 1 });
+		},
+		[updateState],
+	);
+
+	const onSearchChange = useCallback(
+		(value: string) => {
+			const current = getCurrentListState();
+			if (value === current.searchValue && current.page === 1) return;
+			updateState({ searchValue: value, page: 1 });
+		},
+		[updateState],
+	);
+
+	const onPageChange = useCallback(
+		(value: number) => {
+			const current = getCurrentListState();
+			if (value === current.page) return;
+			updateState({ page: value });
+		},
+		[updateState],
+	);
+
+	const onPageSizeChange = useCallback(
+		(value: number) => {
+			const current = getCurrentListState();
+			if (value === current.pageSize && current.page === 1) return;
+			updateState({ pageSize: value, page: 1 });
+		},
+		[updateState],
+	);
+
+	const onSortingChange: OnChangeFn<SortingState> = useCallback(
+		(updaterOrValue) => {
+			const current = getCurrentListState();
+			const nextSorting = typeof updaterOrValue === "function" ? updaterOrValue(current.sorting) : updaterOrValue;
+			if (isEqual(nextSorting, current.sorting)) return;
+			updateState({ sorting: nextSorting });
+		},
+		[updateState],
+	);
 
 	return {
 		pagedData,
@@ -87,25 +170,18 @@ export function useInvoiceTable({ customerName, customerCode }: UseInvoiceTableP
 		searchValue,
 		currentPage,
 		pageSize,
-		totalItems,
+		totalItems: invoicePage?.total ?? 0,
 		totalPages,
 		paginationItems: buildPagination(currentPage, totalPages),
-		onTypeFilterChange: (value: string) => {
-			setTypeFilter(value);
-			setPage(1);
-		},
-		onFieldFilterChange: (value: string) => {
-			setFieldFilter(value);
-			setPage(1);
-		},
-		onSearchChange: (value: string) => {
-			setSearchValue(value);
-			setPage(1);
-		},
-		onPageChange: setPage,
-		onPageSizeChange: (value: number) => {
-			setPageSize(value);
-			setPage(1);
-		},
+		sorting,
+		onTypeFilterChange,
+		onFieldFilterChange,
+		onSearchChange,
+		onPageChange,
+		onPageSizeChange,
+		onSortingChange,
+		isLoading: query.isLoading,
+		isError: query.isError,
+		refetch: query.refetch,
 	};
 }

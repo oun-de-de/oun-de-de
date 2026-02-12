@@ -1,30 +1,32 @@
-export type InvoiceStatus = "Draft" | "Pending" | "Paid" | "Overdue";
+export type InvoiceStatus = "OPEN" | "CLOSED" | "OVERDUE";
+export type InvoiceType = "INVOICE" | "RECEIPT";
 
-export type InvoiceRow = {
+export interface Invoice {
 	id: string;
-	date: string;
 	refNo: string;
-	customer: string;
-	dueDate: string;
+	customerName: string;
+	date: string;
+	type: InvoiceType;
 	status: InvoiceStatus;
-	total: number;
-	paid: number;
-	balance: number;
-};
+}
 
-export type CreateInvoiceMode = "standard" | "draft" | "clear";
+export interface InvoiceExportPreviewRow {
+	refNo: string;
+	customerName: string;
+	date: string;
+	productName: string | null;
+	unit: string | null;
+	pricePerProduct: number | null;
+	quantityPerProduct: number | null;
+	quantity: number | null;
+	amount: number | null;
+	total: number | null;
+	memo: string | null;
+	paid: number | null;
+	balance: number | null;
+}
 
-export type CreateInvoiceLocationState = {
-	selectedInvoiceIds?: string[];
-	mode?: CreateInvoiceMode;
-};
-
-export type InvoiceSaveMode = "draft" | "final";
-
-export type InvoiceDraftForm = {
-	invoiceDate: string;
-	dueDate: string;
-	memo: string;
-};
-
-export type SelectedInvoiceRow = InvoiceRow;
+export interface InvoiceExportPreviewLocationState {
+	selectedInvoiceIds: string[];
+	previewRows: InvoiceExportPreviewRow[];
+}

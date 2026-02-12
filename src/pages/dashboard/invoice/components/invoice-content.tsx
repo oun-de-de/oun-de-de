@@ -1,17 +1,21 @@
+import type { OnChangeFn, SortingState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { toast } from "sonner";
-import { SmartDataTable, SplitButton, SummaryStatCard } from "@/core/components/common";
+import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
 import Icon from "@/core/components/icon/icon";
 import type { SummaryStatCardData } from "@/core/types/common";
-import type { InvoiceRow } from "@/core/types/invoice";
+import type { Invoice, InvoiceExportPreviewRow } from "@/core/types/invoice";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
-import { INVOICE_FILTER_FIELD_OPTIONS, INVOICE_FILTER_TYPE_OPTIONS } from "../constants";
+import {
+	INVOICE_FILTER_FIELD_OPTIONS,
+	INVOICE_FILTER_TYPE_OPTIONS,
+	INVOICE_TYPE_OPTIONS,
+} from "../constants/constants";
 import { getInvoiceColumns } from "./invoice-columns";
 
 type InvoiceContentProps = {
-	pagedData: InvoiceRow[];
+	pagedData: Invoice[];
 	summaryCards: SummaryStatCardData[];
 	activeInvoiceLabel?: string | null;
 	typeFilter: string;
@@ -27,6 +31,9 @@ type InvoiceContentProps = {
 	onSearchChange: (value: string) => void;
 	onPageChange: (value: number) => void;
 	onPageSizeChange: (value: number) => void;
+	sorting: SortingState;
+	onSortingChange: OnChangeFn<SortingState>;
+	isLoading?: boolean;
 };
 
 export function InvoiceContent({
@@ -46,11 +53,16 @@ export function InvoiceContent({
 	onSearchChange,
 	onPageChange,
 	onPageSizeChange,
+	sorting,
+	onSortingChange,
+	isLoading,
 }: InvoiceContentProps) {
 	const navigate = useNavigate();
 	const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([]);
+	const [selectedInvoiceById, setSelectedInvoiceById] = useState<Record<string, Invoice>>({});
 	const selectedIdSet = useMemo(() => new Set(selectedInvoiceIds), [selectedInvoiceIds]);
 	const visibleIds = useMemo(() => pagedData.map((row) => row.id), [pagedData]);
+	const rowById = useMemo(() => new Map(pagedData.map((row) => [row.id, row])), [pagedData]);
 	const selectedVisibleCount = visibleIds.filter((id) => selectedIdSet.has(id)).length;
 	const allSelected = visibleIds.length > 0 && selectedVisibleCount === visibleIds.length;
 	const partiallySelected = selectedVisibleCount > 0 && selectedVisibleCount < visibleIds.length;
@@ -75,6 +87,23 @@ export function InvoiceContent({
 						}
 						return Array.from(prevSet);
 					});
+					if (checked) {
+						setSelectedInvoiceById((prev) => {
+							const next = { ...prev };
+							for (const row of pagedData) {
+								next[row.id] = row;
+							}
+							return next;
+						});
+						return;
+					}
+					setSelectedInvoiceById((prev) => {
+						const next = { ...prev };
+						for (const id of visibleIds) {
+							delete next[id];
+						}
+						return next;
+					});
 				},
 				onToggleOne: (id, checked) => {
 					setSelectedInvoiceIds((prev) => {
@@ -83,13 +112,55 @@ export function InvoiceContent({
 						else prevSet.delete(id);
 						return Array.from(prevSet);
 					});
+					if (checked) {
+						const row = rowById.get(id);
+						if (row) {
+							setSelectedInvoiceById((prev) => ({ ...prev, [id]: row }));
+						}
+						return;
+					}
+					setSelectedInvoiceById((prev) => {
+						const next = { ...prev };
+						delete next[id];
+						return next;
+					});
 				},
 			}),
-		[allSelected, partiallySelected, selectedIdSet, visibleIds],
+		[allSelected, pagedData, partiallySelected, rowById, selectedIdSet, visibleIds],
 	);
 
+	const handleOpenExportPreview = () => {
+		if (selectedInvoiceIds.length === 0) return;
+
+		const previewRows: InvoiceExportPreviewRow[] = selectedInvoiceIds.map((id) => {
+			const row = selectedInvoiceById[id] ?? rowById.get(id);
+			return {
+				refNo: row?.refNo ?? id,
+				customerName: row?.customerName ?? "-",
+				date: row?.date ?? "",
+				productName: null,
+				unit: null,
+				pricePerProduct: null,
+				quantityPerProduct: null,
+				quantity: null,
+				amount: null,
+				total: null,
+				memo: null,
+				paid: null,
+				balance: null,
+			};
+		});
+
+		navigate("/dashboard/invoice/export-preview", {
+			state: {
+				selectedInvoiceIds,
+				previewRows,
+			},
+		});
+	};
+
 	return (
-		<div className="flex w-full flex-col gap-4">
+		<div className={`flex w-full flex-col gap-4 ${isLoading ? "opacity-60 pointer-events-none" : ""}`}>
 			<div className="flex flex-wrap items-center justify-between gap-2">
 				<div className="flex items-center gap-2">
 					<Button size="sm" className="gap-1">
@@ -106,50 +177,15 @@ export function InvoiceContent({
 							Selected: {selectedInvoiceIds.length}
 						</Text>
 					)}
-					<SplitButton
+					<Button
 						size="sm"
-						mainAction={{
-							label: (
-								<span className="flex items-center gap-2">
-									<Icon icon="mdi:plus" />
-									Create Invoice
-								</span>
-							),
-							disabled: selectedInvoiceIds.length === 0,
-							onClick: () => {
-								if (selectedInvoiceIds.length === 0) {
-									toast.error("Please select at least one row");
-									return;
-								}
-								navigate("/dashboard/invoice/create", {
-									state: { selectedInvoiceIds, mode: "standard" },
-								});
-							},
-						}}
-						options={[
-							{
-								label: "Create and open draft",
-								disabled: selectedInvoiceIds.length === 0,
-								onClick: () => {
-									if (selectedInvoiceIds.length === 0) return;
-									navigate("/dashboard/invoice/create", {
-										state: { selectedInvoiceIds, mode: "draft" },
-									});
-								},
-							},
-							{
-								label: "Create and clear selection",
-								disabled: selectedInvoiceIds.length === 0,
-								onClick: () => {
-									if (selectedInvoiceIds.length === 0) return;
-									navigate("/dashboard/invoice/create", {
-										state: { selectedInvoiceIds, mode: "clear" },
-									});
-									setSelectedInvoiceIds([]);
-								},
-							},
-						]}
-					/>
+						variant="outline"
+						disabled={selectedInvoiceIds.length === 0}
+						onClick={handleOpenExportPreview}
+					>
+						<Icon icon="mdi:file-export-outline" />
+						Export
+					</Button>
 				</div>
 			</div>
 
@@ -173,6 +209,13 @@ export function InvoiceContent({
 					onTypeChange: onTypeFilterChange,
 					onFieldChange: onFieldFilterChange,
 					onSearchChange,
+					optionsByField: {
+						type: INVOICE_TYPE_OPTIONS,
+					},
+				}}
+				sortingConfig={{
+					sorting,
+					onSortingChange,
 				}}
 				paginationConfig={{
 					page: currentPage,
