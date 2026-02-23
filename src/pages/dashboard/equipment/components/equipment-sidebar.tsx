@@ -2,33 +2,33 @@ import { useMemo, useState } from "react";
 import { EntityListItem, SidebarList } from "@/core/components/common";
 import { up, useMediaQuery } from "@/core/hooks/use-media-query";
 import { useSidebarPagination } from "@/core/hooks/use-sidebar-pagination";
-import type { EquipmentItem, EquipmentItemId } from "@/core/types/equipment";
-import { useRouter } from "@/routes/hooks/use-router";
-import { EQUIPMENT_ITEMS } from "../constants/constants";
+import type { InventoryItem } from "@/core/types/inventory";
+import { useInventoryItems } from "../hooks/use-inventory-items";
 
 type Props = {
-	activeItemId: EquipmentItemId | null;
-	onSelect: (id: EquipmentItemId | null) => void;
+	activeItemId: string | null;
+	onSelect: (id: string | null) => void;
 	onToggle?: () => void;
 	isCollapsed?: boolean;
 };
 
 const normalizeText = (value: string) => value.trim().toLowerCase();
 
-const matchSearch = (item: EquipmentItem, normalizedQuery: string) =>
+const matchSearch = (item: InventoryItem, normalizedQuery: string) =>
 	normalizedQuery === "" ||
 	item.name.toLowerCase().includes(normalizedQuery) ||
-	item.category.toLowerCase().includes(normalizedQuery);
+	item.code.toLowerCase().includes(normalizedQuery);
 
 export function EquipmentSidebar({ activeItemId, onSelect, onToggle, isCollapsed }: Props) {
 	const [searchTerm, setSearchTerm] = useState("");
-	const router = useRouter();
 	const isLgUp = useMediaQuery(up("lg"));
 	const normalizedQuery = normalizeText(searchTerm);
 
+	const { data: items = [] } = useInventoryItems();
+
 	const filteredList = useMemo(
-		() => EQUIPMENT_ITEMS.filter((item) => matchSearch(item, normalizedQuery)),
-		[normalizedQuery],
+		() => items.filter((item) => matchSearch(item, normalizedQuery)),
+		[items, normalizedQuery],
 	);
 
 	const pagination = useSidebarPagination({
@@ -39,14 +39,11 @@ export function EquipmentSidebar({ activeItemId, onSelect, onToggle, isCollapsed
 	const sidebarData = pagination.pagedData.map((item) => ({
 		id: item.id,
 		name: item.name,
-		code: item.category,
+		code: item.code,
 	}));
 
 	const handleSelect = (id: string | null) => {
-		if (!id) return;
-		const itemId = id as EquipmentItemId;
-		router.push(`/dashboard/equipment/${itemId}`);
-		onSelect(itemId);
+		onSelect(id);
 	};
 
 	return (

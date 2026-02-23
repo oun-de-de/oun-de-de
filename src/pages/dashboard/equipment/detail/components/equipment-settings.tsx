@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Icon from "@/core/components/icon/icon";
-import type { EquipmentItem } from "@/core/types/equipment";
+import type { InventoryItem } from "@/core/types/inventory";
 import { Button } from "@/core/ui/button";
 import { Input } from "@/core/ui/input";
 import { Label } from "@/core/ui/label";
@@ -8,19 +8,17 @@ import { Switch } from "@/core/ui/switch";
 import { Text } from "@/core/ui/typography";
 
 type EquipmentSettingsProps = {
-	item: EquipmentItem;
-	onUpdate?: (updatedItem: Partial<EquipmentItem>) => void;
+	item: InventoryItem;
+	onUpdate?: (updatedItem: Partial<InventoryItem>) => void;
 };
 
 export function EquipmentSettings({ item, onUpdate }: EquipmentSettingsProps) {
-	const [openingStock, setOpeningStock] = useState(item.openingStock);
 	const [alertThreshold, setAlertThreshold] = useState(item.alertThreshold);
 	const [isActive, setIsActive] = useState(true);
 
 	const handleSave = () => {
 		if (onUpdate) {
 			onUpdate({
-				openingStock,
 				alertThreshold,
 			});
 		}
@@ -38,21 +36,6 @@ export function EquipmentSettings({ item, onUpdate }: EquipmentSettingsProps) {
 
 				<div className="space-y-6">
 					<div className="space-y-2">
-						<Label htmlFor="opening-stock">Opening Stock</Label>
-						<Input
-							id="opening-stock"
-							type="number"
-							min="0"
-							value={openingStock}
-							onChange={(e) => setOpeningStock(Math.max(0, Number(e.target.value)))}
-							className="mt-1"
-						/>
-						<Text variant="caption" className="text-slate-500 mt-1">
-							The initial stock quantity when this item was first added
-						</Text>
-					</div>
-
-					<div className="space-y-2">
 						<Label htmlFor="alert-threshold">Alert Threshold</Label>
 						<Input
 							id="alert-threshold"
@@ -63,7 +46,7 @@ export function EquipmentSettings({ item, onUpdate }: EquipmentSettingsProps) {
 							className="mt-1"
 						/>
 						<Text variant="caption" className="text-slate-500 mt-1">
-							You'll be notified when stock falls below this amount
+							{`You'll be notified when stock falls below this amount`}
 						</Text>
 					</div>
 

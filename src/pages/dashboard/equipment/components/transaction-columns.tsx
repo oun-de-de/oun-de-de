@@ -1,80 +1,59 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { EquipmentItem, EquipmentItemId, EquipmentTransaction } from "@/core/types/equipment";
+import type { InventoryTransaction } from "@/core/types/inventory";
 import { Badge } from "@/core/ui/badge";
-import { Button } from "@/core/ui/button";
 import { formatDateTime } from "../utils/utils";
 
-export type EquipmentTransactionRow = {
+export type TransactionRow = {
 	id: string;
 	date: string;
-	item: string;
-	type: "Stock In" | "Stock Out (Borrow)";
-	qtyIn: string;
-	qtyOut: string;
-	remaining: number;
-	customer: string;
-	slipNo: string;
-	note: string;
+	type: string;
+	reason: string;
+	quantity: number;
+	memo: string;
 };
 
-export function mapTransactionsToRows(
-	transactions: EquipmentTransaction[],
-	itemMap: Map<EquipmentItemId, EquipmentItem>,
-	remainingAfterByTxId: Map<string, number>,
-): EquipmentTransactionRow[] {
-	return transactions.map((tx) => {
-		const item = itemMap.get(tx.itemId);
-		const isStockIn = tx.type === "stock-in";
-		return {
-			id: tx.id,
-			date: formatDateTime(tx.createdAt),
-			item: item?.name ?? tx.itemId,
-			type: isStockIn ? "Stock In" : "Stock Out (Borrow)",
-			qtyIn: isStockIn ? String(tx.quantity) : "-",
-			qtyOut: isStockIn ? "-" : String(tx.quantity),
-			remaining: remainingAfterByTxId.get(tx.id) ?? 0,
-			customer: tx.customerName ?? "-",
-			slipNo: tx.slipNo ?? "-",
-			note: tx.note ?? "-",
-		};
-	});
+export function mapTransactionsToRows(transactions: InventoryTransaction[]): TransactionRow[] {
+	return transactions.map((tx) => ({
+		id: tx.id,
+		date: formatDateTime(tx.createdAt),
+		type: tx.type,
+		reason: tx.reason,
+		quantity: tx.quantity,
+		memo: tx.memo ?? "-",
+	}));
 }
 
 export function filterRows(
-	rows: EquipmentTransactionRow[],
+	rows: TransactionRow[],
 	typeFilter: string,
 	fieldFilter: string,
 	searchValue: string,
-): EquipmentTransactionRow[] {
+): TransactionRow[] {
 	const normalized = searchValue.trim().toLowerCase();
 	return rows.filter((row) => {
 		if (typeFilter !== "all") {
-			const rowType = row.type === "Stock In" ? "stock-in" : "stock-out-borrow";
-			if (rowType !== typeFilter) return false;
+			if (row.type !== typeFilter) return false;
 		}
 
 		if (!normalized) return true;
 
-		if (fieldFilter === "item") return row.item.toLowerCase().includes(normalized);
-		if (fieldFilter === "customer") return row.customer.toLowerCase().includes(normalized);
-		if (fieldFilter === "slipNo") return row.slipNo.toLowerCase().includes(normalized);
-		if (fieldFilter === "note") return row.note.toLowerCase().includes(normalized);
+		if (fieldFilter === "reason") return row.reason.toLowerCase().includes(normalized);
+		if (fieldFilter === "memo") return row.memo.toLowerCase().includes(normalized);
 
 		return (
-			row.item.toLowerCase().includes(normalized) ||
-			row.customer.toLowerCase().includes(normalized) ||
-			row.slipNo.toLowerCase().includes(normalized) ||
-			row.note.toLowerCase().includes(normalized)
+			row.type.toLowerCase().includes(normalized) ||
+			row.reason.toLowerCase().includes(normalized) ||
+			row.memo.toLowerCase().includes(normalized)
 		);
 	});
 }
 
 export function paginateRows(
-	rows: EquipmentTransactionRow[],
+	rows: TransactionRow[],
 	page: number,
 	pageSize: number,
 ): {
-	pagedRows: EquipmentTransactionRow[];
+	pagedRows: TransactionRow[];
 	totalItems: number;
 	totalPages: number;
 	currentPage: number;
@@ -91,34 +70,16 @@ export function paginateRows(
 	};
 }
 
-export function transactionColumns(): ColumnDef<EquipmentTransactionRow>[] {
+export function transactionColumns(): ColumnDef<TransactionRow>[] {
 	return [
 		{ accessorKey: "date", header: "Date" },
-		{ accessorKey: "item", header: "Item" },
 		{
 			accessorKey: "type",
 			header: "Type",
-			cell: ({ row }) => (
-				<Badge variant={row.original.type === "Stock In" ? "info" : "secondary"}>{row.original.type}</Badge>
-			),
+			cell: ({ row }) => <Badge variant={row.original.type === "IN" ? "info" : "secondary"}>{row.original.type}</Badge>,
 		},
-		{ accessorKey: "qtyIn", header: "Qty In" },
-		{ accessorKey: "qtyOut", header: "Qty Out" },
-		{ accessorKey: "remaining", header: "Remaining" },
-		{ accessorKey: "customer", header: "Customer" },
-		{ accessorKey: "slipNo", header: "Slip No" },
-		{ accessorKey: "note", header: "Note" },
-		{
-			id: "action",
-			header: "Action",
-			cell: ({ row }) =>
-				row.original.type === "Stock Out (Borrow)" ? (
-					<Button variant="outline" size="sm">
-						Print Slip
-					</Button>
-				) : (
-					"-"
-				),
-		},
+		{ accessorKey: "reason", header: "Reason" },
+		{ accessorKey: "quantity", header: "Quantity" },
+		{ accessorKey: "memo", header: "Memo" },
 	];
 }

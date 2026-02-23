@@ -1,27 +1,19 @@
 import { useCallback, useMemo, useState } from "react";
-import { useParams } from "react-router";
-import {
-	filterRows,
-	mapTransactionsToRows,
-	paginateRows,
-	transactionColumns,
-} from "../../components/transaction-columns";
-import { useInventoryBorrowings, useInventoryItem, useInventoryTransactions } from "../../hooks/use-inventory-items";
-import { useCreateBorrowing, useReturnBorrowing, useUpdateStock } from "../../hooks/use-inventory-mutations";
+import type { ItemRow } from "../components/item-columns";
+import { filterItemRows, itemColumns, mapItemsToRows, paginateItemRows } from "../components/item-columns";
+import { useInventoryItems } from "./use-inventory-items";
+import { useCreateBorrowing, useCreateItem, useUpdateStock } from "./use-inventory-mutations";
 
-export function useEquipmentDetail() {
-	const { id } = useParams<{ id: string }>();
-	const itemId = id;
+export function useEquipmentContent(activeItemId: string | null) {
+	const itemId = activeItemId ?? undefined;
 
 	// --- API data ---
-	const { data: activeItem, isLoading: isItemLoading } = useInventoryItem(itemId);
-	const { data: transactions = [] } = useInventoryTransactions(itemId);
-	const { data: borrowings = [] } = useInventoryBorrowings(itemId);
+	const { data: items = [] } = useInventoryItems();
 
 	// --- Mutations ---
 	const updateStockMutation = useUpdateStock(itemId);
 	const createBorrowingMutation = useCreateBorrowing(itemId);
-	const returnBorrowingMutation = useReturnBorrowing(itemId);
+	const createItemMutation = useCreateItem();
 
 	// --- Stock In form ---
 	const [stockInQty, setStockInQty] = useState("1");
@@ -66,35 +58,47 @@ export function useEquipmentDetail() {
 		);
 	}, [createBorrowingMutation, borrowCustomerId, borrowQty, borrowExpectedReturnDate, borrowMemo]);
 
-	const handleReturnBorrowing = useCallback(
-		(borrowingId: string) => {
-			returnBorrowingMutation.mutate(borrowingId);
-		},
-		[returnBorrowingMutation],
-	);
-
 	// --- Table state ---
 	const [tableTypeFilter, setTableTypeFilter] = useState("all");
-	const [tableFieldFilter, setTableFieldFilter] = useState("reason");
+	const [tableFieldFilter, setTableFieldFilter] = useState("name");
 	const [tableSearchValue, setTableSearchValue] = useState("");
 	const [tablePage, setTablePage] = useState(1);
 	const [tablePageSize, setTablePageSize] = useState(10);
 
 	// --- Derived data ---
-	const allRows = useMemo(() => mapTransactionsToRows(transactions), [transactions]);
+	const activeItem = activeItemId ? (items.find((item) => item.id === activeItemId) ?? null) : null;
+
+	const allRows = useMemo(() => mapItemsToRows(activeItem ? [activeItem] : items), [items, activeItem]);
 	const filteredRows = useMemo(
-		() => filterRows(allRows, tableTypeFilter, tableFieldFilter, tableSearchValue),
+		() => filterItemRows(allRows, tableTypeFilter, tableFieldFilter, tableSearchValue),
 		[allRows, tableTypeFilter, tableFieldFilter, tableSearchValue],
 	);
 	const { pagedRows, totalItems, totalPages, currentPage } = useMemo(
-		() => paginateRows(filteredRows, tablePage, tablePageSize),
+		() => paginateItemRows(filteredRows, tablePage, tablePageSize),
 		[filteredRows, tablePage, tablePageSize],
 	);
-	const columns = useMemo(() => transactionColumns(), []);
+	const columns = useMemo(() => itemColumns(), []);
+
+	// --- Summary cards ---
+	const summaryCards = useMemo(() => {
+		const displayItems = activeItem ? [activeItem] : items;
+		const totalOnHand = displayItems.reduce((sum, item) => sum + item.quantityOnHand, 0);
+		const lowStockCount = displayItems.filter((item) => item.quantityOnHand <= item.alertThreshold).length;
+		return [
+			{ label: "Items", value: displayItems.length, color: "bg-blue-500", icon: "mdi:package-variant" },
+			{ label: "Total On Hand", value: totalOnHand, color: "bg-green-500", icon: "mdi:counter" },
+			{ label: "Low Stock", value: lowStockCount, color: "bg-orange-500", icon: "mdi:alert-circle-outline" },
+		];
+	}, [items, activeItem]);
+
+	const handleRowClick = useCallback((row: ItemRow) => {
+		return `/dashboard/equipment/${row.id}`;
+	}, []);
 
 	return {
-		activeItem: activeItem ?? null,
-		isItemLoading,
+		items,
+		activeItem,
+		summaryCards,
 
 		// Stock In
 		stockIn: {
@@ -122,11 +126,10 @@ export function useEquipmentDetail() {
 			isPending: createBorrowingMutation.isPending,
 		},
 
-		// Borrowings
-		borrowingsData: {
-			list: borrowings,
-			returnItem: handleReturnBorrowing,
-			isReturnPending: returnBorrowingMutation.isPending,
+		// Create Item
+		createItem: {
+			mutate: createItemMutation.mutate,
+			isPending: createItemMutation.isPending,
 		},
 
 		// Transaction table
@@ -146,5 +149,7 @@ export function useEquipmentDetail() {
 			setPage: setTablePage,
 			setPageSize: setTablePageSize,
 		},
+
+		getRowLink: handleRowClick,
 	};
 }

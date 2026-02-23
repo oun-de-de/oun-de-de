@@ -7,23 +7,8 @@ export type EquipmentItem = {
 	category: string;
 	openingStock: number;
 	alertThreshold: number;
+	maxBorrowQuantity?: number;
+	maxTotalBorrow?: number;
 };
 
-export type EquipmentTransaction = {
-	id: string;
-	itemId: EquipmentItemId;
-	type: TransactionType;
-	quantity: number;
-	createdAt: string;
-	note?: string;
-	customerName?: string;
-	slipNo?: string;
-};
-
-export type EquipmentSummaryRow = {
-	item: EquipmentItem;
-	stockIn: number;
-	stockOut: number;
-	remaining: number;
-	isLowStock: boolean;
-};
+export type EquipmentCreateType = "consumable" | "equipment";

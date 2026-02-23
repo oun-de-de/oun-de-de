@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Icon from "@/core/components/icon/icon";
-import type { EquipmentItem } from "@/core/types/equipment";
+import type { InventoryItem } from "@/core/types/inventory";
 import { Badge } from "@/core/ui/badge";
 import { Button } from "@/core/ui/button";
 import { Input } from "@/core/ui/input";
@@ -25,22 +25,20 @@ function StatItem({ label, primary, children }: { label: string; primary?: boole
 }
 
 type EquipmentInfoCardProps = {
-	item: EquipmentItem;
-	remaining: number;
-	isLowStock: boolean;
-	onUpdate?: (updatedItem: Partial<EquipmentItem>) => void;
+	item: InventoryItem;
+	onUpdate?: (updatedItem: Partial<InventoryItem>) => void;
 };
 
-export function EquipmentInfoCard({ item, remaining, isLowStock, onUpdate }: EquipmentInfoCardProps) {
+export function EquipmentInfoCard({ item, onUpdate }: EquipmentInfoCardProps) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [editedName, setEditedName] = useState(item.name);
-	const [editedCategory, setEditedCategory] = useState(item.category);
+
+	const isLowStock = item.quantityOnHand <= item.alertThreshold;
 
 	const handleSave = () => {
 		if (onUpdate) {
 			onUpdate({
 				name: editedName,
-				category: editedCategory,
 			});
 		}
 		setIsEditing(false);
@@ -48,7 +46,6 @@ export function EquipmentInfoCard({ item, remaining, isLowStock, onUpdate }: Equ
 
 	const handleCancel = () => {
 		setEditedName(item.name);
-		setEditedCategory(item.category);
 		setIsEditing(false);
 	};
 
@@ -67,15 +64,6 @@ export function EquipmentInfoCard({ item, remaining, isLowStock, onUpdate }: Equ
 									className="mt-1"
 								/>
 							</div>
-							<div>
-								<Label htmlFor="item-category">Category</Label>
-								<Input
-									id="item-category"
-									value={editedCategory}
-									onChange={(e) => setEditedCategory(e.target.value)}
-									className="mt-1"
-								/>
-							</div>
 						</div>
 					) : (
 						<div className="flex flex-col">
@@ -83,7 +71,7 @@ export function EquipmentInfoCard({ item, remaining, isLowStock, onUpdate }: Equ
 								{item.name}
 							</Text>
 							<Text variant="body2" className="text-slate-500 mt-1">
-								{item.category}
+								{item.code} • {item.type}
 							</Text>
 						</div>
 					)}
@@ -114,11 +102,11 @@ export function EquipmentInfoCard({ item, remaining, isLowStock, onUpdate }: Equ
 
 			{!isEditing && (
 				<div className="grid grid-cols-2 gap-8 mt-8 pt-8 border-t">
-					<StatItem label="Current Stock" primary>
-						{remaining}
+					<StatItem label="Quantity On Hand" primary>
+						{item.quantityOnHand}
 					</StatItem>
-					<StatItem label="Opening Stock">{item.openingStock}</StatItem>
 					<StatItem label="Alert Threshold">{item.alertThreshold}</StatItem>
+					<StatItem label="Unit">{item.unit?.name ?? "-"}</StatItem>
 					<StatItem label="Status">
 						<Badge variant="info">Active</Badge>
 					</StatItem>
