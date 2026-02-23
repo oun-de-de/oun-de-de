@@ -98,8 +98,8 @@ export function ReportTable({
 			rows={rows}
 			emptyText="No Data"
 			summaryRows={[
-				{ key: "total-customer", label: "Total Customer :", value: String(totalCustomer) },
-				{ key: "total-balance", label: "Total Balance :", value: `${totalBalance.toLocaleString()} ៛` },
+				{ key: "total-customer", label: "Total Customer: ", value: String(totalCustomer) },
+				{ key: "total-balance", label: "Total Balance: ", value: `${totalBalance.toLocaleString()} ៛` },
 			]}
 			timestampText={timestampText}
 			footerText={footerText}

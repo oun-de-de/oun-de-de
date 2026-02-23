@@ -18,6 +18,7 @@ export const useCustomerDefaults = (customer?: CustomerDetail, vehicles?: Vehicl
 			map: customer.contact.map,
 			billingAddress: customer.contact.billingAddress,
 			deliveryAddress: customer.contact.deliveryAddress,
+			paymentTerm: customer.paymentTerm?.duration,
 			employeeId: customer.employee.id,
 			referredById: customer.customerReference?.id,
 			vehicles:
