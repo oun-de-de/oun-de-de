@@ -1,17 +1,31 @@
-export type BorrowerType = "Employee" | "Customer";
+export type BorrowerType = "employee" | "customer";
 
-export type LoanPayment = {
-	amount: number;
-	paidAt: string;
+export type InstallmentStatus = "unpaid" | "overdue" | "paid";
+
+export type Loan = {
+	id: string;
+	borrowerType: BorrowerType;
+	borrowerId: string;
+	principalAmount: number;
+	termMonths: number;
+	startDate: string;
+	createdAt: string;
 };
 
-export type LoanRecord = {
+export type Installment = {
 	id: string;
-	refNo: string;
-	borrower: string;
+	loanId: string;
+	monthIndex: number;
+	dueDate: string;
+	amount: number;
+	status: InstallmentStatus;
+	paidAt: string | null;
+};
+
+export type CreateLoanRequest = {
 	borrowerType: BorrowerType;
+	borrowerId: string;
+	principalAmount: number;
+	termMonths: number;
 	startDate: string;
-	loanAmount: number;
-	monthlyPayment: number;
-	payments: LoanPayment[];
 };
