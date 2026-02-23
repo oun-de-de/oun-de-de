@@ -1,16 +1,16 @@
 import { couponSummaryCards } from "@/_mock/data/dashboard";
 import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
 import Icon from "@/core/components/icon/icon";
-import type { ListState } from "@/core/store/createListStore";
 import type { Coupon } from "@/core/types/coupon";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
+import type { CouponState } from "../stores/coupon-state";
 import { columns } from "./coupon-columns";
 
 type CouponContentProps = {
 	activeCustomerName: string | null | undefined;
-	listState: ListState;
-	updateState: (state: Partial<ListState>) => void;
+	listState: CouponState;
+	updateState: (state: Partial<CouponState>) => void;
 	pagedCoupons: Coupon[];
 	totalItems: number;
 	totalPages: number;
