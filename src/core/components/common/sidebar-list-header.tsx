@@ -5,11 +5,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/core/utils";
 import { SidebarToggleButton } from "./sidebar-list";
 
+type SidebarOption = { value: string; label: string };
+const MAIN_TYPE_PLACEHOLDER_VALUE = "__main_type_placeholder__";
+
 export type SidebarListHeaderProps = {
 	className?: string;
 	// Main Type Select
 	showMainTypeFilter?: boolean;
-	mainTypeOptions?: { value: string; label: string }[];
+	mainTypeOptions?: SidebarOption[];
 	mainTypePlaceholder?: string;
 	mainTypeValue?: string;
 	onMainTypeChange?: (value: string) => void;
@@ -24,13 +27,58 @@ export type SidebarListHeaderProps = {
 	onSearchChange?: (value: string) => void;
 
 	// Status Filter
-	statusOptions?: { value: string; label: string }[];
+	statusOptions?: SidebarOption[];
 	statusPlaceholder?: string;
 	statusValue?: string;
 	onStatusChange?: (value: string) => void;
 
 	isCollapsed?: boolean;
 };
+
+type SearchStatusRowProps = {
+	searchPlaceholder: string;
+	localSearch: string;
+	onLocalSearchChange: (value: string) => void;
+	resolvedStatusLabel?: string;
+	statusOptions: SidebarOption[];
+	statusPlaceholder: string;
+	statusValue?: string;
+	onStatusChange?: (value: string) => void;
+};
+
+function SearchStatusRow({
+	searchPlaceholder,
+	localSearch,
+	onLocalSearchChange,
+	resolvedStatusLabel,
+	statusOptions,
+	statusPlaceholder,
+	statusValue,
+	onStatusChange,
+}: SearchStatusRowProps) {
+	return (
+		<div className="flex gap-2">
+			<Input
+				placeholder={searchPlaceholder}
+				value={localSearch}
+				onChange={(e) => onLocalSearchChange(e.target.value)}
+				className="flex-1"
+			/>
+			<Select value={statusValue} onValueChange={onStatusChange}>
+				<SelectTrigger className="w-[110px] shrink-0">
+					<SelectValue placeholder={statusPlaceholder}>{resolvedStatusLabel}</SelectValue>
+				</SelectTrigger>
+				<SelectContent>
+					{statusOptions.map((opt) => (
+						<SelectItem key={opt.value} value={opt.value}>
+							{opt.label}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+		</div>
+	);
+}
 
 export function SidebarListHeader({
 	className,
@@ -77,23 +125,30 @@ export function SidebarListHeader({
 	if (isCollapsed) {
 		return (
 			<div className={cn("flex w-full justify-center p-2", className)}>
-				<SidebarToggleButton onClick={onMenuClick} isCollapsed={isCollapsed} variant="outline" />
+				<SidebarToggleButton onClick={onMenuClick} isCollapsed={isCollapsed} variant="info" />
 			</div>
 		);
 	}
 
 	return (
 		<div className={cn("flex flex-col gap-3 pb-2 md:pb-4", className)}>
-			{/* Top Row: Type Select + Menu */}
 			<div className="flex items-center gap-2">
 				{showMainTypeFilter ? (
 					(mainTypeFilter ?? (
-						<Select value={mainTypeValue} onValueChange={onMainTypeChange}>
+						<Select
+							value={mainTypeValue}
+							onValueChange={(value) => {
+								if (value === MAIN_TYPE_PLACEHOLDER_VALUE) return;
+								onMainTypeChange?.(value);
+							}}
+						>
 							<SelectTrigger className="w-full">
 								<SelectValue placeholder={mainTypePlaceholder}>{resolvedMainTypeLabel}</SelectValue>
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="type">{mainTypePlaceholder}</SelectItem>
+								<SelectItem value={MAIN_TYPE_PLACEHOLDER_VALUE} disabled>
+									{mainTypePlaceholder}
+								</SelectItem>
 								{mainTypeOptions.map((opt) => (
 									<SelectItem key={opt.value} value={opt.value}>
 										{opt.label}
@@ -103,32 +158,32 @@ export function SidebarListHeader({
 						</Select>
 					))
 				) : (
-					<div className="flex-1" />
+					<SearchStatusRow
+						searchPlaceholder={searchPlaceholder}
+						localSearch={localSearch}
+						onLocalSearchChange={setLocalSearch}
+						resolvedStatusLabel={resolvedStatusLabel}
+						statusOptions={statusOptions}
+						statusPlaceholder={statusPlaceholder}
+						statusValue={statusValue}
+						onStatusChange={onStatusChange}
+					/>
 				)}
-				<SidebarToggleButton onClick={onMenuClick} isCollapsed={false} variant="outline" />
+				<SidebarToggleButton onClick={onMenuClick} isCollapsed={false} variant="info" />
 			</div>
 
-			{/* Bottom Row: Search + Status */}
-			<div className="flex gap-2">
-				<Input
-					placeholder={searchPlaceholder}
-					value={localSearch}
-					onChange={(e) => setLocalSearch(e.target.value)}
-					className="flex-1"
+			{showMainTypeFilter && (
+				<SearchStatusRow
+					searchPlaceholder={searchPlaceholder}
+					localSearch={localSearch}
+					onLocalSearchChange={setLocalSearch}
+					resolvedStatusLabel={resolvedStatusLabel}
+					statusOptions={statusOptions}
+					statusPlaceholder={statusPlaceholder}
+					statusValue={statusValue}
+					onStatusChange={onStatusChange}
 				/>
-				<Select value={statusValue} onValueChange={onStatusChange} defaultValue="active">
-					<SelectTrigger className="w-[110px] shrink-0">
-						<SelectValue placeholder={statusPlaceholder}>{resolvedStatusLabel}</SelectValue>
-					</SelectTrigger>
-					<SelectContent>
-						{statusOptions.map((opt) => (
-							<SelectItem key={opt.value} value={opt.value}>
-								{opt.label}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</div>
+			)}
 		</div>
 	);
 }

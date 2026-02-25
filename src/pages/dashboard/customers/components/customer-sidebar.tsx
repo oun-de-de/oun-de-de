@@ -52,7 +52,7 @@ export function CustomerSidebar({ activeCustomerId, onSelect, onToggle, isCollap
 		queryFn: ({ pageParam = 1 }) =>
 			customerService.getCustomerList({
 				page: pageParam,
-				limit: 20,
+				limit: 10000,
 				name: searchTerm || undefined,
 				customerType: customerType !== "all" ? customerType : undefined,
 				paymentTerm: paymentTerm ? Number(paymentTerm) : undefined,
@@ -78,7 +78,7 @@ export function CustomerSidebar({ activeCustomerId, onSelect, onToggle, isCollap
 			/>
 
 			<SidebarList.Body
-				className="mt-4 divide-y divide-border-gray-300 flex-1 min-h-0"
+				className="mt-2 divide-y divide-border-gray-300 flex-1 min-h-0"
 				data={customers}
 				estimateSize={56}
 				height="100%"

@@ -56,7 +56,7 @@ export function ProductSidebar({ activeProductId, onSelect, onToggle, isCollapse
 			/>
 
 			<SidebarList.Body
-				className="mt-4 divide-y divide-border-gray-300 flex-1 min-h-0"
+				className="mt-2 divide-y divide-border-gray-300 flex-1 min-h-0"
 				data={sidebarData}
 				estimateSize={56}
 				height="100%"

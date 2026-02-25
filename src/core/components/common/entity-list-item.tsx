@@ -48,19 +48,14 @@ export const EntityListItem = memo(function EntityListItem({
 		return (
 			<div style={style} className="flex justify-center">
 				<Button
-					variant="ghost"
+					variant={isActive ? "info" : "outline"}
 					size="none"
 					onClick={() => onSelect(isActive ? null : entity.id)}
 					data-active={isActive}
-					className={cn(
-						entityListItemVariants({ variant, activeVariant }),
-						"justify-center px-0 rounded-lg !w-10 !h-10",
-					)}
+					className={cn(entityListItemVariants({ variant, activeVariant }), "justify-center px-0 rounded-lg !w-8 !h-8")}
 					title={entity.name}
 				>
-					<span className={cn("font-bold text-sm truncate", isActive ? "text-white" : "text-black")}>
-						{entity.id.slice(0, 3)}
-					</span>
+					<span className={cn("font-bold text-sm truncate")}>{entity.name.slice(0, 1)}</span>
 				</Button>
 			</div>
 		);

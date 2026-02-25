@@ -58,7 +58,7 @@ export function EquipmentSidebar({ activeItemId, onSelect, onToggle, isCollapsed
 			/>
 
 			<SidebarList.Body
-				className="flex-1 min-h-0"
+				className="mt-2 divide-y divide-border-gray-300 flex-1 min-h-0"
 				data={sidebarData}
 				estimateSize={40}
 				gap={8}
