@@ -4,6 +4,7 @@ import customerService from "@/core/api/services/customer-service";
 import { EntityListItem, SidebarList } from "@/core/components/common";
 import type { SelectOption } from "@/core/types/common";
 import type { Customer } from "@/core/types/customer";
+import { cn } from "@/core/utils";
 import { CustomerTypeCombobox } from "./customer-type-combobox";
 
 type CustomerSidebarProps = {
@@ -14,6 +15,9 @@ type CustomerSidebarProps = {
 };
 
 const STATUS_OPTIONS: SelectOption[] = [{ value: "all", label: "All" }];
+const DEFAULT_ITEM_SIZE = 56;
+const COLLAPSED_ITEM_SIZE = 42;
+const COLLAPSED_ITEM_GAP = 8;
 
 export function CustomerSidebar({ activeCustomerId, onSelect, onToggle, isCollapsed }: CustomerSidebarProps) {
 	const [searchTerm, setSearchTerm] = useState("");
@@ -78,9 +82,11 @@ export function CustomerSidebar({ activeCustomerId, onSelect, onToggle, isCollap
 			/>
 
 			<SidebarList.Body
-				className="mt-2 divide-y divide-border-gray-300 flex-1 min-h-0"
+				key={isCollapsed ? "collapsed" : "expanded"}
+				className={cn("mt-2 flex-1 min-h-0", !isCollapsed && "divide-y divide-border-gray-300")}
 				data={customers}
-				estimateSize={56}
+				estimateSize={isCollapsed ? COLLAPSED_ITEM_SIZE : DEFAULT_ITEM_SIZE}
+				gap={isCollapsed ? COLLAPSED_ITEM_GAP : 0}
 				height="100%"
 				renderItem={(customer: Customer, style) => (
 					<EntityListItem
