@@ -3,6 +3,7 @@ import { EntityListItem, SidebarList } from "@/core/components/common";
 import { up, useMediaQuery } from "@/core/hooks/use-media-query";
 import { useSidebarPagination } from "@/core/hooks/use-sidebar-pagination";
 import type { SelectOption } from "@/core/types/common";
+import { cn } from "@/core/utils";
 import { useLoans } from "../hooks/use-loans";
 import type { BorrowState } from "../stores/borrow-state";
 
@@ -20,6 +21,9 @@ const STATUS_OPTIONS: SelectOption[] = [
 	{ value: "employee", label: "Employee" },
 	{ value: "customer", label: "Customer" },
 ];
+const DEFAULT_ITEM_SIZE = 56;
+const COLLAPSED_ITEM_SIZE = 42;
+const COLLAPSED_ITEM_GAP = 8;
 
 type BorrowSidebarItem = {
 	id: string;
@@ -76,6 +80,11 @@ export function BorrowSidebar({ activeBorrowId, listState, updateState, onSelect
 		enabled: !isLgUp,
 	});
 
+	const handleStatusChange = (value: string) => {
+		if (!isBorrowTypeFilter(value)) return;
+		updateState({ typeFilter: value, page: 1 });
+	};
+
 	return (
 		<SidebarList>
 			<SidebarList.Header
@@ -85,19 +94,16 @@ export function BorrowSidebar({ activeBorrowId, listState, updateState, onSelect
 				onSearchChange={(value) => updateState({ searchValue: value, page: 1 })}
 				statusOptions={STATUS_OPTIONS}
 				statusValue={typeFilter}
-				onStatusChange={(value) => {
-					if (!isBorrowTypeFilter(value)) return;
-					updateState({ typeFilter: value, page: 1 });
-				}}
+				onStatusChange={(value) => handleStatusChange(value)}
 				onMenuClick={onToggle}
 				isCollapsed={isCollapsed}
 			/>
 
 			<SidebarList.Body
-				className="flex-1 min-h-0"
+				className={cn("mt-2 flex-1 min-h-0", !isCollapsed && "divide-y divide-border-gray-300")}
 				data={pagination.pagedData}
-				estimateSize={40}
-				gap={8}
+				estimateSize={isCollapsed ? COLLAPSED_ITEM_SIZE : DEFAULT_ITEM_SIZE}
+				gap={isCollapsed ? COLLAPSED_ITEM_GAP : 0}
 				height="100%"
 				renderItem={(item, style) => (
 					<EntityListItem

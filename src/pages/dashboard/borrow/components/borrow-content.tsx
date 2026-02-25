@@ -2,7 +2,6 @@ import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
 import { SplitButton } from "@/core/components/common/split-button";
-import Icon from "@/core/components/icon/icon";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
 import type { BorrowState } from "@/pages/dashboard/borrow/stores/borrow-store";
@@ -87,7 +86,6 @@ export function BorrowContent({ activeCustomerId, activeCustomerName, listState,
 
 				<div className="flex gap-2">
 					<Button size="sm" className="gap-2 bg-blue-400 text-white shadow-sm hover:bg-blue-500">
-						<Icon icon="mdi:printer" />
 						Print Report
 					</Button>
 					<SplitButton
