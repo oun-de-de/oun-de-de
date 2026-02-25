@@ -2,22 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import cycleService from "@/core/api/services/cycle-service";
 import { buildPagination } from "@/core/utils/dashboard-utils";
-import { formatDateToYYYYMMDD } from "@/core/utils/date-utils";
-
-function getDefaultFromDate(): string {
-	const date = new Date();
-	date.setFullYear(date.getFullYear() - 1);
-	return formatDateToYYYYMMDD(date);
-}
-
-function getDefaultToDate(): string {
-	return formatDateToYYYYMMDD(new Date());
-}
 
 export function useCycleTable(customerId: string | null, requireCustomer = false) {
-	const [duration, setDuration] = useState(1);
-	const [fromDate, setFromDate] = useState(getDefaultFromDate);
-	const [toDate, setToDate] = useState(getDefaultToDate);
+	const [duration, setDuration] = useState(0);
+	const [fromDate, setFromDate] = useState("");
+	const [toDate, setToDate] = useState("");
 	const [page, setPage] = useState(1);
 	const [pageSize, setPageSize] = useState(100);
 	const isQueryEnabled = requireCustomer ? !!customerId : true;
@@ -27,9 +16,9 @@ export function useCycleTable(customerId: string | null, requireCustomer = false
 		queryFn: () =>
 			cycleService.getCycles({
 				customerId: customerId ?? undefined,
-				from: `${fromDate}T00:00:00`,
-				to: `${toDate}T23:59:59`,
-				duration,
+				from: fromDate ? `${fromDate}T00:00:00` : undefined,
+				to: toDate ? `${toDate}T23:59:59` : undefined,
+				duration: duration > 0 ? duration : undefined,
 				page,
 				size: pageSize,
 			}),
@@ -53,6 +42,13 @@ export function useCycleTable(customerId: string | null, requireCustomer = false
 		setPage(1);
 	}, []);
 
+	const onResetFilters = useCallback(() => {
+		setDuration(0);
+		setFromDate("");
+		setToDate("");
+		setPage(1);
+	}, []);
+
 	const summaryCards = useMemo(() => {
 		const totalAmount = cycles.reduce((sum, cycle) => sum + (cycle.totalAmount ?? 0), 0);
 		const totalPaidAmount = cycles.reduce((sum, cycle) => sum + (cycle.totalPaidAmount ?? 0), 0);
@@ -60,7 +56,12 @@ export function useCycleTable(customerId: string | null, requireCustomer = false
 
 		return [
 			{ label: "Total Cycles", value: totalItems, color: "bg-sky-500", icon: "mdi:calendar-clock" },
-			{ label: "Duration (days)", value: duration, color: "bg-violet-500", icon: "mdi:timer-outline" },
+			{
+				label: duration > 0 ? "Duration (days)" : "Duration (All)",
+				value: duration,
+				color: "bg-violet-500",
+				icon: "mdi:timer-outline",
+			},
 			{ label: "Total Amount", value: totalAmount, color: "bg-emerald-500", icon: "mdi:cash" },
 			{ label: "Balance", value: totalBalance, color: "bg-amber-500", icon: "mdi:cash-refund" },
 		];
@@ -75,6 +76,7 @@ export function useCycleTable(customerId: string | null, requireCustomer = false
 		setFromDate,
 		setToDate,
 		onDurationChange,
+		onResetFilters,
 		currentPage,
 		pageSize,
 		totalItems,

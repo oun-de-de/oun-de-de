@@ -18,16 +18,6 @@ export interface CyclePayment {
 	amount: number;
 }
 
-export interface CyclePaymentView {
-	refNo: string;
-	customerName: string;
-	date: string;
-	amount: number;
-	total: number;
-	paid: number;
-	balance: number;
-}
-
 export interface CreatePaymentRequest {
 	paymentDate: string;
 	amount: number;

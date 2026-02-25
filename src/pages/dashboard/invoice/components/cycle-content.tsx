@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
 import Icon from "@/core/components/icon/icon";
 import type { Cycle } from "@/core/types/cycle";
@@ -19,6 +20,7 @@ type CycleContentProps = {
 };
 
 export function CycleContent({ customerId, customerName, onSelectCycle, requireCustomer = false }: CycleContentProps) {
+	const navigate = useNavigate();
 	const {
 		cycles,
 		summaryCards,
@@ -28,6 +30,7 @@ export function CycleContent({ customerId, customerName, onSelectCycle, requireC
 		setFromDate,
 		setToDate,
 		onDurationChange,
+		onResetFilters,
 		currentPage,
 		pageSize,
 		totalItems,
@@ -69,6 +72,11 @@ export function CycleContent({ customerId, customerName, onSelectCycle, requireC
 					<Text variant="body2" className="text-muted-foreground">
 						{customerName ? `${customerName} selected` : "Select a customer"}
 					</Text>
+				</div>
+				<div className="flex items-center gap-2">
+					<Button size="sm" onClick={() => navigate("/dashboard/coupons/create")}>
+						Create Coupons
+					</Button>
 				</div>
 			</div>
 
@@ -138,6 +146,15 @@ export function CycleContent({ customerId, customerName, onSelectCycle, requireC
 					<Label>To</Label>
 					<Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
 				</div>
+				<Button
+					size="sm"
+					onClick={() => {
+						setCustomDuration("");
+						onResetFilters();
+					}}
+				>
+					Reset Default
+				</Button>
 			</div>
 
 			{/* Cycles Table */}

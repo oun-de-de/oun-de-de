@@ -1,12 +1,5 @@
 import type { PagePaginatedResponse } from "@/core/types/common";
-import type {
-	ConvertToLoanRequest,
-	CreatePaymentRequest,
-	Cycle,
-	CyclePayment,
-	CyclePaymentView,
-	CycleStatus,
-} from "@/core/types/cycle";
+import type { ConvertToLoanRequest, CreatePaymentRequest, Cycle, CyclePayment, CycleStatus } from "@/core/types/cycle";
 import type { Loan } from "@/core/types/loan";
 import type { Pagination } from "@/core/types/pagination";
 import { mapPagePaginatedResponseToPagination } from "@/core/utils/pagination";
@@ -45,8 +38,8 @@ const getCycles = (params: {
 		.then(mapPagePaginatedResponseToPagination);
 };
 
-const getPayments = (cycleId: string): Promise<CyclePaymentView[]> =>
-	apiClient.get<CyclePaymentView[]>({
+const getPayments = (cycleId: string): Promise<CyclePayment[]> =>
+	apiClient.get<CyclePayment[]>({
 		url: `${CycleApi.List}/${cycleId}/payments`,
 	});
 

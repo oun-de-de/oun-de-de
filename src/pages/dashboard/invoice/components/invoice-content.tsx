@@ -1,5 +1,5 @@
 import type { OnChangeFn, SortingState } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
 import Icon from "@/core/components/icon/icon";
@@ -67,6 +67,8 @@ export function InvoiceContent({
 }: InvoiceContentProps) {
 	const navigate = useNavigate();
 	const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+	const [updateTargetIds, setUpdateTargetIds] = useState<string[]>([]);
+	const [updateInitialValues, setUpdateInitialValues] = useState<{ customerName?: string; type?: Invoice["type"] }>({});
 	const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
 	const {
 		selectedInvoiceIds,
@@ -79,6 +81,30 @@ export function InvoiceContent({
 		rowById,
 	} = useInvoiceSelection(pagedData);
 
+	const handleOpenBulkUpdate = useCallback(() => {
+		if (selectedInvoiceIds.length === 0) return;
+		setUpdateTargetIds(selectedInvoiceIds);
+		setUpdateInitialValues({});
+		setIsUpdateDialogOpen(true);
+	}, [selectedInvoiceIds]);
+
+	const handleOpenSingleUpdate = useCallback((invoice: Invoice) => {
+		setUpdateTargetIds([invoice.id]);
+		setUpdateInitialValues({
+			customerName: invoice.customerName,
+			type: invoice.type,
+		});
+		setIsUpdateDialogOpen(true);
+	}, []);
+
+	const handleUpdateDialogChange = useCallback((open: boolean) => {
+		setIsUpdateDialogOpen(open);
+		if (!open) {
+			setUpdateTargetIds([]);
+			setUpdateInitialValues({});
+		}
+	}, []);
+
 	const columns = useMemo(
 		() =>
 			getInvoiceColumns({
@@ -87,8 +113,9 @@ export function InvoiceContent({
 				selectedIds: selectedIdSet,
 				onToggleAll,
 				onToggleOne,
+				onEditOne: handleOpenSingleUpdate,
 			}),
-		[allSelected, partiallySelected, selectedIdSet, onToggleAll, onToggleOne],
+		[allSelected, partiallySelected, selectedIdSet, onToggleAll, onToggleOne, handleOpenSingleUpdate],
 	);
 
 	const handleOpenExportPreview = () => {
@@ -148,7 +175,7 @@ export function InvoiceContent({
 					<Button
 						size="sm"
 						disabled={selectedInvoiceIds.length === 0}
-						onClick={() => setIsUpdateDialogOpen(true)}
+						onClick={handleOpenBulkUpdate}
 						className="gap-1 bg-amber-600 text-white shadow-sm hover:bg-amber-700 disabled:bg-slate-300"
 					>
 						<Icon icon="mdi:pencil-outline" />
@@ -177,10 +204,13 @@ export function InvoiceContent({
 
 			<InvoiceBulkUpdateDialog
 				open={isUpdateDialogOpen}
-				onOpenChange={setIsUpdateDialogOpen}
-				selectedIds={selectedInvoiceIds}
+				onOpenChange={handleUpdateDialogChange}
+				selectedIds={updateTargetIds}
+				initialCustomerName={updateInitialValues.customerName}
+				initialType={updateInitialValues.type}
 				onSuccess={() => onToggleAll(false)}
 			/>
+
 			<CyclePaymentDialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen} cycle={activeCycle} />
 
 			<div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">

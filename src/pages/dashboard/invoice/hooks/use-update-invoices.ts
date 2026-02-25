@@ -2,10 +2,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import invoiceService from "@/core/api/services/invoice-service";
 import type { InvoiceType } from "@/core/types/invoice";
 
-type UpdateInvoicesPayload = {
+export type UpdateInvoicesPayload = {
 	invoiceIds: string[];
-	customerName: string;
-	type: InvoiceType;
+	customerName?: string;
+	type?: InvoiceType;
 };
 
 export function useUpdateInvoices() {

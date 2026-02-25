@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import couponService from "@/core/api/services/coupon-service";
 import employeeService from "@/core/api/services/employee-service";
 import productService from "@/core/api/services/product-service";
-import vehicleService from "@/core/api/services/vehicleService";
+import vehicleService from "@/core/api/services/vehicle-service";
 import type { DefaultFormData } from "@/core/components/common";
 import type { CreateCouponRequest } from "@/core/types/coupon";
 import { Text } from "@/core/ui/typography";

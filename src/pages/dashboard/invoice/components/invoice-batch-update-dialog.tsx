@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/core/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/core/ui/dialog";
 import { Input } from "@/core/ui/input";
@@ -9,10 +9,15 @@ import { INVOICE_TYPE_OPTIONS } from "../constants/constants";
 interface InvoiceBatchUpdateDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onUpdate: (data: { customerName: string; type: string; status: string }) => void;
+	onUpdate: (data: { customerName?: string; type?: string; status?: string }) => void;
 	isUpdating?: boolean;
 	selectedCount: number;
 }
+
+const toOptional = (value: string) => {
+	const normalized = value.trim();
+	return normalized || undefined;
+};
 
 export function InvoiceBatchUpdateDialog({
 	open,
@@ -25,8 +30,27 @@ export function InvoiceBatchUpdateDialog({
 	const [type, setType] = useState("");
 	const [status, setStatus] = useState("");
 
+	useEffect(() => {
+		if (open) {
+			setCustomerName("");
+			setType("");
+			setStatus("");
+		}
+	}, [open]);
+
+	const canSubmit = Boolean(customerName.trim()) || Boolean(type.trim()) || Boolean(status.trim());
+
 	const handleUpdate = () => {
-		onUpdate({ customerName, type, status });
+		const normalizedCustomerName = toOptional(customerName);
+		const normalizedType = toOptional(type);
+		const normalizedStatus = toOptional(status);
+		const payload = {
+			...(normalizedCustomerName ? { customerName: normalizedCustomerName } : {}),
+			...(normalizedType ? { type: normalizedType } : {}),
+			...(normalizedStatus ? { status: normalizedStatus } : {}),
+		};
+		if (!normalizedCustomerName && !normalizedType && !normalizedStatus) return;
+		onUpdate(payload);
 	};
 
 	return (
@@ -76,9 +100,9 @@ export function InvoiceBatchUpdateDialog({
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value=" ">Keep current</SelectItem>
-								<SelectItem value="OPEN">Open</SelectItem>
-								<SelectItem value="CLOSED">Closed</SelectItem>
-								<SelectItem value="OVERDUE">Overdue</SelectItem>
+								<SelectItem value="open">Open</SelectItem>
+								<SelectItem value="closed">Closed</SelectItem>
+								<SelectItem value="overdue">Overdue</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>
@@ -87,7 +111,7 @@ export function InvoiceBatchUpdateDialog({
 					<Button variant="outline" onClick={() => onOpenChange(false)} disabled={isUpdating}>
 						Cancel
 					</Button>
-					<Button onClick={handleUpdate} disabled={isUpdating}>
+					<Button onClick={handleUpdate} disabled={isUpdating || !canSubmit}>
 						{isUpdating ? "Updating..." : "Update"}
 					</Button>
 				</DialogFooter>

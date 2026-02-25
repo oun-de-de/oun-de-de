@@ -5,7 +5,7 @@ export interface Invoice {
 	refNo: string;
 	customerName: string;
 	date: string;
-	type: InvoiceType;
+	type: string;
 }
 
 export interface InvoiceExportLineResult {

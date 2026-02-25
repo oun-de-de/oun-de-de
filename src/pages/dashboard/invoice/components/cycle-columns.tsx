@@ -1,19 +1,12 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Cycle } from "@/core/types/cycle";
 import { Badge } from "@/core/ui/badge";
-
-function formatDisplayDate(value: string): string {
-	return new Date(value).toLocaleDateString();
-}
+import { formatDisplayDate, formatNumber } from "../utils/formatters";
 
 function getDurationDays(startDate: string, endDate: string): number {
 	const start = new Date(startDate);
 	const end = new Date(endDate);
 	return Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-}
-
-function formatAmount(value?: number): string {
-	return (value ?? 0).toLocaleString();
 }
 
 function getCycleStatusVariant(status: Cycle["status"]): "success" | "warning" | "error" {
@@ -56,33 +49,36 @@ export function getCycleColumns(): ColumnDef<Cycle>[] {
 		{
 			id: "duration",
 			header: "Duration",
+			size: 100,
 			cell: ({ row }) => {
 				const days = getDurationDays(row.original.startDate, row.original.endDate);
 				return <Badge variant="info">{days} days</Badge>;
 			},
+			meta: { bodyClassName: "text-center" },
 		},
 		{
 			accessorKey: "status",
 			header: "Status",
+			size: 100,
 			cell: ({ row }) => <Badge variant={getCycleStatusVariant(row.original.status)}>{row.original.status}</Badge>,
 			meta: { bodyClassName: "text-center" },
 		},
 		{
 			id: "totalAmount",
 			header: "Total Amount",
-			cell: ({ row }) => formatAmount(row.original.totalAmount),
+			cell: ({ row }) => formatNumber(row.original.totalAmount),
 			meta: { bodyClassName: "text-right" },
 		},
 		{
 			id: "totalPaidAmount",
 			header: "Paid",
-			cell: ({ row }) => formatAmount(row.original.totalPaidAmount),
+			cell: ({ row }) => formatNumber(row.original.totalPaidAmount),
 			meta: { bodyClassName: "text-right" },
 		},
 		{
 			id: "balanceAmount",
 			header: "Balance",
-			cell: ({ row }) => formatAmount((row.original.totalAmount ?? 0) - (row.original.totalPaidAmount ?? 0)),
+			cell: ({ row }) => formatNumber((row.original.totalAmount ?? 0) - (row.original.totalPaidAmount ?? 0)),
 			meta: { bodyClassName: "text-right" },
 		},
 	];

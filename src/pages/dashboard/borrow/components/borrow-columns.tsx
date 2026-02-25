@@ -19,7 +19,11 @@ export const borrowColumns: ColumnDef<BorrowRow>[] = [
 		size: 100,
 		header: "Type",
 		cell: ({ row }) => (
-			<Badge variant={row.original.borrowerType === "employee" ? "info" : "secondary"} shape="square">
+			<Badge
+				variant={row.original.borrowerType === "employee" ? "info" : "success"}
+				shape="square"
+				className="capitalize"
+			>
 				{row.original.borrowerType}
 			</Badge>
 		),

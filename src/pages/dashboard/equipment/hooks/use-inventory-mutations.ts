@@ -9,79 +9,85 @@ function assertItemId(itemId?: string): string {
 	return itemId;
 }
 
-function invalidateItemRelatedQueries(queryClient: ReturnType<typeof useQueryClient>, itemId?: string) {
-	queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY_KEYS.items });
-	if (!itemId) return;
-	queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY_KEYS.item(itemId) });
-	queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY_KEYS.transactions(itemId) });
-	queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY_KEYS.borrowings(itemId) });
+async function invalidateItemRelatedQueries(queryClient: ReturnType<typeof useQueryClient>, itemId?: string) {
+	const tasks = [queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY_KEYS.items })];
+
+	if (itemId) {
+		tasks.push(
+			queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY_KEYS.item(itemId) }),
+			queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY_KEYS.transactions(itemId) }),
+			queryClient.invalidateQueries({ queryKey: INVENTORY_QUERY_KEYS.borrowings(itemId) }),
+		);
+	}
+
+	await Promise.all(tasks);
 }
 
-export function useCreateItem() {
+function useInventoryMutation<TVariables>({
+	itemId,
+	mutationFn,
+	successMessage,
+	errorMessage,
+}: {
+	itemId?: string;
+	mutationFn: (variables: TVariables) => Promise<unknown>;
+	successMessage: string;
+	errorMessage: string;
+}) {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: (data: CreateInventoryItem) => inventoryService.createItem(data),
-		onSuccess: () => {
-			toast.success("Item created successfully");
-			invalidateItemRelatedQueries(queryClient);
+		mutationFn,
+		onSuccess: async () => {
+			toast.success(successMessage);
+			await invalidateItemRelatedQueries(queryClient, itemId);
 		},
 		onError: () => {
-			toast.error("Failed to create item");
+			toast.error(errorMessage);
 		},
+	});
+}
+
+export function useCreateItem() {
+	return useInventoryMutation<CreateInventoryItem>({
+		mutationFn: (data: CreateInventoryItem) => inventoryService.createItem(data),
+		successMessage: "Item created successfully",
+		errorMessage: "Failed to create item",
 	});
 }
 
 export function useUpdateStock(itemId?: string) {
-	const queryClient = useQueryClient();
-
-	return useMutation({
+	return useInventoryMutation<UpdateStockRequest>({
+		itemId,
 		mutationFn: (data: UpdateStockRequest) => {
 			const requiredItemId = assertItemId(itemId);
 			return inventoryService.updateStock(requiredItemId, data);
 		},
-		onSuccess: () => {
-			toast.success("Stock updated successfully");
-			invalidateItemRelatedQueries(queryClient, itemId);
-		},
-		onError: () => {
-			toast.error("Failed to update stock");
-		},
+		successMessage: "Stock updated successfully",
+		errorMessage: "Failed to update stock",
 	});
 }
 
 export function useCreateBorrowing(itemId?: string) {
-	const queryClient = useQueryClient();
-
-	return useMutation({
+	return useInventoryMutation<CreateBorrowingRequest>({
+		itemId,
 		mutationFn: (data: CreateBorrowingRequest) => {
 			const requiredItemId = assertItemId(itemId);
 			return inventoryService.createBorrowing(requiredItemId, data);
 		},
-		onSuccess: () => {
-			toast.success("Borrowing created successfully");
-			invalidateItemRelatedQueries(queryClient, itemId);
-		},
-		onError: () => {
-			toast.error("Failed to create borrowing");
-		},
+		successMessage: "Borrowing created successfully",
+		errorMessage: "Failed to create borrowing",
 	});
 }
 
 export function useReturnBorrowing(itemId?: string) {
-	const queryClient = useQueryClient();
-
-	return useMutation({
+	return useInventoryMutation<string>({
+		itemId,
 		mutationFn: (borrowingId: string) => {
 			const requiredItemId = assertItemId(itemId);
 			return inventoryService.returnBorrowing(requiredItemId, borrowingId);
 		},
-		onSuccess: () => {
-			toast.success("Borrowing returned successfully");
-			invalidateItemRelatedQueries(queryClient, itemId);
-		},
-		onError: () => {
-			toast.error("Failed to return borrowing");
-		},
+		successMessage: "Borrowing returned successfully",
+		errorMessage: "Failed to return borrowing",
 	});
 }

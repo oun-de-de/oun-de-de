@@ -1,3 +1,4 @@
+import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import type React from "react";
 import { cn } from "@/core/utils";
 import type { ReportSectionVisibility } from "./report-toolbar";
@@ -17,13 +18,16 @@ export interface ReportTemplateMetaColumn {
 	className?: string;
 }
 
-export interface ReportTemplateColumn {
-	key: string;
-	label: string;
+export interface ReportTemplateColumnMeta {
 	align?: CellAlign;
 	className?: string;
 	headerClassName?: string;
 }
+
+export type ReportTemplateColumn = ColumnDef<ReportTemplateRow, React.ReactNode> & {
+	id: string;
+	meta?: ReportTemplateColumnMeta;
+};
 
 export interface ReportTemplateSummaryRow {
 	key: string;
@@ -52,6 +56,10 @@ interface ReportTemplateTableProps {
 	className?: string;
 }
 
+function getColumnMeta(columnDef: ColumnDef<ReportTemplateRow, React.ReactNode>): ReportTemplateColumnMeta {
+	return (columnDef.meta as ReportTemplateColumnMeta | undefined) ?? {};
+}
+
 export function ReportTemplateTable({
 	title,
 	subtitle,
@@ -67,8 +75,17 @@ export function ReportTemplateTable({
 	footerText,
 	className,
 }: ReportTemplateTableProps) {
-	const hiddenColumnKeySet = new Set(hiddenColumnKeys);
-	const visibleColumns = columns.filter((column) => !hiddenColumnKeySet.has(column.key));
+	const columnVisibility = Object.fromEntries(hiddenColumnKeys.map((key) => [key, false]));
+	const table = useReactTable({
+		data: rows,
+		columns,
+		getCoreRowModel: getCoreRowModel(),
+		state: {
+			columnVisibility,
+		},
+		getRowId: (row) => row.key,
+	});
+	const visibleColumns = table.getVisibleLeafColumns();
 	const tableColSpan = Math.max(visibleColumns.length, 1);
 
 	return (
@@ -99,20 +116,25 @@ export function ReportTemplateTable({
 			<div className="w-full overflow-x-auto">
 				<table className="w-full border-collapse border text-xs text-slate-700">
 					<thead>
-						<tr className="bg-slate-50 text-slate-600 uppercase">
-							{visibleColumns.map((column) => (
-								<th
-									key={column.key}
-									className={cn(
-										"border p-2.5 font-semibold",
-										alignClass[column.align ?? "center"],
-										column.headerClassName,
-									)}
-								>
-									{column.label}
-								</th>
-							))}
-						</tr>
+						{table.getHeaderGroups().map((headerGroup) => (
+							<tr key={headerGroup.id} className="bg-slate-50 text-slate-600 uppercase">
+								{headerGroup.headers.map((header) => {
+									const meta = getColumnMeta(header.column.columnDef);
+									return (
+										<th
+											key={header.id}
+											className={cn(
+												"border p-2.5 font-semibold",
+												alignClass[meta?.align ?? "center"],
+												meta?.headerClassName,
+											)}
+										>
+											{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+										</th>
+									);
+								})}
+							</tr>
+						))}
 					</thead>
 
 					<tbody>
@@ -123,16 +145,19 @@ export function ReportTemplateTable({
 								</td>
 							</tr>
 						) : (
-							rows.map((row) => (
-								<tr key={row.key}>
-									{visibleColumns.map((column) => (
-										<td
-											key={`${row.key}-${column.key}`}
-											className={cn("border p-2.5", alignClass[column.align ?? "center"], column.className)}
-										>
-											{row.cells[column.key]}
-										</td>
-									))}
+							table.getRowModel().rows.map((row) => (
+								<tr key={row.id}>
+									{row.getVisibleCells().map((cell) => {
+										const meta = getColumnMeta(cell.column.columnDef);
+										return (
+											<td
+												key={cell.id}
+												className={cn("border p-2.5", alignClass[meta?.align ?? "center"], meta?.className)}
+											>
+												{flexRender(cell.column.columnDef.cell, cell.getContext())}
+											</td>
+										);
+									})}
 								</tr>
 							))
 						)}

@@ -6,22 +6,32 @@ import type { ConvertToLoanRequest, CreatePaymentRequest } from "@/core/types/cy
 export function useCyclePayments(cycleId?: string) {
 	const queryClient = useQueryClient();
 
+	const paymentQueryKey = ["cycle-payments", cycleId] as const;
+	const createInvalidateKeys = [paymentQueryKey, ["cycles"], ["invoices"]] as const;
+	const convertInvalidateKeys = [["cycles"], ["invoices"], ["loans"]] as const;
+
+	// invalidate many queries
+	const invalidateMany = async (queryKeys: ReadonlyArray<readonly unknown[]>) => {
+		await Promise.all(queryKeys.map((key) => queryClient.invalidateQueries({ queryKey: key })));
+	};
+
+	// ensure cycleId is exists
+	const requireCycleId = () => {
+		if (!cycleId) throw new Error("Cycle ID is required");
+		return cycleId;
+	};
+
 	const paymentsQuery = useQuery({
-		queryKey: ["cycle-payments", cycleId],
-		queryFn: () => cycleService.getPayments(cycleId ?? ""),
+		queryKey: paymentQueryKey,
+		queryFn: () => cycleService.getPayments(requireCycleId()),
 		enabled: !!cycleId,
 	});
 
 	const createPaymentMutation = useMutation({
-		mutationFn: (payload: CreatePaymentRequest) => {
-			if (!cycleId) throw new Error("Cycle ID is required");
-			return cycleService.createPayment(cycleId, payload);
-		},
-		onSuccess: () => {
+		mutationFn: (payload: CreatePaymentRequest) => cycleService.createPayment(requireCycleId(), payload),
+		onSuccess: async () => {
 			toast.success("Payment created successfully");
-			queryClient.invalidateQueries({ queryKey: ["cycle-payments", cycleId] });
-			queryClient.invalidateQueries({ queryKey: ["cycles"] });
-			queryClient.invalidateQueries({ queryKey: ["invoices"] });
+			await invalidateMany(createInvalidateKeys);
 		},
 		onError: () => {
 			toast.error("Failed to create payment");
@@ -29,15 +39,10 @@ export function useCyclePayments(cycleId?: string) {
 	});
 
 	const convertToLoanMutation = useMutation({
-		mutationFn: (payload: ConvertToLoanRequest) => {
-			if (!cycleId) throw new Error("Cycle ID is required");
-			return cycleService.convertToLoan(cycleId, payload);
-		},
-		onSuccess: () => {
+		mutationFn: (payload: ConvertToLoanRequest) => cycleService.convertToLoan(requireCycleId(), payload),
+		onSuccess: async () => {
 			toast.success("Loan created successfully");
-			queryClient.invalidateQueries({ queryKey: ["cycles"] });
-			queryClient.invalidateQueries({ queryKey: ["invoices"] });
-			queryClient.invalidateQueries({ queryKey: ["loans"] });
+			await invalidateMany(convertInvalidateKeys);
 		},
 		onError: () => {
 			toast.error("Failed to convert cycle to loan");
@@ -47,7 +52,6 @@ export function useCyclePayments(cycleId?: string) {
 	return {
 		payments: paymentsQuery.data ?? [],
 		isLoadingPayments: paymentsQuery.isLoading,
-		refetchPayments: paymentsQuery.refetch,
 		createPayment: createPaymentMutation.mutateAsync,
 		isCreatingPayment: createPaymentMutation.isPending,
 		convertToLoan: convertToLoanMutation.mutateAsync,

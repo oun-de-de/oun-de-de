@@ -12,6 +12,7 @@ type InvoiceColumnsOptions = {
 	selectedIds: Set<string>;
 	onToggleAll: (checked: boolean) => void;
 	onToggleOne: (id: string, checked: boolean) => void;
+	onEditOne: (invoice: Invoice) => void;
 };
 
 export function getInvoiceColumns({
@@ -20,6 +21,7 @@ export function getInvoiceColumns({
 	selectedIds,
 	onToggleAll,
 	onToggleOne,
+	onEditOne,
 }: InvoiceColumnsOptions): ColumnDef<Invoice>[] {
 	return [
 		{
@@ -66,16 +68,20 @@ export function getInvoiceColumns({
 			size: 80,
 			accessorKey: "type",
 			cell: ({ row }) => <Badge variant={getInvoiceTypeVariant(row.original.type)}>{row.original.type}</Badge>,
-			meta: { bodyClassName: "text-center" },
+			meta: { bodyClassName: "text-center capitalize" },
 		},
-
 		{
 			header: "Actions",
 			id: "actions",
 			size: 80,
 			meta: { bodyClassName: "text-center", headerClassName: "print:hidden", cellClassName: "print:hidden" },
-			cell: () => (
-				<Button variant="ghost" size="sm" className="h-7 px-2 text-xs print:hidden">
+			cell: ({ row }) => (
+				<Button
+					variant="ghost"
+					size="sm"
+					className="h-7 px-2 text-xs print:hidden"
+					onClick={() => onEditOne(row.original)}
+				>
 					<Icon icon="mdi:pencil" />
 				</Button>
 			),

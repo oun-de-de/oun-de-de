@@ -47,18 +47,23 @@ export function ReportTable({
 	].filter((key): key is string => key !== null);
 
 	const columns: ReportTemplateColumn[] = [
-		{ key: "no", label: "NO" },
-		{ key: "customer", label: "CUSTOMER", align: "left" },
-		{ key: "date", label: "DATE" },
-		{ key: "refNo", label: "REF NO" },
-		{ key: "employee", label: "EMPLOYEE" },
-		{ key: "category", label: "CATEGORY" },
-		{ key: "geography", label: "GEOGRAPHY" },
-		{ key: "address", label: "ADDRESS" },
-		{ key: "phone", label: "PHONE" },
-		{ key: "originalAmount", label: "ORIGINAL AMOUNT", align: "right" },
-		{ key: "received", label: "RECEIVED", align: "right" },
-		{ key: "balance", label: "BALANCE", align: "right" },
+		{ id: "no", header: "NO", cell: ({ row }) => row.original.cells.no },
+		{ id: "customer", header: "CUSTOMER", cell: ({ row }) => row.original.cells.customer, meta: { align: "left" } },
+		{ id: "date", header: "DATE", cell: ({ row }) => row.original.cells.date },
+		{ id: "refNo", header: "REF NO", cell: ({ row }) => row.original.cells.refNo },
+		{ id: "employee", header: "EMPLOYEE", cell: ({ row }) => row.original.cells.employee },
+		{ id: "category", header: "CATEGORY", cell: ({ row }) => row.original.cells.category },
+		{ id: "geography", header: "GEOGRAPHY", cell: ({ row }) => row.original.cells.geography },
+		{ id: "address", header: "ADDRESS", cell: ({ row }) => row.original.cells.address },
+		{ id: "phone", header: "PHONE", cell: ({ row }) => row.original.cells.phone },
+		{
+			id: "originalAmount",
+			header: "ORIGINAL AMOUNT",
+			cell: ({ row }) => row.original.cells.originalAmount,
+			meta: { align: "right" },
+		},
+		{ id: "received", header: "RECEIVED", cell: ({ row }) => row.original.cells.received, meta: { align: "right" } },
+		{ id: "balance", header: "BALANCE", cell: ({ row }) => row.original.cells.balance, meta: { align: "right" } },
 	];
 
 	const metaColumns: ReportTemplateMetaColumn[] = [

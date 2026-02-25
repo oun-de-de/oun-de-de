@@ -7,6 +7,7 @@ import { useDebounce } from "@/core/hooks/use-debounce";
 import type { InvoiceType } from "@/core/types/invoice";
 import { buildPagination } from "@/core/utils/dashboard-utils";
 import { getInvoiceState, useInvoiceActions, useInvoiceState } from "../stores/invoice-store";
+import { isInvoiceType } from "../utils/formatters";
 
 type UseInvoiceTableParams = {
 	customerName?: string | null;
@@ -14,8 +15,6 @@ type UseInvoiceTableParams = {
 };
 
 const getCurrentListState = () => getInvoiceState();
-
-const isInvoiceType = (value: string): value is InvoiceType => value === "INVOICE" || value === "RECEIPT";
 
 export function useInvoiceTable({ customerName, customerId }: UseInvoiceTableParams = {}) {
 	const { page, pageSize, typeFilter, fieldFilter, searchValue, sorting } = useInvoiceState();
@@ -50,7 +49,7 @@ export function useInvoiceTable({ customerName, customerId }: UseInvoiceTablePar
 			} else if (fieldFilter === "all") {
 				searchCustomerName = debouncedSearchValue;
 			} else if (fieldFilter === "type" && debouncedSearchValue) {
-				const normalized = debouncedSearchValue.toUpperCase();
+				const normalized = debouncedSearchValue.toLowerCase();
 				searchType = isInvoiceType(normalized) ? normalized : undefined;
 			}
 

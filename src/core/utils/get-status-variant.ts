@@ -60,6 +60,7 @@ export const getInvoiceTypeVariant = (type: string): BadgeVariant => {
 		case "credit note":
 			return "warning";
 		case "debit note":
+		case "receipt":
 			return "info";
 		default:
 			return "default";

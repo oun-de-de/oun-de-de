@@ -2,6 +2,12 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { Coupon } from "@/core/types/coupon";
 import { Badge } from "@/core/ui/badge";
 
+const mappingVehicleType: Record<string, string> = {
+	TUK_TUK: "Tuk Tuk",
+	TRUCK: "Truck",
+	OTHER: "Other",
+};
+
 export const columns: ColumnDef<Coupon>[] = [
 	{
 		header: "No",
@@ -35,7 +41,10 @@ export const columns: ColumnDef<Coupon>[] = [
 	{
 		header: "Vehicle Type",
 		accessorFn: (row) => row.vehicle?.vehicleType,
-		cell: ({ row }) => row.original.vehicle?.vehicleType ?? "-",
+		cell: ({ row }) => {
+			const vehicleType = row.original.vehicle?.vehicleType;
+			return vehicleType ? (mappingVehicleType[vehicleType] ?? vehicleType) : "-";
+		},
 		meta: {
 			bodyClassName: "text-center",
 		},
@@ -62,6 +71,11 @@ export const columns: ColumnDef<Coupon>[] = [
 		},
 	},
 	{
+		header: "Remark",
+		accessorKey: "remark",
+		cell: ({ row }) => row.original.remark || "-",
+	},
+	{
 		header: "Total Weight",
 		cell: ({ row }) => {
 			const records = row.original.weightRecords;
@@ -69,10 +83,8 @@ export const columns: ColumnDef<Coupon>[] = [
 			const total = records.reduce((sum, r) => sum + (r.weight ?? 0), 0);
 			return <span className="font-semibold text-emerald-600">{total.toLocaleString()} kg</span>;
 		},
-	},
-	{
-		header: "Remark",
-		accessorKey: "remark",
-		cell: ({ row }) => row.original.remark || "-",
+		meta: {
+			bodyClassName: "text-right",
+		},
 	},
 ];
