@@ -11,13 +11,7 @@ export const frontendNavData: NavProps["data"] = [
 				roles: ["SUPER_ADMIN"],
 			},
 			{
-				title: "New Sale",
-				path: "/sale/new/cash-sale",
-				icon: <Icon icon="lucide:shopping-cart" size="24" />,
-				roles: ["SUPER_ADMIN"],
-			},
-			{
-				title: "Customers",
+				title: "Customer",
 				path: "/dashboard/customers",
 				icon: <Icon icon="lucide:users" size="24" />,
 				roles: ["SUPER_ADMIN"],
@@ -45,33 +39,13 @@ export const frontendNavData: NavProps["data"] = [
 				roles: ["SUPER_ADMIN"],
 			},
 			{
-				title: "Vendors",
-				path: "/dashboard/vendors",
-				icon: <Icon icon="lucide:truck" size="24" />,
-				roles: ["SUPER_ADMIN"],
-				actions: [
-					{
-						title: "Create Vendor",
-					},
-					{
-						title: "Create Cash Purchase",
-					},
-					{
-						title: "Create Bill",
-					},
-					{
-						title: "Create Payment",
-					},
-				],
-			},
-			{
-				title: "Product/Service",
+				title: "Product",
 				path: "/dashboard/products",
 				icon: <Icon icon="lucide:gift" size="24" />,
 				roles: ["SUPER_ADMIN"],
 			},
 			{
-				title: "Coupons",
+				title: "Coupon",
 				path: "/dashboard/coupons",
 				icon: <Icon icon="lucide:ticket" size="24" />,
 				roles: ["SUPER_ADMIN"],
@@ -103,29 +77,6 @@ export const frontendNavData: NavProps["data"] = [
 				path: "/dashboard/equipment",
 				icon: <Icon icon="lucide:wrench" size="24" />,
 				roles: ["SUPER_ADMIN"],
-			},
-			{
-				title: "Accounting",
-				path: "/dashboard/accounting",
-				icon: <Icon icon="lucide:scale" size="24" />,
-				roles: ["SUPER_ADMIN"],
-				actions: [
-					{
-						title: "Create Journal",
-					},
-					{
-						title: "Create Cash Transaction",
-					},
-					{
-						title: "Create Cash Revenue",
-					},
-					{
-						title: "Create Case Expense",
-					},
-					{
-						title: "Chart Of Account",
-					},
-				],
 			},
 			{
 				title: "Reports",

@@ -10,7 +10,6 @@ export function getFrontendDashboardRoutes(): RouteObject[] {
 		{ path: "dashboard/customers/create-receipt", element: Component("/pages/dashboard/customers/create-receipt") },
 		{ path: "dashboard/invoice", element: Component("/pages/dashboard/invoice") },
 		{ path: "dashboard/invoice/export-preview", element: Component("/pages/dashboard/invoice/export-preview") },
-		{ path: "dashboard/vendors", element: Component("/pages/dashboard/vendors") },
 		{ path: "dashboard/products", element: Component("/pages/dashboard/products") },
 		{ path: "dashboard/products/create", element: Component("/pages/dashboard/products/create") },
 		{ path: "dashboard/coupons", element: Component("/pages/dashboard/coupons") },

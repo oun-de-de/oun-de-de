@@ -382,16 +382,16 @@ export const settingsTopTabs = ["Items", "Vendors", "Customers", "Accounting", "
 
 export const settingsLeftMenu = [
 	"Unit",
-	"UOM",
-	"Category",
-	"Group",
-	"Brand",
-	"Rank",
-	"Price Rule",
+	// "UOM",
+	// "Category",
+	// "Group",
+	// "Brand",
+	// "Rank",
+	// "Price Rule",
 	"Warehouse",
-	"Advances",
-	"Invoice Template",
-	"Import Data",
+	// "Advances",
+	// "Invoice Template",
+	// "Import Data",
 ];
 
 export const settingsRows: SettingsRow[] = [

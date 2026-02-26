@@ -63,8 +63,7 @@ export const EntityListItem = memo(function EntityListItem({
 
 	return (
 		<Button
-			variant="outline"
-			size="none"
+			variant="secondary"
 			onClick={() => onSelect(isActive ? null : entity.id)}
 			data-active={isActive}
 			className={cn(entityListItemVariants({ variant, activeVariant, className }))}
