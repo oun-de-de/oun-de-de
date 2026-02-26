@@ -8,6 +8,7 @@ import productService from "@/core/api/services/product-service";
 import vehicleService from "@/core/api/services/vehicle-service";
 import type { DefaultFormData } from "@/core/components/common";
 import type { CreateCouponRequest } from "@/core/types/coupon";
+import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
 import { CouponForm } from "./components/coupon-form";
 import {
@@ -26,6 +27,13 @@ function toIsoDateOrUndefined(value: unknown): string | undefined {
 	if (!value || typeof value !== "string") return undefined;
 	const date = new Date(value);
 	return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+}
+
+function toDateInputValue(value: string): string {
+	const date = new Date(value);
+	if (Number.isNaN(date.getTime())) return "";
+	const pad = (n: number) => n.toString().padStart(2, "0");
+	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
 function validateCumulativeWeightRecords(records: DraftWeightRecord[]): string | null {
@@ -48,6 +56,8 @@ function validateCumulativeWeightRecords(records: DraftWeightRecord[]): string |
 export default function CreateCouponPage() {
 	const navigate = useNavigate();
 	const [weightRecords, setWeightRecords] = useState<DraftWeightRecord[]>([createInitialRawWeightRecord()]);
+	const [defaultValues, setDefaultValues] = useState<DefaultFormData | undefined>(undefined);
+	const [formResetKey, setFormResetKey] = useState(0);
 
 	// Fetch employees for dropdown
 	const { data: employees = [] } = useQuery({
@@ -79,6 +89,58 @@ export default function CreateCouponPage() {
 		() => <WeightRecordsBuilder products={products} records={weightRecords} onChange={setWeightRecords} />,
 		[products, weightRecords],
 	);
+
+	const handleFillSampleData = () => {
+		setDefaultValues({
+			vehicleId: "7e6e290e-693e-4dbe-9a88-8b758d3a5125",
+			driverName: "Nguyen Phu Hoi",
+			employeeId: "f9c52219-d4ba-431a-827a-bc7376c9f552",
+			remark: "buy 10kg solid ice",
+			couponNo: 19,
+			couponId: 19,
+			accNo: "string",
+			delAccNo: "string",
+			delDate: toDateInputValue("2026-02-10T07:42:55.196Z"),
+		});
+
+		setWeightRecords([
+			{
+				productName: null,
+				unit: null,
+				pricePerProduct: null,
+				quantityPerProduct: null,
+				quantity: null,
+				weight: null,
+				outTime: "2026-02-10T08:16:58.011Z",
+				memo: null,
+				manual: true,
+			},
+			{
+				productName: "solid ice",
+				unit: "kg",
+				pricePerProduct: 10,
+				quantityPerProduct: null,
+				quantity: 100,
+				weight: 1008,
+				outTime: "2026-02-10T08:16:58.011Z",
+				memo: null,
+				manual: true,
+			},
+			{
+				productName: "ice cubes",
+				unit: "can",
+				pricePerProduct: 200,
+				quantityPerProduct: 10,
+				quantity: 100,
+				weight: 1218,
+				outTime: "2026-02-10T08:16:58.011Z",
+				memo: "daniel test memmo",
+				manual: true,
+			},
+		]);
+
+		setFormResetKey((prev) => prev + 1);
+	};
 
 	const handleSubmit = async (data: DefaultFormData) => {
 		try {
@@ -114,7 +176,7 @@ export default function CreateCouponPage() {
 			await couponService.createCoupon(couponData);
 
 			toast.success("Coupon has been created successfully");
-			navigate("/dashboard/coupons");
+			navigate("/dashboard/invoice");
 		} catch {
 			toast.error("Failed to create coupon");
 		}
@@ -127,18 +189,23 @@ export default function CreateCouponPage() {
 	return (
 		<div className="flex flex-col h-full p-6 gap-6">
 			{/* Header */}
-			<div className="flex items-center gap-3">
+			<div className="flex items-center gap-3 justify-between">
 				<Text className="font-semibold text-sky-600">Create New Coupon</Text>
+				<Button type="button" variant="outline" onClick={handleFillSampleData}>
+					Fill Sample Data
+				</Button>
 			</div>
 
 			{/* Form */}
 			<div className="flex-1 overflow-y-auto">
 				<div className="w-full">
 					<CouponForm
+						key={formResetKey}
 						onSubmit={handleSubmit}
 						onCancel={handleCancel}
 						mode="create"
 						showTitle={false}
+						defaultValues={defaultValues}
 						employeeOptions={employeeOptions}
 						vehicleOptions={vehicleOptions}
 						weightRecordsComponent={weightRecordsComponent}
