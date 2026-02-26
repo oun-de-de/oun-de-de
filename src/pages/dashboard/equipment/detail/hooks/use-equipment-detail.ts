@@ -1,13 +1,27 @@
 import { useCallback, useMemo, useState } from "react";
 import { useParams } from "react-router";
+import { toast } from "sonner";
 import {
 	filterRows,
 	mapTransactionsToRows,
 	paginateRows,
 	transactionColumns,
 } from "../../components/transaction-columns";
-import { useInventoryBorrowings, useInventoryItem, useInventoryTransactions } from "../../hooks/use-inventory-items";
-import { useCreateBorrowing, useReturnBorrowing, useUpdateStock } from "../../hooks/use-inventory-mutations";
+import { useInventoryItem, useInventoryTransactions } from "../../hooks/use-inventory-items";
+import { useUpdateStock } from "../../hooks/use-inventory-mutations";
+
+function getQuantityDelta(reason: string, quantity: number) {
+	switch (reason.toLowerCase()) {
+		case "purchase":
+		case "return":
+			return quantity;
+		case "consume":
+		case "borrow":
+			return -quantity;
+		default:
+			return 0;
+	}
+}
 
 export function useEquipmentDetail() {
 	const { id } = useParams<{ id: string }>();
@@ -16,62 +30,37 @@ export function useEquipmentDetail() {
 	// --- API data ---
 	const { data: activeItem, isLoading: isItemLoading } = useInventoryItem(itemId);
 	const { data: transactions = [] } = useInventoryTransactions(itemId);
-	const { data: borrowings = [] } = useInventoryBorrowings(itemId);
 
 	// --- Mutations ---
 	const updateStockMutation = useUpdateStock(itemId);
-	const createBorrowingMutation = useCreateBorrowing(itemId);
-	const returnBorrowingMutation = useReturnBorrowing(itemId);
 
-	// --- Stock In form ---
-	const [stockInQty, setStockInQty] = useState("1");
-	const [stockInNote, setStockInNote] = useState("");
-	const [stockInReason, setStockInReason] = useState("purchase");
+	// --- Update Stock form (dialog) ---
+	const [updateQty, setUpdateQty] = useState("1");
+	const [updateMemo, setUpdateMemo] = useState("");
+	const [updateReason, setUpdateReason] = useState("purchase");
 
-	const handleStockIn = useCallback(() => {
+	const handleUpdateStock = useCallback((onSuccess?: () => void) => {
 		updateStockMutation.mutate(
-			{ quantity: Number(stockInQty), reason: stockInReason, memo: stockInNote },
+			{ quantity: Number(updateQty), reason: updateReason, memo: updateMemo },
 			{
 				onSuccess: () => {
-					setStockInQty("1");
-					setStockInNote("");
-					setStockInReason("purchase");
+					const parsedQty = Number(updateQty);
+					if (activeItem && Number.isFinite(parsedQty)) {
+						const updatedQty = activeItem.quantityOnHand + getQuantityDelta(updateReason, parsedQty);
+						if (updatedQty < activeItem.alertThreshold) {
+							toast.warning(
+								`Stock is below threshold (${updatedQty} < ${activeItem.alertThreshold}) for ${activeItem.name}.`,
+							);
+						}
+					}
+					setUpdateQty("1");
+					setUpdateMemo("");
+					setUpdateReason("purchase");
+					onSuccess?.();
 				},
 			},
 		);
-	}, [updateStockMutation, stockInQty, stockInReason, stockInNote]);
-
-	// --- Borrow form ---
-	const [borrowQty, setBorrowQty] = useState("1");
-	const [borrowCustomerId, setBorrowCustomerId] = useState("");
-	const [borrowExpectedReturnDate, setBorrowExpectedReturnDate] = useState("");
-	const [borrowMemo, setBorrowMemo] = useState("");
-
-	const handleBorrow = useCallback(() => {
-		createBorrowingMutation.mutate(
-			{
-				customerId: borrowCustomerId,
-				quantity: Number(borrowQty),
-				expectedReturnDate: new Date(borrowExpectedReturnDate).toISOString(),
-				memo: borrowMemo,
-			},
-			{
-				onSuccess: () => {
-					setBorrowQty("1");
-					setBorrowCustomerId("");
-					setBorrowExpectedReturnDate("");
-					setBorrowMemo("");
-				},
-			},
-		);
-	}, [createBorrowingMutation, borrowCustomerId, borrowQty, borrowExpectedReturnDate, borrowMemo]);
-
-	const handleReturnBorrowing = useCallback(
-		(borrowingId: string) => {
-			returnBorrowingMutation.mutate(borrowingId);
-		},
-		[returnBorrowingMutation],
-	);
+	}, [updateStockMutation, updateQty, updateReason, updateMemo, activeItem]);
 
 	// --- Table state ---
 	const [tableTypeFilter, setTableTypeFilter] = useState("all");
@@ -96,37 +85,16 @@ export function useEquipmentDetail() {
 		activeItem: activeItem ?? null,
 		isItemLoading,
 
-		// Stock In
-		stockIn: {
-			qty: stockInQty,
-			note: stockInNote,
-			reason: stockInReason,
-			setQty: setStockInQty,
-			setNote: setStockInNote,
-			setReason: setStockInReason,
-			submit: handleStockIn,
+		// Update Stock
+		stockUpdate: {
+			qty: updateQty,
+			memo: updateMemo,
+			reason: updateReason,
+			setQty: setUpdateQty,
+			setMemo: setUpdateMemo,
+			setReason: setUpdateReason,
+			submit: handleUpdateStock,
 			isPending: updateStockMutation.isPending,
-		},
-
-		// Borrow
-		borrow: {
-			qty: borrowQty,
-			customerId: borrowCustomerId,
-			expectedReturnDate: borrowExpectedReturnDate,
-			memo: borrowMemo,
-			setQty: setBorrowQty,
-			setCustomerId: setBorrowCustomerId,
-			setExpectedReturnDate: setBorrowExpectedReturnDate,
-			setMemo: setBorrowMemo,
-			submit: handleBorrow,
-			isPending: createBorrowingMutation.isPending,
-		},
-
-		// Borrowings
-		borrowingsData: {
-			list: borrowings,
-			returnItem: handleReturnBorrowing,
-			isReturnPending: returnBorrowingMutation.isPending,
 		},
 
 		// Transaction table
