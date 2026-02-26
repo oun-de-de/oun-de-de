@@ -45,7 +45,7 @@ export function BorrowContent({ activeCustomerId, activeCustomerName, listState,
 		() => paginateBorrowRows(filteredData, listState.page, listState.pageSize),
 		[filteredData, listState.page, listState.pageSize],
 	);
-	const { mainAction, options, newBorrowMainAction, newBorrowOptions } = useMemo(
+	const { mainAction, options, newBorrowMainAction } = useMemo(
 		() => buildBorrowViewActions({ activeView: listState.activeView, updateState, navigate }),
 		[listState.activeView, navigate, updateState],
 	);
@@ -85,15 +85,13 @@ export function BorrowContent({ activeCustomerId, activeCustomerName, listState,
 				</div>
 
 				<div className="flex gap-2">
-					<Button size="sm" className="gap-2 bg-blue-400 text-white shadow-sm hover:bg-blue-500">
-						Print Report
+					<Button
+						size="sm"
+						onClick={newBorrowMainAction.onClick}
+						className="bg-emerald-400 text-white hover:bg-emerald-500"
+					>
+						{newBorrowMainAction.label}
 					</Button>
-					<SplitButton
-						mainAction={newBorrowMainAction}
-						options={newBorrowOptions}
-						mainButtonClassName="bg-emerald-400 text-white hover:bg-emerald-500"
-						triggerButtonClassName="bg-emerald-400 text-white hover:bg-emerald-500"
-					/>
 				</div>
 			</div>
 

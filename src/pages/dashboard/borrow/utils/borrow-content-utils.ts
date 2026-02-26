@@ -84,12 +84,8 @@ export function buildBorrowViewActions({
 		],
 		newBorrowMainAction: {
 			label: "New Loan",
-			onClick: () => navigate("/dashboard/borrow/new"),
+			onClick: () => navigate("/dashboard/borrow/payment"),
 		},
-		newBorrowOptions: [
-			{ label: "Record Monthly Payment", onClick: () => navigate("/dashboard/borrow/payment") },
-			{ label: "Adjust Schedule", onClick: openRequests },
-		],
 	};
 }
 

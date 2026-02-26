@@ -47,11 +47,10 @@ export default function BorrowDetailPage() {
 						<Icon icon="mdi:arrow-left" />
 					</Button>
 					<Button size="sm" className="gap-1 pointer-events-none">
-						<Icon icon="mdi:file-document-outline" />
 						Loan Details
 					</Button>
 					<Text variant="body2" className="text-slate-400 font-mono">
-						{loan.id.slice(0, 8)}
+						{loan.id.slice(0, 10)}
 					</Text>
 				</div>
 			</div>
@@ -69,10 +68,12 @@ export default function BorrowDetailPage() {
 							</Text>
 							<div className="text-right flex gap-2">
 								<Text variant="body2" className="font-medium">
-									{loan.borrowerId.slice(0, 8)}
+									{loan.borrowerId.slice(0, 10)}
 								</Text>
 								<span className="text-slate-400">-</span>
-								<Badge variant={loan.borrowerType === "employee" ? "info" : "secondary"}>{loan.borrowerType}</Badge>
+								<Badge variant={loan.borrowerType === "employee" ? "info" : "success"} className="capitalize">
+									{loan.borrowerType}
+								</Badge>
 							</div>
 						</div>
 						<Separator />
