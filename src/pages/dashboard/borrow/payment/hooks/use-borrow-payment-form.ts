@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import customerService from "@/core/api/services/customer-service";
 import loanService from "@/core/api/services/loan-service";
-import { getTodayUTC } from "@/core/utils/date-utils";
+import { getTodayUTC, toUtcIsoPreferNowIfToday } from "@/core/utils/date-utils";
 
 export function useBorrowPaymentForm() {
 	const navigate = useNavigate();
@@ -42,8 +42,7 @@ export function useBorrowPaymentForm() {
 			return;
 		}
 		const parsedDepositAmount = Number(depositAmount);
-		const principalAmount =
-			depositAmount.trim() === "" || Number.isNaN(parsedDepositAmount) ? 0 : parsedDepositAmount;
+		const principalAmount = depositAmount.trim() === "" || Number.isNaN(parsedDepositAmount) ? 0 : parsedDepositAmount;
 		if (principalAmount <= 0) {
 			toast.error("Principal amount must be greater than 0");
 			return;
@@ -54,7 +53,7 @@ export function useBorrowPaymentForm() {
 			borrowerId,
 			principalAmount,
 			termMonths,
-			startDate: dueDate.toISOString(),
+			startDate: toUtcIsoPreferNowIfToday(dueDate) ?? dueDate.toISOString(),
 		});
 	};
 

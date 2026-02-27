@@ -1,10 +1,10 @@
 import type { UpdateCustomer } from "@/core/types/customer";
+import { toUtcIsoPreferNowIfToday, toUtcIsoStartOfDay } from "@/core/utils/date-utils";
 import type { CustomerFormData } from "../create/components/customer-form";
 
 export type UpdateCustomerInfoInput = Partial<UpdateCustomer>;
 
 const STRING_FIELDS = [
-	"registerDate",
 	"name",
 	"defaultPrice",
 	"warehouseId",
@@ -32,6 +32,11 @@ export const mapCustomerFormToUpdatePayload = (
 		if (typeof value === "string") payload[key] = value;
 	}
 
+	const registerDateIso = toUtcIsoPreferNowIfToday(data.registerDate);
+	if (registerDateIso) {
+		payload.registerDate = registerDateIso;
+	}
+
 	if (data.status !== undefined) payload.status = Boolean(data.status);
 
 	if (typeof data.referredById === "string" && data.referredById !== "" && data.referredById !== "none") {
@@ -39,8 +44,9 @@ export const mapCustomerFormToUpdatePayload = (
 	}
 
 	const durationRaw = "paymentTerm" in data ? data.paymentTerm : undefined;
-	const startDateRaw = "startDate" in data && typeof data.startDate === "string" ? data.startDate.trim() : "";
+	const startDateRaw = "startDate" in data ? data.startDate : undefined;
 	const duration = Number(durationRaw);
+	const startDateIso = toUtcIsoStartOfDay(startDateRaw);
 
 	if (
 		durationRaw !== undefined &&
@@ -48,15 +54,12 @@ export const mapCustomerFormToUpdatePayload = (
 		durationRaw !== "" &&
 		Number.isFinite(duration) &&
 		duration >= 0 &&
-		startDateRaw
+		startDateIso
 	) {
-		const startDate = new Date(`${startDateRaw}T00:00:00.000Z`);
-		if (!Number.isNaN(startDate.getTime())) {
-			payload.paymentTerm = {
-				duration,
-				startDate: startDate.toISOString(),
-			};
-		}
+		payload.paymentTerm = {
+			duration,
+			startDate: startDateIso,
+		};
 	}
 
 	return payload;

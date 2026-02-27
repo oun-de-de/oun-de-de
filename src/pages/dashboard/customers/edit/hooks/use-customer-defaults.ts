@@ -8,7 +8,7 @@ export const useCustomerDefaults = (customer?: CustomerDetail, vehicles?: Vehicl
 		if (!customer) return undefined;
 
 		return {
-			registerDate: customer.registerDate?.split("T")[0] || "",
+			registerDate: customer.registerDate ? new Date(customer.registerDate) : new Date(),
 			code: customer.code,
 			name: customer.name,
 			status: customer.status,

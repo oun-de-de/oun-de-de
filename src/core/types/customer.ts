@@ -75,7 +75,7 @@ export interface CustomerDetail
 }
 
 export interface CreateCustomer {
-	registerDate: string;
+	registerDate: Date;
 	code: string;
 	name: string;
 	status: boolean;

@@ -7,7 +7,7 @@ import { GenerateCodeButton } from "./generate-code-button";
 import { VehicleListField } from "./vehicle-list-field";
 
 export type CustomerFormData = DefaultFormData & {
-	registerDate: string;
+	registerDate: Date;
 	code: string;
 	name: string;
 	status: boolean;
