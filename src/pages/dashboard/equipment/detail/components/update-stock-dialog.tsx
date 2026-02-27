@@ -1,10 +1,9 @@
-import { useMemo } from "react";
 import type { InventoryItem } from "@/core/types/inventory";
 import { Button } from "@/core/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/core/ui/dialog";
 import { Input } from "@/core/ui/input";
 import { Label } from "@/core/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/ui/select";
+import { Switch } from "@/core/ui/switch";
 
 type UpdateStockDialogProps = {
 	item: InventoryItem;
@@ -33,21 +32,7 @@ export function UpdateStockDialog({
 	onSubmit,
 	isPending = false,
 }: UpdateStockDialogProps) {
-	const reasons = useMemo(
-		() =>
-			item.type === "CONSUMABLE"
-				? [
-						{ value: "purchase", label: "Purchase" },
-						{ value: "consume", label: "Consume" },
-					]
-				: [
-						{ value: "purchase", label: "Purchase" },
-						{ value: "borrow", label: "Borrow" },
-						{ value: "return", label: "Return" },
-						{ value: "consume", label: "Consume" },
-					],
-		[item.type],
-	);
+	const isStockIn = reason === "purchase";
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
@@ -61,33 +46,41 @@ export function UpdateStockDialog({
 					<DialogTitle>Update Stock</DialogTitle>
 				</DialogHeader>
 
-				<div className="space-y-3">
+				<div className="space-y-4 py-2">
 					<div className="space-y-1.5">
 						<Label>Item</Label>
 						<Input value={`${item.name} (${item.code})`} disabled />
 					</div>
 					<div className="space-y-1.5">
 						<Label>Reason</Label>
-						<Select value={reason} onValueChange={onReasonChange}>
-							<SelectTrigger>
-								<SelectValue placeholder="Select reason" />
-							</SelectTrigger>
-							<SelectContent>
-								{reasons.map((r) => (
-									<SelectItem key={r.value} value={r.value}>
-										{r.label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+						<div className="flex items-center justify-between rounded-md border p-3">
+							<div className="space-y-0.5">
+								<div className="font-semibold">
+									<span className="text-sm">{isStockIn ? "Purchase" : "Consume"}</span>
+								</div>
+								<div className="text-xs text-slate-500">
+									{isStockIn ? "Switch is ON, reason will be purchase." : "Switch is OFF, reason will be consume."}
+								</div>
+							</div>
+							<div className="flex items-center gap-2 text-xs text-slate-500">
+								<Switch
+									checked={isStockIn}
+									onCheckedChange={(checked) => onReasonChange(checked ? "purchase" : "consume")}
+								/>
+							</div>
+						</div>
 					</div>
 					<div className="space-y-1.5">
 						<Label>Quantity</Label>
 						<Input type="number" min={1} value={quantity} onChange={(e) => onQuantityChange(e.target.value)} />
 					</div>
 					<div className="space-y-1.5">
-						<Label>Memo</Label>
-						<Input value={memo} onChange={(e) => onMemoChange(e.target.value)} placeholder="Additional notes" />
+						<Label>Description</Label>
+						<Input
+							value={memo}
+							onChange={(e) => onMemoChange(e.target.value)}
+							placeholder="Describe this stock update"
+						/>
 					</div>
 				</div>
 
