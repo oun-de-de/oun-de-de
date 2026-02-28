@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { DefaultForm, type DefaultFormData, type FormFieldConfig } from "@/core/components/common";
 import type { CreateProduct } from "@/core/types/product";
 import { PRODUCT_FIELDS } from "../constants/product-fields";
-import { GenerateProductCodeButton } from "./generate-product-code-button";
 
 export type ProductFormData = DefaultFormData & Partial<CreateProduct>;
 
@@ -27,9 +26,6 @@ export function ProductForm({
 
 	const fields = useMemo<FormFieldConfig[]>(() => {
 		return PRODUCT_FIELDS.map((field) => {
-			if (field.name === "refNo") {
-				return { ...field, endAdornment: <GenerateProductCodeButton /> };
-			}
 			if (field.name === "unitId") {
 				return { ...field, options: unitOptions };
 			}
