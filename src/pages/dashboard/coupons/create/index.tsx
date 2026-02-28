@@ -93,7 +93,6 @@ export default function CreateCouponPage() {
 		setDefaultValues({
 			vehicleId: "7e6e290e-693e-4dbe-9a88-8b758d3a5125",
 			driverName: "Nguyen Phu Hoi",
-			employeeId: "f9c52219-d4ba-431a-827a-bc7376c9f552",
 			remark: "buy 10kg solid ice",
 			couponNo: 19,
 			couponId: 19,

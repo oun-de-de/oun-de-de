@@ -1,5 +1,6 @@
 import type { SummaryStatCardData } from "@/core/types/common";
 import type { Loan } from "@/core/types/loan";
+import { formatKHR } from "@/core/utils/formatters";
 import type { BorrowFieldFilter, BorrowState, BorrowTypeFilter } from "../stores/borrow-state";
 
 export const BORROW_TYPE_OPTIONS = [
@@ -44,7 +45,12 @@ export function buildLoanSummaryCards(loans: Loan[]): SummaryStatCardData[] {
 		{ label: "Total Loans", value: totalLoans, color: "bg-blue-500", icon: "mdi:cash-multiple" },
 		{ label: "Employee Loans", value: employeeCount, color: "bg-indigo-500", icon: "mdi:account-tie" },
 		{ label: "Customer Loans", value: customerCount, color: "bg-emerald-500", icon: "mdi:account-group" },
-		{ label: "Total Principal", value: totalPrincipal, color: "bg-orange-500", icon: "mdi:currency-usd" },
+		{
+			label: "Total Principal",
+			value: formatKHR(totalPrincipal, "0"),
+			color: "bg-orange-500",
+			icon: "mdi:currency-usd",
+		},
 	];
 }
 
@@ -81,7 +87,7 @@ export function buildLoanViewActions({
 			: [{ label: "All Loans", onClick: openAllLoans }],
 		newBorrowMainAction: {
 			label: "New Loan",
-			onClick: () => navigate("/dashboard/borrow/payment"),
+			onClick: () => navigate("/dashboard/loan/payment"),
 		},
 	};
 }

@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { Warehouse } from "@/core/types/setting";
-import { useCreateWarehouse, useGetWarehouseList } from "@/pages/dashboard/settings/hooks/use-settings";
+import { useGetWarehouseList } from "@/pages/dashboard/settings/hooks/use-settings";
 import { useUpdateCustomerWarehouse } from "../../hooks/use-update-customer-warehouse";
 
 export type CustomerWarehouse = {
@@ -12,25 +12,27 @@ export type CustomerWarehouse = {
 export const useWarehouseSettingsForm = (customerId?: string, currentWarehouseId?: string) => {
 	const { data: warehouses, isLoading } = useGetWarehouseList();
 	const { mutateAsync: updateCustomerWarehouse, isPending: isSaving } = useUpdateCustomerWarehouse(customerId);
-	const { mutateAsync: createWarehouse, isPending: isCreatingWarehouse } = useCreateWarehouse();
+	const scopeKey = `${customerId ?? ""}:${currentWarehouseId ?? ""}`;
+	const [draftSelection, setDraftSelection] = useState<{
+		scopeKey: string;
+		warehouseId: string | null | undefined;
+	}>({
+		scopeKey,
+		warehouseId: undefined,
+	});
 
-	const [selectedWarehouse, setSelectedWarehouse] = useState<CustomerWarehouse | null>(null);
+	const draftWarehouseId = draftSelection.scopeKey === scopeKey ? draftSelection.warehouseId : undefined;
+	const activeWarehouseId = draftWarehouseId === undefined ? currentWarehouseId : draftWarehouseId;
+	const selectedWarehouse = useMemo(() => {
+		if (!activeWarehouseId || !warehouses) return null;
+		const warehouse = warehouses.find((item) => item.id === activeWarehouseId);
+		if (!warehouse) return null;
 
-	useEffect(() => {
-		setSelectedWarehouse(null);
-	}, [customerId, currentWarehouseId]);
-
-	useEffect(() => {
-		if (!selectedWarehouse && currentWarehouseId && warehouses) {
-			const warehouse = warehouses.find((w) => w.id === currentWarehouseId);
-			if (warehouse) {
-				setSelectedWarehouse({
-					warehouseId: warehouse.id,
-					warehouseName: warehouse.name,
-				});
-			}
-		}
-	}, [currentWarehouseId, warehouses, selectedWarehouse]);
+		return {
+			warehouseId: warehouse.id,
+			warehouseName: warehouse.name,
+		};
+	}, [activeWarehouseId, warehouses]);
 
 	const availableWarehouses = useMemo(() => {
 		if (!warehouses) return [];
@@ -38,31 +40,28 @@ export const useWarehouseSettingsForm = (customerId?: string, currentWarehouseId
 	}, [warehouses, selectedWarehouse]);
 
 	const handleAdd = (warehouse: Warehouse) => {
-		setSelectedWarehouse({
-			warehouseId: warehouse.id,
-			warehouseName: warehouse.name,
-		});
+		setDraftSelection({ scopeKey, warehouseId: warehouse.id });
 	};
 
 	const handleRemove = (warehouseId: string) => {
 		if (selectedWarehouse?.warehouseId === warehouseId) {
-			setSelectedWarehouse(null);
+			setDraftSelection({ scopeKey, warehouseId: null });
 		}
 	};
 
 	const handleSave = async () => {
 		if (!customerId) return;
-
-		if (selectedWarehouse) {
-			try {
-				await updateCustomerWarehouse({
-					warehouseId: selectedWarehouse.warehouseId,
-				});
-			} catch {
-				// error toast handled in hook
-			}
-		} else {
+		if (!selectedWarehouse) {
 			toast.error("Please select a warehouse");
+			return;
+		}
+
+		try {
+			await updateCustomerWarehouse({
+				warehouseId: selectedWarehouse.warehouseId,
+			});
+		} catch {
+			// error toast handled in hook
 		}
 	};
 
@@ -70,9 +69,7 @@ export const useWarehouseSettingsForm = (customerId?: string, currentWarehouseId
 		selectedWarehouse,
 		availableWarehouses,
 		isLoading,
-		isCreatingWarehouse,
 		isSaving,
-		createWarehouse,
 		handleAdd,
 		handleRemove,
 		handleSave,

@@ -69,6 +69,7 @@ export default function CouponsPage() {
 					onSelect={handleCustomerSelect}
 					onToggle={handleToggle}
 					isCollapsed={isCollapsed}
+					showPaymentTermFilter={false}
 				/>
 			}
 			content={

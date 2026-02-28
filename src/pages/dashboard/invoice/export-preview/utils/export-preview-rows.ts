@@ -1,5 +1,6 @@
 import { format, isValid, parseISO } from "date-fns";
 import type { InvoiceExportLineResult, InvoiceExportPreviewRow } from "@/core/types/invoice";
+import { formatNumber as coreFormatNumber } from "@/core/utils/formatters";
 import type { ReportTemplateRow } from "@/pages/dashboard/reports/components/layout/report-template-table";
 import type { SortMode } from "../constants";
 
@@ -7,7 +8,7 @@ const EMPTY_CELL = "-";
 
 function formatNumber(value: number | null): string {
 	if (value === null) return EMPTY_CELL;
-	return value.toLocaleString();
+	return coreFormatNumber(value);
 }
 
 function formatReportDate(value: string): string {

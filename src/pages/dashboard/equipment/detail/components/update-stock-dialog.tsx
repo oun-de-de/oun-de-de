@@ -90,12 +90,12 @@ export function UpdateStockDialog({
 									const matched = REASON_OPTIONS.find((item) => item.value === option.name);
 									return matched?.label ?? option.name;
 								}}
-								inactiveClassName="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100"
+								inactiveClassName="rounded-md border border-slate-300 bg-white !p-2 !text-xs font-medium text-slate-700 hover:bg-slate-100"
 								getChipClassName={(option, isActive) => {
 									if (!isActive) return undefined;
 									const variant = getReasonVariant(option.name);
 									return cn(
-										"rounded-md border-none px-2 py-1 text-xs text-white shadow-sm",
+										"rounded-md border-none !p-2 !text-xs text-white",
 										variant === "info" && "bg-gradient-to-r from-info to-info/80",
 										variant === "warning" && "bg-gradient-to-r from-warning to-warning/80",
 										variant === "destructive" && "bg-gradient-to-r from-destructive to-destructive/80",

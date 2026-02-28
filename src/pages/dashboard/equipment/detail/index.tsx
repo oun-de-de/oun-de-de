@@ -23,6 +23,12 @@ export default function EquipmentDetailPage() {
 	});
 	const customers = customerPage?.list ?? [];
 	const isEquipment = activeItem?.type === "EQUIPMENT";
+	const handleUpdateStockOpenChange = (open: boolean) => {
+		if (!open) {
+			stockUpdate.reset();
+		}
+		setIsUpdateStockOpen(open);
+	};
 
 	if (isItemLoading) {
 		return (
@@ -67,14 +73,14 @@ export default function EquipmentDetailPage() {
 					<UpdateStockDialog
 						item={activeItem}
 						open={isUpdateStockOpen}
-						onOpenChange={setIsUpdateStockOpen}
+						onOpenChange={handleUpdateStockOpenChange}
 						quantity={stockUpdate.qty}
 						reason={stockUpdate.reason}
 						memo={stockUpdate.memo}
 						onQuantityChange={stockUpdate.setQty}
 						onReasonChange={stockUpdate.setReason}
 						onMemoChange={stockUpdate.setMemo}
-						onSubmit={() => stockUpdate.submit(() => setIsUpdateStockOpen(false))}
+						onSubmit={() => stockUpdate.submit(() => handleUpdateStockOpenChange(false))}
 						isPending={stockUpdate.isPending}
 					/>
 					{isEquipment && <EquipmentBorrowingsDialog itemId={activeItem.id} customers={customers} />}

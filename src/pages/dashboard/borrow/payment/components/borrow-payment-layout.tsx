@@ -16,14 +16,14 @@ export function BorrowPaymentLayout({ children }: BorrowPaymentLayoutProps) {
 			{/* Header */}
 			<div className="flex flex-wrap items-center justify-between gap-3">
 				<div className="flex items-center gap-2">
-					<Button size="sm" variant="outline" onClick={() => navigate("/dashboard/borrow")}>
+					<Button size="sm" variant="outline" onClick={() => navigate("/dashboard/loan")}>
 						<Icon icon="mdi:arrow-left" />
 					</Button>
 					<Button size="sm" className="gap-1 pointer-events-none">
 						Checkout Transaction
 					</Button>
 					<Text variant="body2" className="text-slate-400">
-						Dashboard / Borrow / Checkout
+						Dashboard / Loan / Checkout
 					</Text>
 				</div>
 			</div>

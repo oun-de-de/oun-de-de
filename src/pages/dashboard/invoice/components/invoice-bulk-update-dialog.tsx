@@ -24,23 +24,31 @@ const EMPTY_TYPE = "";
 const buildUpdatePayload = ({
 	invoiceIds,
 	customerName,
+	initialCustomerName,
 	type,
+	initialType,
 }: {
 	invoiceIds: string[];
 	customerName: string;
+	initialCustomerName?: string;
 	type: InvoiceType | "";
+	initialType?: InvoiceType | "";
 }): UpdateInvoicesPayload | null => {
 	const trimmedCustomerName = customerName.trim();
+	const trimmedInitialCustomerName = initialCustomerName?.trim() ?? "";
 	const normalizedType = type === EMPTY_TYPE ? undefined : type;
+	const normalizedInitialType = initialType === EMPTY_TYPE ? undefined : initialType;
+	const hasCustomerNameChanged = trimmedCustomerName !== trimmedInitialCustomerName;
+	const hasTypeChanged = normalizedType !== normalizedInitialType;
 
-	if (!trimmedCustomerName && !normalizedType) {
+	if (!hasCustomerNameChanged && !hasTypeChanged) {
 		return null;
 	}
 
 	return {
 		invoiceIds,
-		...(trimmedCustomerName ? { customerName: trimmedCustomerName } : {}),
-		...(normalizedType ? { type: normalizedType } : {}),
+		...(hasCustomerNameChanged ? { customerName: trimmedCustomerName } : {}),
+		...(hasTypeChanged && normalizedType ? { type: normalizedType } : {}),
 	};
 };
 
@@ -65,7 +73,8 @@ export function InvoiceBulkUpdateDialog({
 		}
 	}, [open, initialCustomerName, initialType]);
 
-	const canSubmit = Boolean(customerName.trim()) || type !== EMPTY_TYPE;
+	const normalizedInitialType = initialType && isInvoiceType(initialType) ? initialType : EMPTY_TYPE;
+	const canSubmit = customerName.trim() !== (initialCustomerName?.trim() ?? "") || type !== normalizedInitialType;
 	const handleTypeChange = (value: string) => {
 		setType(isInvoiceType(value) ? value : EMPTY_TYPE);
 	};
@@ -74,11 +83,13 @@ export function InvoiceBulkUpdateDialog({
 		const payload = buildUpdatePayload({
 			invoiceIds: selectedIds,
 			customerName,
+			initialCustomerName,
 			type,
+			initialType: normalizedInitialType,
 		});
 
 		if (!payload) {
-			toast.error("Please provide a Customer Name or select a Type to apply.");
+			toast.error("Please change at least one field before updating.");
 			return;
 		}
 
@@ -108,12 +119,12 @@ export function InvoiceBulkUpdateDialog({
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
 					<div className="grid gap-2">
-						<Label htmlFor="customerName">Customer Name (Optional)</Label>
+						<Label htmlFor="customerName">Customer Name</Label>
 						<Input
 							id="customerName"
 							value={customerName}
 							onChange={(e) => setCustomerName(e.target.value)}
-							placeholder="Leave blank to keep existing"
+							placeholder="Leave blank to clear"
 							disabled={isUpdating}
 						/>
 					</div>

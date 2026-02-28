@@ -12,6 +12,7 @@ type CustomerSidebarProps = {
 	onSelect: (customer: Customer | null) => void;
 	onToggle?: () => void;
 	isCollapsed?: boolean;
+	showPaymentTermFilter?: boolean;
 };
 
 const STATUS_OPTIONS: SelectOption[] = [{ value: "all", label: "All" }];
@@ -19,46 +20,41 @@ const DEFAULT_ITEM_SIZE = 56;
 const COLLAPSED_ITEM_SIZE = 42;
 const COLLAPSED_ITEM_GAP = 8;
 
-export function CustomerSidebar({ activeCustomerId, onSelect, onToggle, isCollapsed }: CustomerSidebarProps) {
+export function CustomerSidebar({
+	activeCustomerId,
+	onSelect,
+	onToggle,
+	isCollapsed,
+	showPaymentTermFilter = true,
+}: CustomerSidebarProps) {
 	const [searchTerm, setSearchTerm] = useState("");
-	const [customerType, setCustomerType] = useState("all");
-	const [customerTypeInput, setCustomerTypeInput] = useState("all");
+	const [paymentTermInput, setPaymentTermInput] = useState("");
 	const [paymentTerm, setPaymentTerm] = useState("");
 
-	const handleCustomerTypeChange = (value: string) => {
+	const handlePaymentTermChange = (value: string) => {
 		const nextValue = value.trim().toLowerCase();
-		setCustomerTypeInput(nextValue);
+		setPaymentTermInput(nextValue);
 
-		if (!nextValue || nextValue === "all") {
-			setCustomerType("all");
+		if (!nextValue) {
 			setPaymentTerm("");
 			return;
 		}
 
 		if (/^\d+$/.test(nextValue)) {
-			setCustomerType("all");
 			setPaymentTerm(nextValue);
 			return;
 		}
 
-		if (nextValue !== "vip" && nextValue !== "retail") {
-			setCustomerType("all");
-			setPaymentTerm("");
-			return;
-		}
-
 		setPaymentTerm("");
-		setCustomerType(nextValue);
 	};
 
 	const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
-		queryKey: ["customers", "sidebar", { name: searchTerm, customerType, paymentTerm }],
+		queryKey: ["customers", "sidebar", { name: searchTerm, paymentTerm }],
 		queryFn: ({ pageParam = 1 }) =>
 			customerService.getCustomerList({
 				page: pageParam,
 				limit: 10000,
 				name: searchTerm || undefined,
-				customerType: customerType !== "all" ? customerType : undefined,
 				paymentTerm: paymentTerm ? Number(paymentTerm) : undefined,
 			}),
 		initialPageParam: 1,
@@ -72,8 +68,10 @@ export function CustomerSidebar({ activeCustomerId, onSelect, onToggle, isCollap
 	return (
 		<SidebarList>
 			<SidebarList.Header
-				mainTypePlaceholder="Customer Type"
-				mainTypeFilter={<CustomerTypeCombobox value={customerTypeInput} onChange={handleCustomerTypeChange} />}
+				showMainTypeFilter={showPaymentTermFilter}
+				showStatusFilter={false}
+				mainTypePlaceholder="Payment Term"
+				mainTypeFilter={<CustomerTypeCombobox value={paymentTermInput} onChange={handlePaymentTermChange} />}
 				onMenuClick={onToggle}
 				searchPlaceholder="Search..."
 				onSearchChange={setSearchTerm}

@@ -51,6 +51,9 @@ export function CustomerForm({
 
 	const fields = useMemo<FormFieldConfig[]>(() => {
 		return CUSTOMER_FIELDS.map((field) => {
+			if (field.name === "registerDate") {
+				return { ...field, required: mode === "create", disabled: mode === "edit" };
+			}
 			if (field.name === "employeeId") {
 				return { ...field, options: employeeOptions };
 			}
@@ -67,7 +70,7 @@ export function CustomerForm({
 				className: "col-span-2",
 			},
 		]);
-	}, [employeeOptions, customerOptions]);
+	}, [customerOptions, employeeOptions, mode]);
 
 	return (
 		<DefaultForm<CustomerFormData>

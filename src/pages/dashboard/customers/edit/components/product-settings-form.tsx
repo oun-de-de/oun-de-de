@@ -7,19 +7,9 @@ import { SelectedProductsList } from "./selected-products-list";
 
 export function ProductSettingsForm() {
 	const { id: customerId } = useParams<{ id: string }>();
-	const {
-		settings,
-		existingProductIds,
-		availableProducts,
-		isLoading,
-		isSaving,
-		handleAdd,
-		handleRemove,
-		handleChange,
-		handleSave,
-	} = useProductSettingsForm(customerId);
+	const form = useProductSettingsForm(customerId);
 
-	if (isLoading) {
+	if (form.isLoading) {
 		return <div>Loading settings...</div>;
 	}
 
@@ -27,22 +17,19 @@ export function ProductSettingsForm() {
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
 				<Text className="font-semibold text-sky-600">Product Settings</Text>
-				<Button onClick={handleSave} disabled={isSaving}>
-					{isSaving ? "Saving..." : "Save Settings"}
+				<Button onClick={form.handleSave} disabled={form.isSaving}>
+					{form.isSaving ? "Saving..." : "Save Settings"}
 				</Button>
 			</div>
 
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-				{/* Left Column: Available Products */}
-				<AvailableProductsList products={availableProducts} onAdd={handleAdd} />
-
-				{/* Right Column: Selected Products */}
+				<AvailableProductsList products={form.availableProducts} onAdd={form.handleAdd} />
 				<div className="md:col-span-2">
 					<SelectedProductsList
-						settings={settings}
-						existingProductIds={existingProductIds}
-						onChange={handleChange}
-						onRemove={handleRemove}
+						settings={form.settings}
+						existingProductIds={form.existingProductIds}
+						onChange={form.handleChange}
+						onRemove={form.handleRemove}
 					/>
 				</div>
 			</div>

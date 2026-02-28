@@ -1,11 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
-import customerService from "@/core/api/services/customer-service";
 import Icon from "@/core/components/icon/icon";
 import { Badge } from "@/core/ui/badge";
 import { Button } from "@/core/ui/button";
 import { Separator } from "@/core/ui/separator";
 import { Text } from "@/core/ui/typography";
+import { formatDisplayDate, formatKHR } from "@/core/utils/formatters";
 import { useRouter } from "@/routes/hooks/use-router";
 import { InstallmentsTable } from "./components/installments-table";
 import { useBorrowDetail } from "./hooks/use-borrow-detail";
@@ -15,11 +14,6 @@ export default function BorrowDetailPage() {
 	const router = useRouter();
 
 	const { loan, isLoading, isError, installments, payInstallment, isPaying } = useBorrowDetail(id || "");
-	const { data: borrower } = useQuery({
-		queryKey: ["loan-borrower", loan?.borrowerType, loan?.borrowerId],
-		queryFn: () => customerService.getCustomer(loan?.borrowerId ?? ""),
-		enabled: !!loan?.borrowerId && loan?.borrowerType === "customer",
-	});
 
 	if (isLoading) {
 		return (
@@ -36,7 +30,7 @@ export default function BorrowDetailPage() {
 					<Text variant="body1" className="mb-4 text-lg font-semibold">
 						Loan not found
 					</Text>
-					<Button onClick={() => router.push("/dashboard/borrow")}>
+					<Button onClick={() => router.push("/dashboard/loan")}>
 						<Icon icon="mdi:arrow-left" className="mr-2" />
 						Back to Loans
 					</Button>
@@ -50,7 +44,7 @@ export default function BorrowDetailPage() {
 			{/* Header */}
 			<div className="flex flex-wrap items-center justify-between gap-3">
 				<div className="flex items-center gap-2">
-					<Button size="sm" variant="outline" onClick={() => router.push("/dashboard/borrow")}>
+					<Button size="sm" variant="outline" onClick={() => router.push("/dashboard/loan")}>
 						<Icon icon="mdi:arrow-left" />
 					</Button>
 					<Button size="sm" className="gap-1 pointer-events-none">
@@ -72,7 +66,7 @@ export default function BorrowDetailPage() {
 							</Text>
 							<div className="text-right flex gap-2">
 								<Text variant="body2" className="font-medium">
-									{borrower?.name || loan.borrowerId.slice(0, 10)}
+									{loan.borrowerName}
 								</Text>
 								<span className="text-slate-400">-</span>
 								<Badge variant={loan.borrowerType === "employee" ? "info" : "success"} className="capitalize">
@@ -86,7 +80,7 @@ export default function BorrowDetailPage() {
 								Principal Amount
 							</Text>
 							<Text variant="body2" className="font-medium">
-								{loan.principalAmount.toLocaleString()} KHR
+								{formatKHR(loan.principalAmount)}
 							</Text>
 						</div>
 						<Separator />
@@ -104,7 +98,7 @@ export default function BorrowDetailPage() {
 								Start Date
 							</Text>
 							<Text variant="body2" className="font-medium">
-								{new Date(loan.startDate).toLocaleDateString()}
+								{formatDisplayDate(loan.startDate)}
 							</Text>
 						</div>
 						<Separator />
@@ -113,7 +107,7 @@ export default function BorrowDetailPage() {
 								Created At
 							</Text>
 							<Text variant="body2" className="font-medium">
-								{new Date(loan.createdAt).toLocaleDateString()}
+								{formatDisplayDate(loan.createdAt)}
 							</Text>
 						</div>
 					</div>

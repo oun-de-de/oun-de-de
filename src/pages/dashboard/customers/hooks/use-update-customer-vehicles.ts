@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import customerService from "@/core/api/services/customer-service";
 import type { CreateVehicle } from "@/core/types/vehicle";
+import { invalidateCustomerVehiclesQueries } from "./customer-query-utils";
 
 type UpdateVehicleInput = {
 	id: string;
@@ -27,8 +28,7 @@ export const useUpdateCustomerVehicles = (customerId?: string) => {
 			);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["customer-vehicles", customerId] });
-			queryClient.invalidateQueries({ queryKey: ["customer", customerId] });
+			invalidateCustomerVehiclesQueries(queryClient, customerId);
 		},
 		onError: () => {
 			toast.error("Failed to update vehicles");

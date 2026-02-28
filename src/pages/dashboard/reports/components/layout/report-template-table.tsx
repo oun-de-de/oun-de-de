@@ -11,6 +11,17 @@ const alignClass: Record<CellAlign, string> = {
 	right: "text-right",
 };
 
+const TABLE_WRAPPER_CLASS_NAME = "w-full overflow-x-auto px-2 print:px-0";
+const TABLE_CLASS_NAME =
+	"w-full border-separate border-spacing-0 border-l border-t border-black text-[11px] text-black print:table-fixed print:text-[10px]";
+const HEADER_CELL_CLASS_NAME =
+	"border-b border-r border-black px-2 py-1.5 align-top font-bold break-words print:px-1 print:py-1";
+const BODY_CELL_CLASS_NAME = "border-b border-r border-black px-2 py-1.5 align-top break-words print:px-1 print:py-1";
+const SUMMARY_LABEL_CELL_CLASS_NAME =
+	"border-b border-r border-black px-2 py-2 text-right text-[12px] font-bold uppercase whitespace-nowrap print:px-1 print:py-1";
+const SUMMARY_VALUE_CELL_CLASS_NAME =
+	"border-b border-r border-black px-2 py-2 text-right text-[12px] font-bold whitespace-nowrap print:px-1 print:py-1";
+
 export interface ReportTemplateMetaColumn {
 	key: string;
 	rows: React.ReactNode[];
@@ -101,7 +112,7 @@ export function ReportTemplateTable({
 				))}
 
 			{metaColumns.length > 0 && (
-				<div className="mb-2 ml-1 grid grid-cols-1 gap-4 text-[13px] font-bold text-black md:grid-cols-3">
+				<div className="mb-2 grid grid-cols-1 gap-4 text-[13px] font-bold text-black md:grid-cols-3">
 					{metaColumns.map((column) => {
 						const align = column.align ?? "left";
 						return (
@@ -115,8 +126,8 @@ export function ReportTemplateTable({
 				</div>
 			)}
 
-			<div className="w-full overflow-x-auto px-6">
-				<table className="w-full border-separate border-spacing-0 border-l border-t border-black text-[11px] text-black">
+			<div className={TABLE_WRAPPER_CLASS_NAME}>
+				<table className={TABLE_CLASS_NAME}>
 					<thead>
 						{table.getHeaderGroups().map((headerGroup) => (
 							<tr key={headerGroup.id} className="bg-transparent text-black uppercase">
@@ -125,11 +136,7 @@ export function ReportTemplateTable({
 									return (
 										<th
 											key={header.id}
-											className={cn(
-												"border-b border-r border-black px-2 py-1.5 font-bold",
-												alignClass[meta?.align ?? "center"],
-												meta?.headerClassName,
-											)}
+											className={cn(HEADER_CELL_CLASS_NAME, alignClass[meta?.align ?? "center"], meta?.headerClassName)}
 										>
 											{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
 										</th>
@@ -154,11 +161,7 @@ export function ReportTemplateTable({
 										return (
 											<td
 												key={cell.id}
-												className={cn(
-													"border-b border-r border-black px-2 py-1.5",
-													alignClass[meta?.align ?? "center"],
-													meta?.className,
-												)}
+												className={cn(BODY_CELL_CLASS_NAME, alignClass[meta?.align ?? "center"], meta?.className)}
 											>
 												{flexRender(cell.column.columnDef.cell, cell.getContext())}
 											</td>
@@ -173,15 +176,10 @@ export function ReportTemplateTable({
 						<tfoot>
 							{summaryRows.map((summaryRow) => (
 								<tr key={summaryRow.key} className="text-black">
-									<td
-										colSpan={tableColSpan - 1}
-										className="border-b border-r border-black px-2 py-2 text-right text-[12px] font-bold uppercase whitespace-nowrap"
-									>
+									<td colSpan={tableColSpan - 1} className={SUMMARY_LABEL_CELL_CLASS_NAME}>
 										{summaryRow.label}
 									</td>
-									<td className="border-b border-r border-black px-2 py-2 text-right text-[12px] font-bold whitespace-nowrap">
-										{summaryRow.value}
-									</td>
+									<td className={SUMMARY_VALUE_CELL_CLASS_NAME}>{summaryRow.value}</td>
 								</tr>
 							))}
 						</tfoot>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Chart } from "@/core/components/chart/chart";
 import { useChart } from "@/core/components/chart/useChart";
 import Icon from "@/core/components/icon/icon";
@@ -7,7 +8,7 @@ import { Progress } from "@/core/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/ui/select";
 import { Text, Title } from "@/core/ui/typography";
 import { cn } from "@/core/utils";
-import { useState } from "react";
+import { formatNumber } from "@/core/utils/formatters";
 
 // ---------------------- 数据区 ----------------------
 const timeOptions = [
@@ -317,7 +318,7 @@ export default function Analysis() {
 								</Text>
 								<div className="flex items-end gap-2">
 									<Title as="h3" className="text-2xl">
-										{webAnalytic.pageViews.toLocaleString()}
+										{formatNumber(webAnalytic.pageViews)}
 									</Title>
 									<Trend value={webAnalytic.pageViewsChange} />
 								</div>
@@ -354,7 +355,7 @@ export default function Analysis() {
 							</CardHeader>
 							<CardContent>
 								<Title as="h3" className="text-xl">
-									{visitor.value.toLocaleString()}
+									{formatNumber(visitor.value)}
 								</Title>
 								<div className="flex flex-row gap-2 items-center">
 									<Trend value={visitor.change} />
@@ -396,7 +397,7 @@ export default function Analysis() {
 							</CardHeader>
 							<CardContent>
 								<Title as="h3" className="text-xl">
-									{adCampaign.value.toLocaleString()}
+									{formatNumber(adCampaign.value)}
 								</Title>
 								<div className="flex flex-row gap-2 items-center">
 									<Trend value={adCampaign.change} />
@@ -442,12 +443,12 @@ export default function Analysis() {
 											<td className="py-2">{row.url}</td>
 											<td className="py-2">
 												<div className="flex items-center gap-2 justify-end">
-													{row.views.toLocaleString()} <Trend value={row.viewsChange} />
+													{formatNumber(row.views)} <Trend value={row.viewsChange} />
 												</div>
 											</td>
 											<td className="py-2">
 												<div className="flex items-center gap-2 justify-end">
-													{row.unique.toLocaleString()} <Trend value={row.uniqueChange} />
+													{formatNumber(row.unique)} <Trend value={row.uniqueChange} />
 												</div>
 											</td>
 										</tr>
@@ -510,7 +511,7 @@ export default function Analysis() {
 					<CardContent>
 						<div className="flex items-center gap-4 mb-2">
 							<Title as="h3" className="text-xl">
-								{topChannels.reduce((acc, c) => acc + c.total, 0).toLocaleString()}
+								{formatNumber(topChannels.reduce((acc, c) => acc + c.total, 0))}
 							</Title>
 							<div className="flex items-center gap-2">
 								<Trend value={2.6} />
@@ -535,7 +536,7 @@ export default function Analysis() {
 											{row.name}
 										</td>
 										<td className="py-2 text-right">{row.percent}%</td>
-										<td className="py-2 text-right">{row.total.toLocaleString()}</td>
+										<td className="py-2 text-right">{formatNumber(row.total)}</td>
 									</tr>
 								))}
 							</tbody>
@@ -575,8 +576,8 @@ export default function Analysis() {
 									{trafficData.map((row) => (
 										<tr key={row.source} className="border-t">
 											<td className="p-2 font-mono">{row.source}</td>
-											<td className="p-2 text-right">{row.visits.toLocaleString()}</td>
-											<td className="p-2 text-right">{row.unique.toLocaleString()}</td>
+											<td className="p-2 text-right">{formatNumber(row.visits)}</td>
+											<td className="p-2 text-right">{formatNumber(row.unique)}</td>
 											<td className="p-2 text-right">
 												<div className="flex items-center gap-2 justify-end">
 													<Trend value={row.bounce} />

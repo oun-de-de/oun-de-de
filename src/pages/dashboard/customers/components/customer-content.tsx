@@ -4,7 +4,12 @@ import type { Customer } from "@/core/types/customer";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
 import type { ListState } from "../stores/customer-list-store";
-import { FILTER_FIELD_OPTIONS, FILTER_TYPE_OPTIONS, getSummaryStats } from "../utils/customer-utils";
+import {
+	FILTER_FIELD_OPTIONS,
+	FILTER_TYPE_OPTIONS,
+	PAYMENT_TERM_FILTER_OPTIONS,
+	getSummaryStats,
+} from "../utils/customer-utils";
 import CustomerButtonActions from "./customer-button-actions";
 import { columns } from "./customer-columns";
 
@@ -31,6 +36,7 @@ export function CustomerContent({
 	paginationItems,
 }: CustomerContentProps) {
 	const summaryStats = getSummaryStats(activeCustomer);
+	const searchPlaceholder = listState.fieldFilter === "payment_term" ? "Payment Term" : "Search...";
 
 	return (
 		<>
@@ -59,14 +65,19 @@ export function CustomerContent({
 				data={pagedData}
 				columns={columns}
 				filterConfig={{
+					showTypeFilter: false,
 					typeOptions: FILTER_TYPE_OPTIONS,
 					fieldOptions: FILTER_FIELD_OPTIONS,
 					typeValue: listState.typeFilter,
 					fieldValue: listState.fieldFilter,
 					searchValue: listState.searchValue,
+					searchPlaceholder,
 					onTypeChange: (value: string) => updateState({ typeFilter: value, page: 1 }),
 					onFieldChange: (value: string) => updateState({ fieldFilter: value, page: 1 }),
 					onSearchChange: (value: string) => updateState({ searchValue: value, page: 1 }),
+					optionsByField: {
+						payment_term: PAYMENT_TERM_FILTER_OPTIONS,
+					},
 				}}
 				paginationConfig={{
 					page: currentPage,

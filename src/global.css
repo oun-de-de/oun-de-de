@@ -192,18 +192,15 @@
 
   .invoice-export-preview-page .invoice-export-preview-template {
     display: block !important;
-    max-width: none !important;
-    width: 100% !important;
-    margin: 0 !important;
     padding: 0 !important;
   }
 
   .invoice-export-preview-page .invoice-export-print-target {
     display: block !important;
     position: static !important;
-    width: 100% !important;
-    max-width: none !important;
-    margin: 0 !important;
+    width: auto !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
     padding: 0 !important;
     border: none !important;
     box-shadow: none !important;
@@ -216,7 +213,7 @@
 
   .invoice-export-preview-page .invoice-export-print-target table {
     width: 100% !important;
-    table-layout: auto !important;
+    table-layout: fixed !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
@@ -234,7 +231,10 @@
   .invoice-export-preview-page .invoice-print-sheet th,
   .invoice-export-preview-page .invoice-print-sheet td {
     border-color: #9ca3af !important;
-    padding: 4px 6px !important;
+    padding: 3px 4px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
   }
 
   .invoice-export-preview-page .invoice-print-sheet .invoice-print-header {

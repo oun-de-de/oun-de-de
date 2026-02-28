@@ -1,11 +1,10 @@
 import type { UpdateCustomer } from "@/core/types/customer";
-import { toUtcIsoPreferNowIfToday, toUtcIsoStartOfDay } from "@/core/utils/date-utils";
+import { toUtcIsoStartOfDay } from "@/core/utils/date-utils";
 import type { CustomerFormData } from "../create/components/customer-form";
 
 export type UpdateCustomerInfoInput = Partial<UpdateCustomer>;
 
 const STRING_FIELDS = [
-	"registerDate",
 	"name",
 	"defaultPrice",
 	"warehouseId",
@@ -31,11 +30,6 @@ export const mapCustomerFormToUpdatePayload = (
 	for (const key of STRING_FIELDS) {
 		const value = data[key];
 		if (typeof value === "string") payload[key] = value;
-	}
-
-	const registerDateIso = toUtcIsoPreferNowIfToday(data.registerDate);
-	if (registerDateIso) {
-		payload.registerDate = registerDateIso;
 	}
 
 	if (data.status !== undefined) payload.status = Boolean(data.status);

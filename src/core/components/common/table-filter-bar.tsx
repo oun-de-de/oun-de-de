@@ -4,6 +4,15 @@ import styled from "styled-components";
 import Icon from "@/core/components/icon/icon";
 import { useDebounce } from "@/core/hooks/use-debounce";
 import { Button } from "@/core/ui/button";
+import {
+	Combobox,
+	ComboboxContent,
+	ComboboxEmpty,
+	ComboboxInput,
+	ComboboxItem,
+	ComboboxList,
+	useComboboxAnchor,
+} from "@/core/ui/combobox";
 import { Input } from "@/core/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/ui/select";
 import { cn } from "@/core/utils";
@@ -26,7 +35,41 @@ type SelectOption = {
 	label: string;
 };
 
+type FilterSearchComboboxProps = {
+	value: string;
+	placeholder: string;
+	options: SelectOption[];
+	onChange: (value: string) => void;
+};
+
+function FilterSearchCombobox({ value, placeholder, options, onChange }: FilterSearchComboboxProps) {
+	const normalizedValue = value.trim().toLowerCase();
+	const selectedOption = options.find((option) => option.value === normalizedValue) ?? null;
+	const displayValue = selectedOption ? selectedOption.label : value;
+	const anchorRef = useComboboxAnchor();
+
+	return (
+		<Combobox<SelectOption>
+			items={options}
+			value={selectedOption}
+			inputValue={displayValue}
+			onValueChange={(nextValue) => onChange(nextValue?.value ?? "")}
+			onInputValueChange={(nextInputValue) => onChange(nextInputValue.trim().toLowerCase())}
+		>
+			<div ref={anchorRef} className="w-full">
+				<ComboboxInput className={cn("w-full bg-background")} placeholder={placeholder} aria-label={placeholder} />
+			</div>
+			<ComboboxContent anchor={anchorRef}>
+				<ComboboxEmpty>No matching option.</ComboboxEmpty>
+				<ComboboxList>{(item) => <ComboboxItem value={item}>{item.label}</ComboboxItem>}</ComboboxList>
+			</ComboboxContent>
+		</Combobox>
+	);
+}
+
 interface FilterBarProps extends VariantProps<typeof filterBarVariants> {
+	showTypeFilter?: boolean;
+	showFieldFilter?: boolean;
 	typeOptions: SelectOption[];
 	fieldOptions: SelectOption[];
 	typeValue?: string;
@@ -44,6 +87,8 @@ interface FilterBarProps extends VariantProps<typeof filterBarVariants> {
 }
 
 export function TableFilterBar({
+	showTypeFilter = true,
+	showFieldFilter = true,
 	typeOptions,
 	fieldOptions,
 	typeValue,
@@ -115,57 +160,50 @@ export function TableFilterBar({
 
 	return (
 		<FilterContainer className={cn(filterBarVariants({ variant }), className)}>
-			<Button
-				variant="outline"
-				size="icon"
-				className="h-9 w-9"
-				onClick={onFilterClick}
-				disabled={!onFilterClick}
-				aria-label="Filter"
-			>
-				<Icon icon="mdi:filter-variant" />
-			</Button>
+			{onFilterClick && (
+				<Button variant="outline" size="icon" className="h-9 w-9" onClick={onFilterClick} aria-label="Filter">
+					<Icon icon="mdi:filter-variant" />
+				</Button>
+			)}
 
-			<Select value={typeValue ?? ""} onValueChange={handleOnTypeChange}>
-				<SelectTrigger className="w-[160px]">
-					<SelectValue placeholder={typePlaceholder} />
-				</SelectTrigger>
-				<SelectContent>
-					{typeOptions.map((option) => (
-						<SelectItem key={option.value} value={option.value}>
-							{option.label}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
+			{showTypeFilter && (
+				<Select value={typeValue ?? ""} onValueChange={handleOnTypeChange}>
+					<SelectTrigger className="w-[160px]">
+						<SelectValue placeholder={typePlaceholder} />
+					</SelectTrigger>
+					<SelectContent>
+						{typeOptions.map((option) => (
+							<SelectItem key={option.value} value={option.value}>
+								{option.label}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			)}
 
-			<Select value={fieldValue ?? ""} onValueChange={handleOnFieldChange}>
-				<SelectTrigger className="w-[160px]">
-					<SelectValue placeholder={fieldPlaceholder} />
-				</SelectTrigger>
-				<SelectContent>
-					{fieldOptions.map((option) => (
-						<SelectItem key={option.value} value={option.value}>
-							{option.label}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
+			{showFieldFilter && (
+				<Select value={fieldValue ?? ""} onValueChange={handleOnFieldChange}>
+					<SelectTrigger className="w-[160px]">
+						<SelectValue placeholder={fieldPlaceholder} />
+					</SelectTrigger>
+					<SelectContent>
+						{fieldOptions.map((option) => (
+							<SelectItem key={option.value} value={option.value}>
+								{option.label}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			)}
 
 			<SearchWrapper>
 				{fieldValue && optionsByField?.[fieldValue] ? (
-					<Select value={localSearch} onValueChange={(value) => setLocalSearch(value)}>
-						<SelectTrigger className="w-full">
-							<SelectValue placeholder={searchPlaceholder} />
-						</SelectTrigger>
-						<SelectContent>
-							{optionsByField[fieldValue].map((option) => (
-								<SelectItem key={option.value} value={option.value}>
-									{option.label}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+					<FilterSearchCombobox
+						value={localSearch}
+						placeholder={searchPlaceholder}
+						options={optionsByField[fieldValue]}
+						onChange={setLocalSearch}
+					/>
 				) : (
 					<>
 						<Input

@@ -1,5 +1,5 @@
-import type { CyclePayment } from "@/core/types/cycle";
 import type { ColumnDef } from "@tanstack/react-table";
+import type { CyclePayment } from "@/core/types/cycle";
 import { formatDisplayDateTime, formatKHR } from "../utils/formatters";
 
 export const PAYMENT_COLUMNS: ColumnDef<CyclePayment>[] = [

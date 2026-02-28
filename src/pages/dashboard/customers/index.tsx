@@ -4,6 +4,7 @@ import customerService from "@/core/api/services/customer-service";
 import { DashboardSplitView } from "@/core/components/common/dashboard-split-view";
 import { useSidebarCollapse } from "@/core/hooks/use-sidebar-collapse";
 import type { Customer } from "@/core/types/customer";
+import { emptyPagination } from "@/core/types/pagination";
 import { buildPagination } from "@/core/utils/dashboard-utils";
 import { CustomerContent } from "./components/customer-content";
 import { CustomerSidebar } from "./components/customer-sidebar";
@@ -33,17 +34,31 @@ export default function CustomersPage() {
 			activeCustomer?.name,
 		],
 		queryFn: () => {
-			let searchValue: string | undefined;
-			if (activeCustomer) {
-				searchValue = activeCustomer.name;
-			} else {
-				searchValue = listState.searchValue || undefined;
+			const normalizedSearchValue = listState.searchValue.trim();
+			const isPaymentTermField = listState.fieldFilter === "payment_term";
+			const selectedCustomerName = activeCustomer?.name;
+			const searchValue = normalizedSearchValue || undefined;
+			const hasInvalidPaymentTermSearch =
+				!activeCustomer && isPaymentTermField && normalizedSearchValue !== "" && !/^\d+$/.test(normalizedSearchValue);
+			const paymentTermValue =
+				!activeCustomer && isPaymentTermField && /^\d+$/.test(normalizedSearchValue)
+					? Number(normalizedSearchValue)
+					: undefined;
+
+			if (hasInvalidPaymentTermSearch) {
+				return {
+					...emptyPagination<Customer>(),
+					page: listState.page,
+					pageSize: listState.pageSize,
+					pageCount: 1,
+				};
 			}
 
 			return customerService.getCustomerList({
 				page: listState.page,
 				limit: listState.pageSize,
-				name: searchValue,
+				name: selectedCustomerName ?? (!isPaymentTermField ? searchValue : undefined),
+				paymentTerm: paymentTermValue,
 			});
 		},
 	});
@@ -65,6 +80,7 @@ export default function CustomersPage() {
 					onSelect={setActiveCustomer}
 					onToggle={handleToggle}
 					isCollapsed={isCollapsed}
+					showPaymentTermFilter={false}
 				/>
 			}
 			content={

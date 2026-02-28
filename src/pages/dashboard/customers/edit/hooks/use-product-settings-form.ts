@@ -14,17 +14,36 @@ export interface ProductSettingItem extends CreateProductSettings {
 
 const getUnitLabel = (product: Product): string => product.unit?.name ?? "-";
 
-const mapToSettingItem = (
-	setting: { productId: string; price: number; quantity: number },
+const createProductSettingItem = (
 	product: Product,
+	values?: Pick<CreateProductSettings, "price" | "quantity">,
 ): ProductSettingItem => ({
-	productId: setting.productId,
-	price: setting.price,
-	quantity: setting.quantity,
+	productId: product.id,
+	price: values?.price ?? product.price,
+	quantity: values?.quantity ?? 0,
 	productName: product.name,
 	productRef: product.refNo,
 	unitLabel: getUnitLabel(product),
 });
+
+const mapExistingSettings = (
+	settings: CreateProductSettings[] | undefined,
+	productById: Map<string, Product>,
+): ProductSettingItem[] =>
+	settings?.flatMap((setting) => {
+		const product = productById.get(setting.productId);
+		return product ? [createProductSettingItem(product, setting)] : [];
+	}) ?? [];
+
+const toNumberOrZero = (value: string) => {
+	const parsed = Number(value);
+	return Number.isNaN(parsed) ? 0 : parsed;
+};
+
+const getNewSettings = (settings: ProductSettingItem[], existingProductIds: Set<string>) =>
+	settings
+		.filter((setting) => !existingProductIds.has(setting.productId))
+		.map(({ productId, price, quantity }) => ({ productId, price, quantity }));
 
 export const useProductSettingsForm = (customerId?: string) => {
 	const { data: products } = useQuery({
@@ -38,6 +57,12 @@ export const useProductSettingsForm = (customerId?: string) => {
 	const [settings, setSettings] = useState<ProductSettingItem[]>([]);
 	const [isInitialized, setIsInitialized] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
+	const productById = useMemo(() => new Map(products?.map((product) => [product.id, product]) ?? []), [products]);
+	const existingProductIds = useMemo(() => new Set(currentSettings?.map((s) => s.productId) || []), [currentSettings]);
+	const initialSettings = useMemo(
+		() => mapExistingSettings(currentSettings, productById),
+		[currentSettings, productById],
+	);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
@@ -47,18 +72,9 @@ export const useProductSettingsForm = (customerId?: string) => {
 
 	useEffect(() => {
 		if (!products || isInitialized || isLoadingSettings) return;
-
-		const initialSettings =
-			currentSettings
-				?.map((setting) => {
-					const product = products.find((p) => p.id === setting.productId);
-					return product ? mapToSettingItem(setting, product) : null;
-				})
-				.filter((item): item is ProductSettingItem => item !== null) ?? [];
-
 		setSettings(initialSettings);
 		setIsInitialized(true);
-	}, [products, currentSettings, isInitialized, isLoadingSettings]);
+	}, [products, initialSettings, isInitialized, isLoadingSettings]);
 
 	const availableProducts = useMemo(
 		() => products?.filter((p) => !settings.some((s) => s.productId === p.id)) ?? [],
@@ -66,20 +82,8 @@ export const useProductSettingsForm = (customerId?: string) => {
 	);
 
 	const handleAdd = (product: Product) => {
-		setSettings((prev) => [
-			...prev,
-			{
-				productId: product.id,
-				price: product.price,
-				quantity: 0,
-				productName: product.name,
-				productRef: product.refNo,
-				unitLabel: getUnitLabel(product),
-			},
-		]);
+		setSettings((prev) => [...prev, createProductSettingItem(product)]);
 	};
-
-	const existingProductIds = useMemo(() => new Set(currentSettings?.map((s) => s.productId) || []), [currentSettings]);
 
 	const handleRemove = async (productId: string) => {
 		if (existingProductIds.has(productId)) {
@@ -96,9 +100,7 @@ export const useProductSettingsForm = (customerId?: string) => {
 		setSettings((prev) =>
 			prev.map((item) => {
 				if (item.productId !== productId) return item;
-
-				const numValue = Number(value);
-				return { ...item, [field]: Number.isNaN(numValue) ? 0 : numValue };
+				return { ...item, [field]: toNumberOrZero(value) };
 			}),
 		);
 	};
@@ -111,7 +113,7 @@ export const useProductSettingsForm = (customerId?: string) => {
 
 		setIsSaving(true);
 		try {
-			const newSettings = settings.filter((setting) => !existingProductIds.has(setting.productId));
+			const newSettings = getNewSettings(settings, existingProductIds);
 			if (newSettings.length === 0) {
 				toast.info("Only create product setting is supported. No new products to save.");
 				return;

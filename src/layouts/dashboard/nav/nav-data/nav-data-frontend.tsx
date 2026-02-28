@@ -58,7 +58,7 @@ export const frontendNavData: NavProps["data"] = [
 			},
 			{
 				title: "Loan",
-				path: "/dashboard/borrow",
+				path: "/dashboard/loan",
 				icon: <Icon icon="lucide:clipboard-list" size="24" />,
 				roles: ["SUPER_ADMIN"],
 			},
