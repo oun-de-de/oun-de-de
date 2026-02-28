@@ -1,6 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/core/ui/button";
+import { formatKHR } from "@/core/utils/formatters";
 import type { CartItem } from "@/pages/dashboard/borrow/stores/borrow-cart-store";
 
 export const getBorrowPaymentColumns = (onRemove: (id: string) => void): ColumnDef<CartItem>[] => [
@@ -33,14 +34,14 @@ export const getBorrowPaymentColumns = (onRemove: (id: string) => void): ColumnD
 	{
 		accessorKey: "price",
 		header: "Price",
-		cell: ({ getValue }) => <div className="text-right text-gray-500">${getValue() as number}</div>,
+		cell: ({ getValue }) => <div className="text-right text-gray-500">{formatKHR(getValue() as number)}</div>,
 		size: 100,
 	},
 	{
 		id: "total",
 		header: "Total",
 		cell: ({ row }) => (
-			<div className="text-right font-bold text-gray-900">${(row.original.price * row.original.qty).toFixed(2)}</div>
+			<div className="text-right font-bold text-gray-900">{formatKHR(row.original.price * row.original.qty)}</div>
 		),
 		size: 100,
 	},

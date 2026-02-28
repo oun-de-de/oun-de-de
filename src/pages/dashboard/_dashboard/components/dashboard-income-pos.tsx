@@ -1,17 +1,18 @@
-import { rgbAlpha } from "@/core/utils/theme";
 import { useEffect } from "react";
 import ReactApexChart from "react-apexcharts";
+import { useObservable } from "react-use";
 import { styled } from "styled-components";
-import { ErrorState, isErrorState } from "@/core/types/state";
+import { type ErrorState, isErrorState } from "@/core/types/state";
+import { useStore } from "@/core/ui/store/multi-store-provider";
+import { StoreBuilder } from "@/core/ui/store/store-builder";
+import { formatKHR, formatNumber } from "@/core/utils/formatters";
+import { rgbAlpha } from "@/core/utils/theme";
+import Repository from "@/service-locator";
 import {
-	DashboardRepository,
+	type DashboardRepository,
 	DashboardRepositoryImpl,
 } from "../../../../core/domain/dashboard/repositories/dashboard-repository";
-import { useObservable } from "react-use";
-import { DailyIncomePosStore } from "../stores/income-pos/daily-income-pos-store";
-import { useStore } from "@/core/ui/store/multi-store-provider";
-import Repository from "@/service-locator";
-import { StoreBuilder } from "@/core/ui/store/store-builder";
+import type { DailyIncomePosStore } from "../stores/income-pos/daily-income-pos-store";
 
 export default function DashboardIncomePos() {
 	const repo = Repository.get<DashboardRepository>(DashboardRepositoryImpl, { instanceName: "Dashboard-Income-Pos" });
@@ -118,18 +119,12 @@ export default function DashboardIncomePos() {
 					yaxis: {
 						labels: {
 							style: { colors: "#999", fontSize: "10px" },
-							formatter: (val) =>
-								new Intl.NumberFormat("en-US", {
-									maximumFractionDigits: 0,
-								}).format(val),
+							formatter: (val) => formatNumber(val),
 						},
 					},
 					tooltip: {
 						y: {
-							formatter: (val) =>
-								`${new Intl.NumberFormat("en-US", {
-									maximumFractionDigits: 0,
-								}).format(val)} ₺`,
+							formatter: (val) => formatKHR(val),
 						},
 					},
 				};

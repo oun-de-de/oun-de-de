@@ -81,11 +81,18 @@ export default function InvoiceExportPreviewPage() {
 		() => formatDisplayDateTime(sortedPreviewRows[0]?.date, REPORT_DEFAULT_DATE),
 		[sortedPreviewRows],
 	);
+	const invoiceSummaryText = useMemo(() => {
+		const uniqueRefNos = [...new Set(sortedPreviewRows.map((row) => row.refNo).filter(Boolean))];
+		if (uniqueRefNos.length === 1) {
+			return `Invoice No: ${uniqueRefNos[0]}`;
+		}
+		return `Total Invoices: ${uniqueRefNos.length}`;
+	}, [sortedPreviewRows]);
 	const metaColumns = useMemo<ReportTemplateMetaColumn[]>(
 		() => [
 			{
 				key: "left-meta",
-				rows: [""],
+				rows: [invoiceSummaryText],
 				align: "left",
 			},
 			{
@@ -99,7 +106,7 @@ export default function InvoiceExportPreviewPage() {
 				align: "right",
 			},
 		],
-		[reportDate],
+		[invoiceSummaryText, reportDate],
 	);
 
 	const totalBalance = useMemo(() => calculateTotalBalance(previewRows), [previewRows]);

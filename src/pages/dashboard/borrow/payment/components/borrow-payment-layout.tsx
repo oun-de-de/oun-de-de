@@ -20,10 +20,10 @@ export function BorrowPaymentLayout({ children }: BorrowPaymentLayoutProps) {
 						<Icon icon="mdi:arrow-left" />
 					</Button>
 					<Button size="sm" className="gap-1 pointer-events-none">
-						Checkout Transaction
+						Create Loan
 					</Button>
 					<Text variant="body2" className="text-slate-400">
-						Dashboard / Loan / Checkout
+						Dashboard / Loan / Create
 					</Text>
 				</div>
 			</div>

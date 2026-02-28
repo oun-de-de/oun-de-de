@@ -1,17 +1,18 @@
 import { useEffect } from "react";
-import {
-	DashboardRepository,
-	DashboardRepositoryImpl,
-} from "../../../../core/domain/dashboard/repositories/dashboard-repository";
-import { useObservable } from "react-use";
-import { ErrorState, isErrorState } from "@/core/types/state";
 import ReactApexChart from "react-apexcharts";
+import { useObservable } from "react-use";
 import { styled } from "styled-components";
+import { type ErrorState, isErrorState } from "@/core/types/state";
+import { useStore } from "@/core/ui/store/multi-store-provider";
+import { StoreBuilder } from "@/core/ui/store/store-builder";
+import { formatKHR, formatNumber } from "@/core/utils/formatters";
 import { rgbAlpha } from "@/core/utils/theme";
 import Repository from "@/service-locator";
-import { useStore } from "@/core/ui/store/multi-store-provider";
-import { DailyIncomeAccountingStore } from "../stores/income-accounting/daily-income-accounting-store";
-import { StoreBuilder } from "@/core/ui/store/store-builder";
+import {
+	type DashboardRepository,
+	DashboardRepositoryImpl,
+} from "../../../../core/domain/dashboard/repositories/dashboard-repository";
+import type { DailyIncomeAccountingStore } from "../stores/income-accounting/daily-income-accounting-store";
 
 export default function DashboardIncomeAccounting() {
 	const repo = Repository.get<DashboardRepository>(DashboardRepositoryImpl, {
@@ -122,19 +123,13 @@ export default function DashboardIncomeAccounting() {
 					yaxis: {
 						labels: {
 							style: { colors: "#999", fontSize: "10px" },
-							formatter: (val) =>
-								new Intl.NumberFormat("en-US", {
-									maximumFractionDigits: 0,
-								}).format(val),
+							formatter: (val) => formatNumber(val),
 						},
 					},
 
 					tooltip: {
 						y: {
-							formatter: (val) =>
-								`${new Intl.NumberFormat("en-US", {
-									maximumFractionDigits: 0,
-								}).format(val)} ₺`,
+							formatter: (val) => formatKHR(val),
 						},
 					},
 				};
