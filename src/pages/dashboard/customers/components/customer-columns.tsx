@@ -1,45 +1,70 @@
-import type { TransactionRow } from "@/core/types/common";
-import { fNumber } from "@/core/utils/format-number";
 import type { ColumnDef } from "@tanstack/react-table";
+import type { Customer } from "@/core/types/customer";
+import { Badge } from "@/core/ui/badge";
+import { getStatusVariant } from "@/core/utils/get-status-variant";
+import { CustomerActions } from "./customer-actions";
 
-export const columns: ColumnDef<TransactionRow>[] = [
+export const columns: ColumnDef<Customer>[] = [
 	{
-		header: "Date",
-		accessorKey: "date",
+		header: "Register Date",
+		size: 80,
+		accessorKey: "registerDate",
+		cell: ({ row }) => new Date(row.original.registerDate).toLocaleDateString(),
+		meta: { bodyClassName: "text-center" },
 	},
 	{
-		header: "Ref No",
-		accessorKey: "refNo",
-		cell: ({ row }) => <span className="text-sky-600">{row.original.refNo}</span>,
+		header: "Code",
+		accessorKey: "code",
+		size: 120,
+		meta: { bodyClassName: "text-center" },
+		cell: ({ row }) => <span className="font-medium text-sky-600">{row.original.code}</span>,
 	},
 	{
-		header: "Customer",
-		accessorKey: "customer",
+		header: "Name",
+		accessorKey: "name",
 	},
 	{
-		header: "Type",
-		cell: ({ row }) => (
-			<span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs text-sky-700">{row.original.type}</span>
-		),
+		header: "Phone",
+		size: 100,
+		accessorKey: "telephone",
 	},
 	{
-		header: "Ref Type",
-		cell: ({ row }) => (
-			<span className="rounded-md border px-2 py-0.5 text-xs text-gray-600">{row.original.refType}</span>
-		),
+		header: "Customer Type",
+		accessorKey: "referredBy",
 	},
+	// {
+	// 	header: "Price Level",
+	// 	accessorKey: "defaultPrice",
+	// 	size: 100,
+	// 	cell: ({ row }) => {
+	// 		const value = row.original.defaultPrice;
+	// 		return (
+	// 			<Badge variant={getDefaultPriceVariant(value)} className="w-full">
+	// 				{getDefaultPriceLabel(value)}
+	// 			</Badge>
+	// 		);
+	// 	},
+	// 	meta: { bodyClassName: "text-center" },
+	// },
 	{
 		header: "Status",
-		cell: ({ row }) => (
-			<span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs text-amber-700">{row.original.status}</span>
-		),
+		accessorKey: "status",
+		size: 80,
+		meta: { bodyClassName: "text-center" },
+		cell: ({ row }) => {
+			const status = row.original.status ? "Active" : "Inactive";
+			const variant = getStatusVariant(status);
+			return (
+				<Badge variant={variant} className="w-full">
+					{status}
+				</Badge>
+			);
+		},
 	},
 	{
-		header: "Amount",
-		cell: ({ row }) => <span className="font-semibold">{fNumber(row.original.amount)} KHR</span>,
-	},
-	{
-		header: "Memo",
-		accessorKey: "memo",
+		header: "Actions",
+		id: "actions",
+		size: 200,
+		cell: ({ row }) => <CustomerActions customerId={row.original.id} customerName={row.original.name} />,
 	},
 ];

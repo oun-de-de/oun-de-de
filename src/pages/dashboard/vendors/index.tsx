@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { vendorTransactions } from "@/_mock/data/dashboard";
 import { DashboardSplitView } from "@/core/components/common/dashboard-split-view";
+import { useSidebarCollapse } from "@/core/hooks/use-sidebar-collapse";
 import { useVendorsList, useVendorsListActions } from "@/core/store/vendorsListStore";
 import { buildPagination, normalizeToken } from "@/core/utils/dashboard-utils";
 import { VendorContent } from "./components/vendor-content";
@@ -12,6 +13,8 @@ export default function VendorsPage() {
 	const [activeVendorId, setActiveVendorId] = useState<string | null>(null);
 	const listState = useVendorsList();
 	const { updateState } = useVendorsListActions();
+
+	const { isCollapsed, handleToggle } = useSidebarCollapse();
 
 	const filteredTransactions = useMemo(() => {
 		const normalizedType = normalizeToken(listState.typeFilter);
@@ -63,7 +66,15 @@ export default function VendorsPage() {
 
 	return (
 		<DashboardSplitView
-			sidebar={<VendorSidebar activeVendorId={activeVendorId} onSelect={setActiveVendorId} />}
+			sidebarClassName={isCollapsed ? "lg:w-20" : "lg:w-1/4"}
+			sidebar={
+				<VendorSidebar
+					activeVendorId={activeVendorId}
+					onSelect={setActiveVendorId}
+					onToggle={handleToggle}
+					isCollapsed={isCollapsed}
+				/>
+			}
 			content={
 				<VendorContent
 					activeVendorId={activeVendorId}

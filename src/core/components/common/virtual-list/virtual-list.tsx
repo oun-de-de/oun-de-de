@@ -1,43 +1,59 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef, isValidElement, cloneElement } from "react";
+import { cloneElement, isValidElement, useRef } from "react";
 import styled from "styled-components";
+import { useScrollbarGap } from "@/core/hooks/use-scrollbar-gap";
 
 export function VirtualList<T>({
 	data,
 	renderItem,
 	estimateSize = 50,
+	gap = 0,
 	className,
 	height = "100%",
 	overscan = 5,
 	renderEndBuilder,
+	maxItems,
+	containment = "layout",
+	scrollbarGap: scrollbarGapProp,
 }: {
 	data: T[];
 	renderItem: (item: T, style: React.CSSProperties, index: number) => React.ReactNode;
 	estimateSize?: number;
+	gap?: number;
 	className?: string;
 	height?: string | number;
 	overscan?: number;
 	renderEndBuilder?: () => React.ReactNode;
+	/** Limit the number of items to display (e.g., for mobile) */
+	maxItems?: number;
+	/** CSS contain property value - 'layout' for better reflow performance, 'strict' for full containment */
+	containment?: "layout" | "strict";
+	/** Gap space reserved for scrollbar (in pixels). Auto-detected if not provided. */
+	scrollbarGap?: number;
 }) {
 	const parentRef = useRef<HTMLDivElement>(null);
+	const autoScrollbarGap = useScrollbarGap(6);
+	const scrollbarGap = scrollbarGapProp ?? autoScrollbarGap;
+
+	const safeData = data ?? [];
+	const displayData = maxItems !== undefined ? safeData.slice(0, maxItems) : safeData;
 	const rowVirtualizer = useVirtualizer({
-		count: data.length,
+		count: displayData.length,
 		getScrollElement: () => parentRef.current,
-		estimateSize: () => estimateSize,
+		estimateSize: () => estimateSize + gap,
 		overscan,
 	});
 
 	return (
-		<VirtualListContainer ref={parentRef} className={className} $height={height}>
+		<VirtualListContainer ref={parentRef} className={className} $height={height} $containment={containment}>
 			<InnerContainer $height={rowVirtualizer.getTotalSize()}>
 				{rowVirtualizer.getVirtualItems().map((virtualItem) => {
-					const item = data[virtualItem.index];
+					const item = displayData[virtualItem.index];
 					const style: React.CSSProperties = {
 						position: "absolute",
 						top: 0,
 						left: 0,
-						width: "100%",
-						height: `${virtualItem.size}px`,
+						width: scrollbarGap > 0 ? `calc(100% - ${scrollbarGap}px)` : "100%",
 						transform: `translateY(${virtualItem.start}px)`,
 					};
 					const rendered = renderItem(item, style, virtualItem.index);
@@ -58,25 +74,17 @@ export function VirtualList<T>({
 	);
 }
 
-const VirtualListContainer = styled.div<{ $height: string | number }>`
+const VirtualListContainer = styled.div<{ $height: string | number; $containment: "layout" | "strict" }>`
 	height: ${({ $height }) => (typeof $height === "number" ? `${$height}px` : $height)};
 	overflow-y: auto;
-	contain: strict;
-	padding-right: 2px;
-	scrollbar-width: none;
-
-	&:hover {
-		scrollbar-width: thin;
-	}
+	contain: ${({ $containment }) => $containment};
+	scrollbar-width: thin;
+	scrollbar-color: ${({ theme }) => theme.colors.palette.gray[300]} transparent;
 
 	&::-webkit-scrollbar {
-		width: 0;
-		height: 0;
-	}
-
-	&:hover::-webkit-scrollbar {
 		width: 6px;
 		height: 6px;
+		background: transparent;
 	}
 
 	&::-webkit-scrollbar-track {
@@ -86,30 +94,19 @@ const VirtualListContainer = styled.div<{ $height: string | number }>`
 	&::-webkit-scrollbar-thumb {
 		background-color: ${({ theme }) => theme.colors.palette.gray[300]};
 		border-radius: 9px;
-		border: 1px solid transparent;
-		background-clip: content-box;
 	}
 
-	&::-webkit-scrollbar-thumb:hover,
-	&::-webkit-scrollbar-thumb:active {
-		background-color: ${({ theme }) => theme.colors.palette.gray[300]};
+	[data-theme-mode="dark"] & {
+		scrollbar-color: ${({ theme }) => theme.colors.palette.gray[600]} transparent;
 	}
 
-	/* Dark mode support depends on how theme is handled. 
-	   If theme prop changes based on mode, this updates automatically.
-	   If leveraging data-theme-mode attribute: */
 	[data-theme-mode="dark"] &::-webkit-scrollbar-thumb {
-		background-color: ${({ theme }) => theme.colors.palette.gray[600]};
-	}
-	
-	[data-theme-mode="dark"] &::-webkit-scrollbar-thumb:hover,
-	[data-theme-mode="dark"] &::-webkit-scrollbar-thumb:active {
 		background-color: ${({ theme }) => theme.colors.palette.gray[600]};
 	}
 `;
 
 const InnerContainer = styled.div<{ $height: number }>`
 	height: ${({ $height }) => $height}px;
-	width: calc(100% - 12px);
+	width: 100%;
 	position: relative;
 `;

@@ -1,48 +1,36 @@
-import { customerList, customerSummaryCards } from "@/_mock/data/dashboard";
 import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
 import Icon from "@/core/components/icon/icon";
-import type { TransactionRow } from "@/core/types/common";
+import type { Customer } from "@/core/types/customer";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
+import type { ListState } from "../stores/customer-list-store";
+import { FILTER_FIELD_OPTIONS, FILTER_TYPE_OPTIONS, getSummaryStats } from "../utils/customer-utils";
+import CustomerButtonActions from "./customer-button-actions";
 import { columns } from "./customer-columns";
 
 type CustomerContentProps = {
-	activeCustomerId: string | null;
-	listState: any; // Using exact type from store would be better if exported
-	updateState: (state: any) => void;
-	pagedTransactions: TransactionRow[];
+	activeCustomer: Customer | null;
+	listState: ListState;
+	updateState: (state: Partial<ListState>) => void;
+	pagedData: Customer[];
 	totalItems: number;
 	totalPages: number;
 	currentPage: number;
 	paginationItems: Array<number | "...">;
+	isLoading?: boolean;
 };
 
-const summaryCards = customerSummaryCards;
-
-const filterTypeOptions = [
-	{ value: "all", label: "All" },
-	{ value: "cash-sale", label: "Cash Sale" },
-	{ value: "invoice", label: "Invoice" },
-	{ value: "receipt", label: "Receipt" },
-];
-
-const filterFieldOptions = [
-	{ value: "field-name", label: "Field name" },
-	{ value: "customer", label: "Customer" },
-	{ value: "ref-no", label: "Ref No" },
-];
-
 export function CustomerContent({
-	activeCustomerId,
+	activeCustomer,
 	listState,
 	updateState,
-	pagedTransactions,
+	pagedData,
 	totalItems,
 	totalPages,
 	currentPage,
 	paginationItems,
 }: CustomerContentProps) {
-	const activeCustomer = customerList.find((customer) => customer.id === activeCustomerId);
+	const summaryStats = getSummaryStats(activeCustomer);
 
 	return (
 		<>
@@ -56,25 +44,23 @@ export function CustomerContent({
 						{activeCustomer ? `${activeCustomer.name} selected` : "No Customer Selected"}
 					</Text>
 				</div>
-				<Button size="sm" className="gap-2">
-					<Icon icon="mdi:plus" />
-					Create Invoice
-					<Icon icon="mdi:chevron-down" />
-				</Button>
+				<CustomerButtonActions />
 			</div>
 
 			<div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-				{summaryCards.map((card) => (
+				{summaryStats.map((card) => (
 					<SummaryStatCard key={card.label} {...card} />
 				))}
 			</div>
 
 			<SmartDataTable
-				data={pagedTransactions}
+				className="flex-1 min-h-0"
+				maxBodyHeight="100%"
+				data={pagedData}
 				columns={columns}
 				filterConfig={{
-					typeOptions: filterTypeOptions,
-					fieldOptions: filterFieldOptions,
+					typeOptions: FILTER_TYPE_OPTIONS,
+					fieldOptions: FILTER_FIELD_OPTIONS,
 					typeValue: listState.typeFilter,
 					fieldValue: listState.fieldFilter,
 					searchValue: listState.searchValue,

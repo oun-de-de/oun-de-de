@@ -1,8 +1,11 @@
 import { GetIt } from "@service-locator";
 import {
-	DailyIncomeAccountingApiImpl,
-	DailyIncomePosApiImpl,
-	DashboardApiImpl,
+	// DailyIncomeAccountingApiImpl,
+	// DailyIncomePosApiImpl,
+	// DashboardApiImpl,
+	DailyIncomeAccountingMockupImpl,
+	DailyIncomePosMockupImpl,
+	DashboardApiMockupImpl,
 } from "./core/api/services/dashboardService";
 import { type AuthRepository, AuthRepositoryImpl } from "./core/domain/auth/repositories";
 import {
@@ -34,7 +37,7 @@ import {
 	SaleProductRepository,
 	SaleProductRepositoryImpl,
 } from "./core/domain/sales/repositories/sale-product-repository";
-import { SaleApiImpl } from "./core/api/services/saleService";
+import { SaleApiMockupImpl } from "./core/api/services/saleService";
 import { InitAble, isInitAble } from "./core/interfaces/init-able";
 import { DisposeAble, isDisposeAble } from "./core/interfaces/dispose-able";
 import { SaleCartRepository, SaleCartRepositoryImpl } from "./core/domain/sales/repositories/sale-cart-repository";
@@ -125,37 +128,37 @@ class Repository {
 		// Auth Repository
 		Repository.register<AuthRepository>(new AuthRepositoryImpl(AppAuthService.getInstance()));
 
-		// Dashboard - Income POS
+		// Dashboard - Income POS (mock)
 		Repository.register<DashboardRepository>(
-			new DashboardRepositoryImpl(new DashboardApiImpl(), "dashboard:selectedFilter:income-pos"),
+			new DashboardRepositoryImpl(new DashboardApiMockupImpl(), "dashboard:selectedFilter:income-pos"),
 			{ instanceName: "Dashboard-Income-Pos" },
 		);
 
-		// Dashboard - Income Accounting
+		// Dashboard - Income Accounting (mock)
 		Repository.register<DashboardRepository>(
-			new DashboardRepositoryImpl(new DashboardApiImpl(), "dashboard:selectedFilter:income-accounting"),
+			new DashboardRepositoryImpl(new DashboardApiMockupImpl(), "dashboard:selectedFilter:income-accounting"),
 			{ instanceName: "Dashboard-Income-Accounting" },
 		);
 
-		// Daily Income POS
-		Repository.register<DailyIncomePosRepository>(new DailyIncomePosRepositoryImpl(new DailyIncomePosApiImpl()));
+		// Daily Income POS (mock)
+		Repository.register<DailyIncomePosRepository>(new DailyIncomePosRepositoryImpl(new DailyIncomePosMockupImpl()));
 
-		// Daily Income Accounting
+		// Daily Income Accounting (mock)
 		Repository.register<DailyIncomeAccountingRepository>(
-			new DailyIncomeAccountingRepositoryImpl(new DailyIncomeAccountingApiImpl()),
+			new DailyIncomeAccountingRepositoryImpl(new DailyIncomeAccountingMockupImpl()),
 		);
 
-		// Customer Info
-		Repository.register<CustomerInfoRepository>(new CustomerInfoRepositoryImpl(new DashboardApiImpl()));
+		// Customer Info (mock)
+		Repository.register<CustomerInfoRepository>(new CustomerInfoRepositoryImpl(new DashboardApiMockupImpl()));
 
-		// Performance
-		Repository.register<PerformanceRepository>(new PerformanceRepositoryImpl(new DashboardApiImpl()));
+		// Performance (mock)
+		Repository.register<PerformanceRepository>(new PerformanceRepositoryImpl(new DashboardApiMockupImpl()));
 
-		// Sale Filter
-		Repository.register<SaleFilterRepository>(new SaleFilterRepositoryImpl(new SaleApiImpl()));
+		// Sale Filter (mock)
+		Repository.register<SaleFilterRepository>(new SaleFilterRepositoryImpl(new SaleApiMockupImpl()));
 
-		// Sale Product
-		Repository.register<SaleProductRepository>(new SaleProductRepositoryImpl(new SaleApiImpl()));
+		// Sale Product (mock)
+		Repository.register<SaleProductRepository>(new SaleProductRepositoryImpl(new SaleApiMockupImpl()));
 
 		// Sale Cart
 		Repository.register<SaleCartRepository>(new SaleCartRepositoryImpl());

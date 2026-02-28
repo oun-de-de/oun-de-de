@@ -1,79 +1,83 @@
-import { useEffect, useMemo, useState } from "react";
-import { customerTransactions } from "@/_mock/data/dashboard";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import customerService from "@/core/api/services/customer-service";
 import { DashboardSplitView } from "@/core/components/common/dashboard-split-view";
-import { useCustomersList, useCustomersListActions } from "@/core/store/customersListStore";
-import { buildPagination, normalizeToken } from "@/core/utils/dashboard-utils";
+import { useSidebarCollapse } from "@/core/hooks/use-sidebar-collapse";
+import type { Customer } from "@/core/types/customer";
+import { buildPagination } from "@/core/utils/dashboard-utils";
 import { CustomerContent } from "./components/customer-content";
 import { CustomerSidebar } from "./components/customer-sidebar";
-
-const transactions = customerTransactions;
+import { useCustomerListActions, useCustomerListState } from "./stores/customer-list-store";
 
 export default function CustomersPage() {
-	const [activeCustomerId, setActiveCustomerId] = useState<string | null>(null);
-	const listState = useCustomersList();
-	const { updateState } = useCustomersListActions();
+	const [activeCustomer, setActiveCustomer] = useState<Customer | null>(null);
+	const listState = useCustomerListState();
+	const { updateState } = useCustomerListActions();
+	const { isCollapsed, handleToggle } = useSidebarCollapse();
 
-	const filteredTransactions = useMemo(() => {
-		const normalizedType = normalizeToken(listState.typeFilter);
-		const normalizedQuery = listState.searchValue.trim().toLowerCase();
-
-		return transactions.filter((row) => {
-			if (normalizedType && normalizedType !== "all") {
-				const rowType = normalizeToken(row.type);
-				if (rowType !== normalizedType) {
-					return false;
-				}
-			}
-
-			if (!normalizedQuery) {
-				return true;
-			}
-
-			if (listState.fieldFilter === "customer") {
-				return row.customer.toLowerCase().includes(normalizedQuery);
-			}
-
-			if (listState.fieldFilter === "ref-no") {
-				return row.refNo.toLowerCase().includes(normalizedQuery);
-			}
-
-			return (
-				row.customer.toLowerCase().includes(normalizedQuery) ||
-				row.refNo.toLowerCase().includes(normalizedQuery) ||
-				row.type.toLowerCase().includes(normalizedQuery)
-			);
-		});
-	}, [listState.fieldFilter, listState.searchValue, listState.typeFilter]);
-
-	const totalItems = filteredTransactions.length;
-	const totalPages = Math.max(1, Math.ceil(totalItems / listState.pageSize));
-	const currentPage = Math.min(listState.page, totalPages);
-	const pagedTransactions = useMemo(() => {
-		const startIndex = (currentPage - 1) * listState.pageSize;
-		return filteredTransactions.slice(startIndex, startIndex + listState.pageSize);
-	}, [currentPage, filteredTransactions, listState.pageSize]);
-
-	const paginationItems = buildPagination(currentPage, totalPages);
-
+	// clear active customer when user starts searching
 	useEffect(() => {
-		if (listState.page > totalPages) {
-			updateState({ page: totalPages });
+		if (listState.searchValue && activeCustomer) {
+			setActiveCustomer(null);
 		}
-	}, [listState.page, totalPages, updateState]);
+	}, [listState.searchValue, activeCustomer]);
+
+	// function to query customers list
+	const { data, isLoading } = useQuery({
+		queryKey: [
+			"customers",
+			listState.page,
+			listState.pageSize,
+			listState.searchValue,
+			listState.fieldFilter,
+			activeCustomer?.name,
+		],
+		queryFn: () => {
+			let searchValue: string | undefined;
+			if (activeCustomer) {
+				searchValue = activeCustomer.name;
+			} else {
+				searchValue = listState.searchValue || undefined;
+			}
+
+			return customerService.getCustomerList({
+				page: listState.page,
+				limit: listState.pageSize,
+				name: searchValue,
+			});
+		},
+	});
+
+	const customers = data?.list ?? [];
+	const totalItems = data?.total ?? 0;
+	const rawTotalPages = data?.pageCount ?? 0;
+	const rawCurrentPage = data?.page ?? 0;
+	const totalPages = rawTotalPages > 0 ? rawTotalPages : 1;
+	const currentPage = rawCurrentPage > 0 ? rawCurrentPage : 1;
+	const paginationItems = buildPagination(currentPage, totalPages);
 
 	return (
 		<DashboardSplitView
-			sidebar={<CustomerSidebar activeCustomerId={activeCustomerId} onSelect={setActiveCustomerId} />}
+			sidebarClassName={isCollapsed ? "lg:w-20" : "lg:w-1/4"}
+			sidebar={
+				<CustomerSidebar
+					activeCustomerId={activeCustomer?.id || null}
+					onSelect={setActiveCustomer}
+					onToggle={handleToggle}
+					isCollapsed={isCollapsed}
+				/>
+			}
 			content={
 				<CustomerContent
-					activeCustomerId={activeCustomerId}
+					activeCustomer={activeCustomer}
 					listState={listState}
 					updateState={updateState}
-					pagedTransactions={pagedTransactions}
+					pagedData={customers}
 					totalItems={totalItems}
 					totalPages={totalPages}
 					currentPage={currentPage}
 					paginationItems={paginationItems}
+					isLoading={isLoading}
 				/>
 			}
 		/>

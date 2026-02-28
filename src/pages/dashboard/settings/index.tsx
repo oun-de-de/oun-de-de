@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router";
 import { settingsLeftMenu, settingsTopTabs } from "@/_mock/data/dashboard";
 import { DashboardSplitView } from "@/core/components/common/dashboard-split-view";
+import { useSidebarCollapse } from "@/core/hooks/use-sidebar-collapse";
 import { Button } from "@/core/ui/button";
 import { Card, CardContent } from "@/core/ui/card";
 import { SettingsContent } from "./components/settings-content";
@@ -16,8 +18,20 @@ export default function SettingsPage() {
 }
 
 function SettingsView() {
+	const location = useLocation();
 	const [activeTab, setActiveTab] = useState(settingsTopTabs[0]);
 	const [activeItem, setActiveItem] = useState(settingsLeftMenu[0]);
+	const { isCollapsed, handleToggle } = useSidebarCollapse();
+
+	useEffect(() => {
+		const navState = location.state as { tab?: string } | null;
+		if (navState?.tab) {
+			const targetItem = settingsLeftMenu.find((item) => item.toLowerCase() === navState.tab?.toLowerCase());
+			if (targetItem) {
+				setActiveItem(targetItem);
+			}
+		}
+	}, [location.state]);
 
 	return (
 		<div className="flex w-full flex-col gap-4">
@@ -37,7 +51,15 @@ function SettingsView() {
 			</Card>
 
 			<DashboardSplitView
-				sidebar={<SettingsSidebar activeItem={activeItem} onSelect={setActiveItem} />}
+				sidebarClassName={isCollapsed ? "lg:w-20" : "lg:w-1/4"}
+				sidebar={
+					<SettingsSidebar
+						activeItem={activeItem}
+						onSelect={setActiveItem}
+						onToggle={handleToggle}
+						isCollapsed={isCollapsed}
+					/>
+				}
 				content={<SettingsContent activeItem={activeItem} />}
 			/>
 		</div>

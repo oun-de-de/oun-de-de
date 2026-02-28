@@ -1,5 +1,6 @@
 import type React from "react";
-import { useFormContext } from "react-hook-form";
+import { type RegisterOptions, useFormContext } from "react-hook-form";
+import { Input } from "@/core/ui/input";
 import { cn } from "@/core/utils";
 import { FormField } from "./form-field";
 import { inputVariants } from "./styles/variants";
@@ -19,6 +20,7 @@ type FormTextFieldProps = {
 	type?: React.HTMLInputTypeAttribute;
 	placeholder?: string;
 	disabled?: boolean;
+	rules?: RegisterOptions;
 };
 
 export function FormTextField({
@@ -36,6 +38,7 @@ export function FormTextField({
 	type = "text",
 	placeholder,
 	disabled,
+	rules,
 }: FormTextFieldProps) {
 	const { register } = useFormContext();
 
@@ -48,10 +51,10 @@ export function FormTextField({
 			containerClassName={containerClassName}
 		>
 			{({ error }) => (
-				<div className="flex items-center gap-2">
+				<div className="relative flex items-center gap-2">
 					{startAdornment}
-					<input
-						{...register(name)}
+					<Input
+						{...register(name, rules)}
 						type={type}
 						placeholder={placeholder}
 						disabled={disabled}

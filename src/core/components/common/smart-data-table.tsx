@@ -7,8 +7,9 @@ import {
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import { Icon } from "@/core/components/icon";
 import { cn } from "@/core/utils";
 import { TableFilterBar } from "./table-filter-bar";
 import { TablePagination } from "./table-pagination";
@@ -24,7 +25,6 @@ export type SmartTableFilterConfig = {
 	fieldOptions?: { value: string; label: string }[];
 	/** Current value of the first dropdown */
 	typeValue?: string;
-	/** Current value of the second dropdown */
 	/** Current value of the second dropdown */
 	fieldValue?: string;
 	/** Current value of the search input */
@@ -43,6 +43,8 @@ export type SmartTableFilterConfig = {
 	onSearchChange?: (value: string) => void;
 	/** Callback when filter button is clicked (usually for mobile/extra filters) */
 	onFilterClick?: () => void;
+	/** Options for specific search fields to render a Select instead of Input */
+	optionsByField?: Record<string, { value: string; label: string }[]>;
 };
 
 /**
@@ -98,6 +100,17 @@ type SmartDataTableProps<T> = {
 	paginationConfig?: SmartTablePaginationConfig;
 	/** Additional class names for the wrapper container */
 	className?: string;
+	/** Max height for the scrollable table body container (e.g. "60vh", "480px") */
+	maxBodyHeight?: string;
+	/** Callback when a row is clicked */
+	onRowClick?: (row: T) => void;
+	/** Visual variant of the table wrapper */
+	variant?: "default" | "borderless";
+	/**
+	 * whether to show the filter bar.
+	 * If undefined, defaults to true if filterConfig is provided.
+	 */
+	enableFilterBar?: boolean;
 };
 
 /**
@@ -106,7 +119,7 @@ type SmartDataTableProps<T> = {
  * - **TableFilterBar** for optional top-level filtering/searching.
  * - **TablePagination** for optional bottom-level pagination.
  *
- * Header text is enforced to be white (`!text-white`) for consistency.
+ * Header text styling is applied via the `TableHead` styled component.
  *
  * @example
  * ```tsx
@@ -136,6 +149,10 @@ type SmartDataTableProps<T> = {
  * />
  * ```
  */
+
+/** Helper to generate fixed column size styles */
+const getColumnSizeStyle = (size?: number) => (size ? { width: size, minWidth: size, maxWidth: size } : undefined);
+
 export function SmartDataTable<T extends object>({
 	data,
 	columns,
@@ -143,10 +160,42 @@ export function SmartDataTable<T extends object>({
 	sortingConfig,
 	paginationConfig,
 	className,
+	maxBodyHeight = "60vh",
+	onRowClick,
+	variant = "default",
+	enableFilterBar = true,
 }: SmartDataTableProps<T>) {
+	const scrollRef = useRef<HTMLDivElement>(null);
+	const [canScrollLeft, setCanScrollLeft] = useState(false);
+	const [canScrollRight, setCanScrollRight] = useState(false);
+	const rafRef = useRef<number | null>(null);
+
+	// show filter bar
+	const showFilterBar = enableFilterBar !== false && !!filterConfig;
+
 	const paginationState: PaginationState | undefined = paginationConfig
 		? { pageIndex: paginationConfig.page - 1, pageSize: paginationConfig.pageSize }
 		: undefined;
+
+	const updateScrollState = useCallback(() => {
+		if (rafRef.current) {
+			cancelAnimationFrame(rafRef.current);
+			rafRef.current = null;
+		}
+		rafRef.current = requestAnimationFrame(() => {
+			const el = scrollRef.current;
+			if (!el) return;
+			const { scrollLeft, clientWidth, scrollWidth } = el;
+			setCanScrollLeft(scrollLeft > 0);
+			setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
+		});
+	}, []);
+
+	const scrollByAmount = useCallback((delta: number) => {
+		const el = scrollRef.current;
+		if (!el) return;
+		el.scrollBy({ left: delta, behavior: "smooth" });
+	}, []);
 
 	const table = useReactTable({
 		data,
@@ -157,17 +206,22 @@ export function SmartDataTable<T extends object>({
 		pageCount: paginationConfig?.totalPages,
 		// Sorting configuration
 		manualSorting: !!sortingConfig,
+		autoResetPageIndex: false,
 		state: {
 			pagination: paginationState,
 			sorting: sortingConfig?.sorting,
 		},
 		onPaginationChange: paginationConfig
 			? (updater) => {
-					// Use current table state to avoid closure staleness
-					const prev = table.getState().pagination;
+					const prev = {
+						pageIndex: paginationConfig.page - 1,
+						pageSize: paginationConfig.pageSize,
+					};
 					const next = typeof updater === "function" ? updater(prev) : updater;
 
-					paginationConfig.onPageChange(next.pageIndex + 1);
+					if (next.pageIndex !== prev.pageIndex) {
+						paginationConfig.onPageChange(next.pageIndex + 1);
+					}
 					if (next.pageSize !== prev.pageSize) {
 						paginationConfig.onPageSizeChange(next.pageSize);
 					}
@@ -188,9 +242,25 @@ export function SmartDataTable<T extends object>({
 		}
 	}, [currentPage]);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		updateScrollState();
+	}, [updateScrollState, data, columns]);
+
+	useEffect(() => {
+		window.addEventListener("resize", updateScrollState);
+		return () => {
+			window.removeEventListener("resize", updateScrollState);
+			if (rafRef.current) {
+				cancelAnimationFrame(rafRef.current);
+				rafRef.current = null;
+			}
+		};
+	}, [updateScrollState]);
+
 	return (
-		<div className={`flex flex-col h-full space-y-4 ${className || ""}`}>
-			{filterConfig && (
+		<div className={cn("flex flex-col gap-4", className)}>
+			{showFilterBar && filterConfig && (
 				<TableFilterBar
 					typeOptions={filterConfig.typeOptions || []}
 					fieldOptions={filterConfig.fieldOptions || []}
@@ -204,56 +274,105 @@ export function SmartDataTable<T extends object>({
 					onFieldChange={filterConfig.onFieldChange}
 					onSearchChange={filterConfig.onSearchChange}
 					onFilterClick={filterConfig.onFilterClick}
+					optionsByField={filterConfig.optionsByField}
 				/>
 			)}
 
-			<div className="flex-1 min-h-0 overflow-auto">
-				<TableWrap>
-					<Table>
-						<TableHead>
-							{table.getHeaderGroups().map((headerGroup) => (
-								<tr key={headerGroup.id}>
-									{headerGroup.headers.map((header) => {
-										const classNames = cn(
-											"px-3 py-3 text-center border-r border-gray-300 last:border-r-0",
-											header.column.columnDef.meta?.headerClassName,
-										);
-										return (
-											<th key={header.id} className={classNames} onClick={header.column.getToggleSortingHandler()}>
-												{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-											</th>
-										);
-									})}
-								</tr>
-							))}
-						</TableHead>
-						<TableBody>
-							{table.getRowModel().rows.length === 0 ? (
-								<tr>
-									<td colSpan={table.getAllLeafColumns().length} className="px-3 py-6 text-center text-gray-500">
-										No data
-									</td>
-								</tr>
-							) : (
-								table.getRowModel().rows.map((row) => (
-									<TableRow key={row.id}>
-										{row.getVisibleCells().map((cell) => {
+			<div className="relative flex-1 min-h-0">
+				{canScrollLeft && (
+					<ScrollArrowButton $side="left" type="button" onClick={() => scrollByAmount(-240)} aria-label="Scroll left">
+						<Icon icon="mdi:chevron-left" size={16} />
+					</ScrollArrowButton>
+				)}
+				{canScrollRight && (
+					<ScrollArrowButton $side="right" type="button" onClick={() => scrollByAmount(240)} aria-label="Scroll right">
+						<Icon icon="mdi:chevron-right" size={16} />
+					</ScrollArrowButton>
+				)}
+				<div
+					className="h-full overflow-auto w-full"
+					style={{ maxHeight: maxBodyHeight }}
+					ref={scrollRef}
+					onScroll={updateScrollState}
+				>
+					<div
+						className={cn(
+							"min-w-full inline-block align-middle",
+							variant !== "borderless" && "border border-gray-300 rounded",
+						)}
+					>
+						<Table>
+							<TableHead>
+								{table.getHeaderGroups().map((headerGroup) => (
+									<tr key={headerGroup.id}>
+										{headerGroup.headers.map((header) => {
+											const canSort = !!sortingConfig && header.column.getCanSort();
+											const sortState = header.column.getIsSorted();
 											const classNames = cn(
-												"px-3 py-2 border-r border-gray-300 last:border-r-0",
-												cell.column.columnDef.meta?.bodyClassName,
+												"px-3 py-3 text-center border-r border-gray-300 last:border-r-0",
+												canSort && "cursor-pointer select-none",
+												header.column.columnDef.meta?.headerClassName,
 											);
+											const sizeStyle = getColumnSizeStyle(header.column.columnDef.size);
 											return (
-												<td key={cell.id} className={classNames}>
-													{flexRender(cell.column.columnDef.cell, cell.getContext())}
-												</td>
+												<th
+													key={header.id}
+													className={classNames}
+													style={sizeStyle}
+													onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+												>
+													<div className="inline-flex items-center justify-center gap-1">
+														{header.isPlaceholder
+															? null
+															: flexRender(header.column.columnDef.header, header.getContext())}
+														{canSort &&
+															(sortState === "asc" ? (
+																<Icon icon="mdi:arrow-up" size={14} />
+															) : sortState === "desc" ? (
+																<Icon icon="mdi:arrow-down" size={14} />
+															) : (
+																<Icon icon="mdi:unfold-more-horizontal" size={14} className="opacity-40" />
+															))}
+													</div>
+												</th>
 											);
 										})}
-									</TableRow>
-								))
-							)}
-						</TableBody>
-					</Table>
-				</TableWrap>
+									</tr>
+								))}
+							</TableHead>
+							<TableBody>
+								{table.getRowModel().rows.length === 0 ? (
+									<tr>
+										<td colSpan={table.getAllLeafColumns().length} className="px-3 py-6 text-center text-gray-500">
+											No data
+										</td>
+									</tr>
+								) : (
+									table.getRowModel().rows.map((row) => (
+										<TableRow
+											key={row.id}
+											onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+											className={cn(onRowClick && "cursor-pointer hover:bg-gray-50")}
+										>
+											{row.getVisibleCells().map((cell) => {
+												const classNames = cn(
+													"px-3 py-2 border-r border-gray-300 last:border-r-0",
+													cell.column.columnDef.meta?.bodyClassName,
+												);
+												const sizeStyle = getColumnSizeStyle(cell.column.columnDef.size);
+												return (
+													<td key={cell.id} className={classNames} style={sizeStyle}>
+														{flexRender(cell.column.columnDef.cell, cell.getContext())}
+													</td>
+												);
+											})}
+										</TableRow>
+									))
+								)}
+							</TableBody>
+						</Table>
+					</div>
+				</div>
 			</div>
 
 			{paginationConfig && (
@@ -265,8 +384,8 @@ export function SmartDataTable<T extends object>({
 					pageSize={paginationConfig.pageSize}
 					pageSizeOptions={[10, 20, 50]}
 					goToValue={goToPageValue}
-					onPrev={() => table.previousPage()}
-					onNext={() => table.nextPage()}
+					onPrev={table.getCanPreviousPage() ? () => table.previousPage() : undefined}
+					onNext={table.getCanNextPage() ? () => table.nextPage() : undefined}
 					onPageChange={(p) => table.setPageIndex(p - 1)}
 					onPageSizeChange={(s) => table.setPageSize(s)}
 					onGoToChange={setGoToPageValue}
@@ -278,9 +397,28 @@ export function SmartDataTable<T extends object>({
 }
 
 //#region Styled Components
-const TableWrap = styled.div.attrs({
-	className: "overflow-x-auto rounded border border-gray-300",
-})``;
+const ScrollArrowButton = styled.button<{ $side: "left" | "right" }>`
+	position: absolute;
+	top: 50%;
+	${({ $side }) => ($side === "left" ? "left: 6px;" : "right: 6px;")}
+	transform: translateY(-50%);
+	width: 28px;
+	height: 28px;
+	border: 1px solid ${({ theme }) => theme.colors.palette.gray[300]};
+	border-radius: 50%;
+	background: ${({ theme }) => theme.colors.common.white};
+	color: ${({ theme }) => theme.colors.palette.gray[600]};
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+	z-index: 20;
+
+	&:hover {
+		background: ${({ theme }) => theme.colors.palette.gray[100]};
+	}
+`;
 
 const Table = styled.table.attrs({
 	className: "min-w-full text-sm",
@@ -299,6 +437,6 @@ const TableBody = styled.tbody.attrs({
 `;
 
 const TableRow = styled.tr.attrs({
-	className: "hover:bg-blue-50! transition-colors",
+	className: "hover:!bg-blue-50 transition-colors",
 })``;
 //#endregion

@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import type { ComponentProps } from "react";
-import { useForm } from "react-hook-form";
+import type { ComponentProps, ReactNode } from "react";
+import { type DefaultValues, type RegisterOptions, useForm, type ValidationRule } from "react-hook-form";
 import { FormActions, FormProvider, FormSelect, FormSwitch, FormTextarea, FormTextField } from "@/core/components/form";
 import { Text } from "@/core/ui/typography";
 import { cn } from "@/core/utils";
@@ -38,25 +38,37 @@ const formGridVariants = cva("gap-6", {
 	},
 });
 
+export type FormPrimitive = string | number | boolean | null | undefined | Date;
+export type FormObject = Record<string, FormPrimitive>;
+export type FormValue = FormPrimitive | FormObject | FormObject[];
+export type FormType = "text" | "number" | "select" | "switch" | "textarea" | "date" | "custom";
+
 export type FormFieldConfig = {
 	name: string;
 	label: string;
-	type: "text" | "number" | "select" | "switch" | "textarea";
+	type: FormType;
 	placeholder?: string;
 	required?: boolean;
 	options?: { label: string; value: string }[];
-	defaultValue?: string | number | boolean;
+	defaultValue?: FormValue;
 	helperText?: string;
+	component?: ReactNode;
+	className?: string;
+	pattern?: ValidationRule<RegExp>;
+	startAdornment?: ReactNode;
+	endAdornment?: ReactNode;
 };
 
-export type DefaultFormData = Record<string, string | number | boolean>;
+export type DefaultFormData = Record<string, FormValue>;
 
-export type DefaultFormProps = VariantProps<typeof defaultFormVariants> & {
+export type DefaultFormProps<TFormData extends DefaultFormData = DefaultFormData> = VariantProps<
+	typeof defaultFormVariants
+> & {
 	title: string;
 	fields: FormFieldConfig[];
-	onSubmit?: (data: DefaultFormData) => Promise<void> | void;
+	onSubmit?: (data: TFormData) => Promise<void> | void;
 	onCancel?: () => void;
-	defaultValues?: DefaultFormData;
+	defaultValues?: TFormData;
 	submitLabel?: string;
 	cancelLabel?: string;
 	className?: string;
@@ -68,12 +80,12 @@ export type DefaultFormProps = VariantProps<typeof defaultFormVariants> & {
 	actionsVariant?: ComponentProps<typeof FormActions>["variant"];
 };
 
-export function DefaultForm({
+export function DefaultForm<TFormData extends DefaultFormData = DefaultFormData>({
 	title,
 	fields,
 	onSubmit,
 	onCancel,
-	defaultValues = {},
+	defaultValues = {} as TFormData,
 	submitLabel = "Save",
 	cancelLabel = "Cancel",
 	className,
@@ -85,47 +97,73 @@ export function DefaultForm({
 	inputSize = "md",
 	disableWhenClean = false,
 	actionsVariant,
-}: DefaultFormProps) {
-	const buildDefaultValues = () => {
-		const values: DefaultFormData = {};
+}: DefaultFormProps<TFormData>) {
+	const buildDefaultValues = (): DefaultValues<TFormData> => {
+		const values: Record<string, any> = {};
 		for (const field of fields) {
-			values[field.name] = defaultValues[field.name] ?? field.defaultValue ?? "";
+			const fallback = field.type === "custom" ? undefined : "";
+			values[field.name] = defaultValues[field.name] ?? field.defaultValue ?? fallback;
 		}
-		return values;
+		return values as DefaultValues<TFormData>;
 	};
 
-	const methods = useForm<DefaultFormData>({
+	const methods = useForm<TFormData>({
 		defaultValues: buildDefaultValues(),
+		mode: "onBlur",
 	});
 
-	const handleFormSubmit = async (data: DefaultFormData) => {
+	const handleFormSubmit = async (data: TFormData) => {
 		await onSubmit?.(data);
 	};
 
 	const renderField = (field: FormFieldConfig) => {
-		const commonProps = {
+		const rules: RegisterOptions = {
+			required: field.required ? { value: true, message: `${field.label} is required` } : undefined,
+			pattern: field.pattern,
+		};
+
+		// Base props for all form components
+		const baseProps = {
 			key: field.name,
 			name: field.name,
 			label: field.label,
 			placeholder: field.placeholder,
 			helperText: field.helperText,
 			requiredMark: field.required,
+			containerClassName: field.className,
+			rules,
+		};
+
+		const textFieldProps = {
+			...baseProps,
+			startAdornment: field.startAdornment,
+			endAdornment: field.endAdornment,
 		};
 
 		switch (field.type) {
 			case "select":
-				return <FormSelect {...commonProps} options={field.options || []} variant={inputVariant} size={inputSize} />;
+				return <FormSelect {...baseProps} options={field.options || []} variant={inputVariant} size={inputSize} />;
 
 			case "switch":
-				return <FormSwitch {...commonProps} />;
+				return <FormSwitch {...baseProps} />;
 
 			case "textarea":
-				return <FormTextarea {...commonProps} variant={inputVariant} size={inputSize} />;
+				return <FormTextarea {...baseProps} variant={inputVariant} size={inputSize} />;
+
+			case "date":
+				return <FormTextField {...textFieldProps} type="date" variant={inputVariant} size={inputSize} />;
+
+			case "custom":
+				return (
+					<div key={field.name} className={field.className}>
+						{field.component}
+					</div>
+				);
 
 			default:
 				return (
 					<FormTextField
-						{...commonProps}
+						{...textFieldProps}
 						type={field.type === "number" ? "number" : "text"}
 						variant={inputVariant}
 						size={inputSize}

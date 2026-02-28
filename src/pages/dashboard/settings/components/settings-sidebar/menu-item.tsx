@@ -7,7 +7,15 @@ export type MenuItemProps = {
 	label: string;
 	isActive: boolean;
 	onSelect: (item: string) => void;
+	isCollapsed?: boolean;
 };
+
+function getCollapsedLabel(label: string): string {
+	const words = label.trim().split(/\s+/).filter(Boolean);
+	if (words.length === 0) return "?";
+	if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+	return `${words[0][0]}${words[1][0]}`.toUpperCase();
+}
 
 const ICONS = {
 	active: "mdi:checkbox-blank-circle",
@@ -17,13 +25,13 @@ const ICONS = {
 const StyledButton = styled(Button)<{ $isActive: boolean }>`
 	justify-content: flex-start;
 	letter-spacing: 0.025em;
+	padding: 0.60rem;
 
 	${({ $isActive }) =>
 		$isActive &&
 		css`
 			background-color: rgb(2 132 199);
 			color: white;
-			font-size: 1rem;
 
 			&:hover {
 				background-color: rgb(2 132 199 / 0.9);
@@ -31,8 +39,23 @@ const StyledButton = styled(Button)<{ $isActive: boolean }>`
 		`}
 `;
 
-export const MenuItem = memo(function MenuItem({ label, isActive, onSelect }: MenuItemProps) {
+export const MenuItem = memo(function MenuItem({ label, isActive, onSelect, isCollapsed }: MenuItemProps) {
 	const handleClick = useCallback(() => onSelect(label), [label, onSelect]);
+
+	if (isCollapsed) {
+		return (
+			<StyledButton
+				variant="ghost"
+				size="icon"
+				onClick={handleClick}
+				$isActive={isActive}
+				className="mb-1 h-9 w-9 justify-center rounded-lg px-0 text-xs font-semibold tracking-wide"
+				title={label}
+			>
+				<span>{getCollapsedLabel(label)}</span>
+			</StyledButton>
+		);
+	}
 
 	return (
 		<StyledButton variant="ghost" size="sm" onClick={handleClick} $isActive={isActive}>

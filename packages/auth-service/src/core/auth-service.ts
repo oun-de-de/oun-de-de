@@ -232,12 +232,12 @@ export abstract class AuthService<T extends AuthAccount<TData>, TData> {
 	public async refreshAccessToken(account: T | null = null): Promise<T | null> {
 		const targetAccount = account ?? this.currentUser;
 
-		if (!targetAccount?.refreshToken?.isValid) {
+		if (!targetAccount?.refresh_token?.isValid) {
 			throw new RefreshTokenFailedException("No valid refresh token available");
 		}
 
 		try {
-			const refreshedAccount = await this.authenticate(targetAccount.refreshToken, {
+			const refreshedAccount = await this.authenticate(targetAccount.refresh_token, {
 				updateUser: true,
 				saveLocal: true,
 				notify: true,

@@ -1,10 +1,14 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { ProductRow } from "@/core/types/common";
+import Icon from "@/core/components/icon/icon";
+import type { Product } from "@/core/types/product";
+import { Button } from "@/core/ui/button";
 
-export const columns: ColumnDef<ProductRow>[] = [
+export const columns: ColumnDef<Product>[] = [
 	{
 		header: "Date",
+		size: 80,
 		accessorKey: "date",
+		cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
 	},
 	{
 		header: "Ref No",
@@ -12,27 +16,69 @@ export const columns: ColumnDef<ProductRow>[] = [
 		cell: ({ row }) => <span className="text-sky-600">{row.original.refNo}</span>,
 	},
 	{
-		header: "Type",
-		cell: ({ row }) => (
-			<span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs text-sky-700">{row.original.type}</span>
-		),
+		header: "Name",
+		accessorKey: "name",
 	},
 	{
-		header: "Status",
-		cell: ({ row }) => (
-			<span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs text-amber-700">{row.original.status}</span>
-		),
+		header: "Unit",
+		size: 80,
+		id: "unit",
+		cell: ({ row }) => row.original.unit?.name || "-",
 	},
 	{
-		header: "Qty",
-		accessorKey: "qty",
+		header: "Quantity",
+		size: 80,
+		accessorKey: "quantity",
+		meta: { bodyClassName: "text-right" },
 	},
 	{
 		header: "Cost",
-		cell: ({ row }) => row.original.cost.toLocaleString(),
+		size: 70,
+		accessorKey: "cost",
+		cell: ({ row }) => (row.original.cost || 0).toLocaleString(),
+		meta: { bodyClassName: "text-right" },
 	},
 	{
 		header: "Price",
-		cell: ({ row }) => <span className="font-semibold">{row.original.price.toLocaleString()}</span>,
+		size: 70,
+		accessorKey: "price",
+		cell: ({ row }) => <span className="font-semibold">{(row.original.price || 0).toLocaleString()}</span>,
+		meta: { bodyClassName: "text-right" },
+	},
+	{
+		header: "Default Qty",
+		size: 90,
+		id: "defaultQuantity",
+		cell: ({ row }) =>
+			row.original.defaultProductSetting?.quantity !== null &&
+			row.original.defaultProductSetting?.quantity !== undefined
+				? row.original.defaultProductSetting.quantity
+				: "-",
+		meta: { bodyClassName: "text-right" },
+	},
+	{
+		header: "Default Price",
+		size: 100,
+		id: "defaultPrice",
+		cell: ({ row }) => {
+			const price = row.original.defaultProductSetting?.price;
+			return price !== null && price !== undefined ? Number(price).toLocaleString() : "-";
+		},
+		meta: { bodyClassName: "text-right" },
+	},
+	{
+		header: "Actions",
+		size: 80,
+		id: "actions",
+		cell: () => (
+			<div className="flex gap-1">
+				<Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+					<Icon icon="mdi:pencil" />
+				</Button>
+				<Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
+					<Icon icon="mdi:delete" />
+				</Button>
+			</div>
+		),
 	},
 ];

@@ -1,10 +1,10 @@
+import { Suspense } from "react";
+import { Outlet, ScrollRestoration, useLocation } from "react-router";
 import { AuthGuard } from "@/core/components/auth";
 import { LineLoading } from "@/core/components/loading/line-loading";
 import { useSettings } from "@/core/store/settingStore";
 import { cn } from "@/core/utils";
 import Page403 from "@/pages/sys/error/Page403";
-import { Suspense } from "react";
-import { Outlet, ScrollRestoration, useLocation } from "react-router";
 
 interface NavItem {
 	path: string;
@@ -33,7 +33,7 @@ export function LayoutMain({ navData }: LayoutMainProps) {
 			<main
 				data-slot="slash-layout-main"
 				className={cn(
-					"flex-1 w-full flex flex-col min-h-0",
+					"flex min-h-0 w-full flex-1 flex-col",
 					"transition-[max-width] duration-300 ease-in-out",
 					"mx-auto",
 					{
