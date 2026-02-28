@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { Icon } from "@/core/components/icon";
 import { useFilteredNavData } from "@/layouts/dashboard/nav/nav-data/index";
 import { RouterLink } from "@/routes/components/router-link";
-import { getRouteTitle } from "./route-mappings";
+import { getRouteTitle, SORTED_PATHS } from "./route-mappings";
 
 type HistoryItem = {
 	path: string;
@@ -73,6 +73,21 @@ export default function NavHistoryMenu() {
 		el.scrollBy({ left: delta, behavior: "smooth" });
 	};
 
+	// Collapse detail/ID routes to their base path
+	const getCanonicalPath = (pathname: string): string => {
+		// Exact match — keep as-is
+		if (SORTED_PATHS.includes(pathname as any)) return pathname;
+
+		// Prefix match — return the matched base instead of the raw path
+		for (const base of SORTED_PATHS) {
+			if (pathname.startsWith(`${base}/`)) {
+				return base;
+			}
+		}
+
+		return pathname;
+	};
+
 	// Create path to title mapping from nav data
 	const { pathToTitleMap } = useMemo(() => {
 		const map = new Map<string, string>();
@@ -135,28 +150,37 @@ export default function NavHistoryMenu() {
 	const normalizePath = (path: string) => path.replace(/\/+$/, "") || DEFAULT_DASHBOARD_PATH;
 
 	// Update history when pathname changes
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		const currentPath = normalizePath(location.pathname);
 
-		// Only track dashboard routes
 		if (!currentPath.startsWith("/dashboard") && currentPath !== DEFAULT_DASHBOARD_PATH) {
 			return;
 		}
 
-		const currentTitle = getTitleFromPath(currentPath);
-
-		// Skip if it's Dashboard (already in history)
 		if (currentPath === DEFAULT_DASHBOARD_PATH) {
 			return;
 		}
 
-		setHistory((prev) => {
-			// If already exists, keep order (do NOT move to end)
-			const exists = prev.some((item) => item.path === currentPath);
-			if (exists) return prev;
+		const resolvedPath = getCanonicalPath(currentPath);
+		const currentTitle = getTitleFromPath(currentPath);
 
-			// Only append when the route is not in stack yet (e.g. navigated from navbar)
+		setHistory((prev) => {
+			// If exact path already exists, do nothing
+			const exactExists = prev.some((item) => item.path === currentPath);
+			if (exactExists) return prev;
+
+			// Find any existing entry that shares the same canonical base
+			const existingIndex = prev.findIndex((item) => getCanonicalPath(item.path) === resolvedPath);
+
+			if (existingIndex !== -1) {
+				// Replace in-place (covers both directions:
+				// detail→parent and parent→detail)
+				const next = [...prev];
+				next[existingIndex] = { path: currentPath, title: currentTitle };
+				return next;
+			}
+
+			// New entry — append
 			const next = [...prev, { path: currentPath, title: currentTitle }];
 			if (next.length <= MAX_HISTORY_ITEMS) return next;
 
@@ -241,116 +265,116 @@ export default function NavHistoryMenu() {
 
 //#region Styled Components
 const StyledContainer = styled.div`
-	position: relative;
-	flex: 1;
-	overflow: hidden;
-	margin-left: 1rem;
-	margin-right: 1rem;
-	min-width: 0;
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  min-width: 0;
 `;
 
 const StyledHistoryList = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding: 0;
-	overflow-x: auto;
-	overflow-y: hidden;
-	scrollbar-width: none;
-	-ms-overflow-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 
-	&::-webkit-scrollbar {
-		display: none;
-	}
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const ArrowButton = styled.button<{ $side: "left" | "right" }>`
-	position: absolute;
-	top: 50%;
-	${({ $side }) => ($side === "left" ? "left: 0px;" : "right: 0px;")}
-	transform: translateY(-50%);
-	width: 32px;
-	height: 32px;
-	border: 1px solid ${({ theme }) => theme.colors.palette.gray[300]};
-	border-radius: 50%;
-	background: ${({ theme }) => theme.colors.common.white};
-	color: ${({ theme }) => theme.colors.palette.gray[600]};
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-	z-index: 5;
+  position: absolute;
+  top: 50%;
+  ${({ $side }) => ($side === "left" ? "left: 0px;" : "right: 0px;")}
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border: 1px solid ${({ theme }) => theme.colors.palette.gray[300]};
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors.common.white};
+  color: ${({ theme }) => theme.colors.palette.gray[600]};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  z-index: 5;
 
-	&:hover {
-		background: ${({ theme }) => theme.colors.palette.gray[100]};
-	}
+  &:hover {
+    background: ${({ theme }) => theme.colors.palette.gray[100]};
+  }
 `;
 
 const StyledHistoryItem = styled.div<{ $active: boolean }>`
-	display: flex;
-	align-items: center;
-	gap: 0.25rem;
-	flex-shrink: 0;
-	border-radius: 4px;
-	border: 1px solid ${({ theme }) => theme.colors.palette.gray[300]};
-	background-color: ${({ theme, $active }) => ($active ? "#60a5fa" : theme.colors.common.white)};
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  border-radius: 4px;
+  border: 1px solid ${({ theme }) => theme.colors.palette.gray[300]};
+  background-color: ${({ theme, $active }) => ($active ? "#60a5fa" : theme.colors.common.white)};
 
-	&:hover {
-		background-color: ${({ theme, $active }) => ($active ? "" : theme.colors.palette.gray[200])};
-	}
+  &:hover {
+    background-color: ${({ theme, $active }) => ($active ? "" : theme.colors.palette.gray[200])};
+  }
 `;
 
 const StyledHistoryLink = styled(RouterLink as any)<{ $active: boolean }>`
-	display: flex;
-	align-items: center;
-	gap: 0.375rem;
-	padding: 0.375rem 0.75rem;
-	border-radius: 0.375rem;
-	text-decoration: none;
-	transition: all 0.2s ease;
-	white-space: nowrap;
-	background-color: ${({ theme, $active }) => ($active ? "#60a5fa" : theme.colors.palette.gray[100])};
-	color: ${({ theme, $active }) => ($active ? theme.colors.common.white : theme.colors.palette.gray[700])};
-	font-size: 0.875rem;
-	font-weight: ${({ $active }) => ($active ? 600 : 400)};
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  background-color: ${({ theme, $active }) => ($active ? "#60a5fa" : theme.colors.palette.gray[100])};
+  color: ${({ theme, $active }) => ($active ? theme.colors.common.white : theme.colors.palette.gray[700])};
+  font-size: 0.875rem;
+  font-weight: ${({ $active }) => ($active ? 600 : 400)};
 
-	&:hover {
-		background-color: ${({ theme, $active }) => ($active ? "" : theme.colors.palette.gray[200])};
-		color: ${({ theme, $active }) => ($active ? theme.colors.common.white : theme.colors.palette.gray[800])};
-	}
+  &:hover {
+    background-color: ${({ theme, $active }) => ($active ? "" : theme.colors.palette.gray[200])};
+    color: ${({ theme, $active }) => ($active ? theme.colors.common.white : theme.colors.palette.gray[800])};
+  }
 `;
 
 const StyledActiveDot = styled.div`
-	width: 6px;
-	height: 6px;
-	border-radius: 50%;
-	background-color: ${({ theme }) => theme.colors.common.white};
-	flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: ${({ theme }) => theme.colors.common.white};
+  flex-shrink: 0;
 `;
 
 const StyledHistoryText = styled.span<{ $active: boolean }>`
-	color: ${({ theme, $active }) => ($active ? theme.colors.common.white : theme.colors.common.black)};
+  color: ${({ theme, $active }) => ($active ? theme.colors.common.white : theme.colors.common.black)};
 `;
 
 const StyledRemoveButton = styled.button`
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 18px;
-	height: 18px;
-	border-radius: 50%;
-	border: none;
-	background-color: transparent;
-	color: ${({ theme }) => theme.colors.palette.gray[500]};
-	cursor: pointer;
-	transition: all 0.2s ease;
-	flex-shrink: 0;
-	padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background-color: transparent;
+  color: ${({ theme }) => theme.colors.palette.gray[500]};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  padding: 0;
 
-	&:hover {
-		background-color: ${({ theme }) => theme.colors.palette.gray[200]};
-		color: ${({ theme }) => theme.colors.palette.gray[700]};
-	}
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.palette.gray[200]};
+    color: ${({ theme }) => theme.colors.palette.gray[700]};
+  }
 `;
 //#endregion
