@@ -103,7 +103,9 @@ const hasOwn = <T extends object, K extends PropertyKey>(obj: T, key: K): key is
 const normalizePath = (raw: string) => raw.split(/[?#]/, 1)[0] || raw;
 
 // Longest-first so more specific routes win (e.g. "/borrow/new" before "/borrow").
-const SORTED_PATHS = [...ROUTE_TITLE_MAPPINGS].map((mapping) => mapping.path).sort((a, b) => b.length - a.length);
+export const SORTED_PATHS = [...ROUTE_TITLE_MAPPINGS]
+	.map((mapping) => mapping.path)
+	.sort((a, b) => b.length - a.length);
 
 export const getRouteTitle = (rawPath: string): RouteTitle | undefined => {
 	const path = normalizePath(rawPath);
