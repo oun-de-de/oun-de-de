@@ -28,14 +28,6 @@ export function EquipmentBorrowingsDialog({ itemId, customers }: EquipmentBorrow
 	const createBorrowing = useCreateBorrowing(itemId);
 	const returnBorrowing = useReturnBorrowing(itemId);
 
-	const customerNameById = useMemo(() => {
-		const map = new Map<string, string>();
-		for (const customer of customers) {
-			map.set(customer.id, customer.name);
-		}
-		return map;
-	}, [customers]);
-
 	const columns = useMemo<ColumnDef<InventoryBorrowing>[]>(
 		() => [
 			{
@@ -44,9 +36,9 @@ export function EquipmentBorrowingsDialog({ itemId, customers }: EquipmentBorrow
 				cell: ({ row }) => new Date(row.original.borrowDate).toLocaleDateString(),
 			},
 			{
-				accessorKey: "customerId",
+				accessorKey: "customerName",
 				header: "Customer",
-				cell: ({ row }) => customerNameById.get(row.original.customerId) || "Unknown",
+				cell: ({ row }) => row.original.customerName,
 			},
 			{ accessorKey: "quantity", header: "Quantity" },
 			{
@@ -65,21 +57,19 @@ export function EquipmentBorrowingsDialog({ itemId, customers }: EquipmentBorrow
 				id: "action",
 				header: "Action",
 				cell: ({ row }) =>
-					row.original.status === "BORROWED" ? (
+					row.original.status === "BORROWED" && (
 						<Button
-							size="sm"
-							variant="outline"
+							variant="secondary"
+							className="text-xs"
 							onClick={() => returnBorrowing.mutate(row.original.id)}
 							disabled={returnBorrowing.isPending}
 						>
 							Return
 						</Button>
-					) : (
-						<span className="text-xs text-slate-400">Returned</span>
 					),
 			},
 		],
-		[customerNameById, returnBorrowing],
+		[returnBorrowing],
 	);
 
 	const handleCreateBorrowing = () => {
