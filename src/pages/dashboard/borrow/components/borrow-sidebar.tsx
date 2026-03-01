@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { EntityListItem, SidebarList } from "@/core/components/common";
 import { up, useMediaQuery } from "@/core/hooks/use-media-query";
 import { useSidebarPagination } from "@/core/hooks/use-sidebar-pagination";
-import type { SelectOption } from "@/core/types/common";
 import { cn } from "@/core/utils";
+import { formatKHR } from "@/core/utils/formatters";
 import { useLoans } from "../hooks/use-loans";
 import type { BorrowState } from "../stores/borrow-state";
 
@@ -16,11 +16,6 @@ type Props = {
 	isCollapsed?: boolean;
 };
 
-const STATUS_OPTIONS: SelectOption[] = [
-	{ value: "all", label: "All" },
-	{ value: "employee", label: "Employee" },
-	{ value: "customer", label: "Customer" },
-];
 const DEFAULT_ITEM_SIZE = 56;
 const COLLAPSED_ITEM_SIZE = 42;
 const COLLAPSED_ITEM_GAP = 8;
@@ -41,9 +36,6 @@ const matchSearch = (item: BorrowSidebarItem, normalizedQuery: string) =>
 	item.code.toLowerCase().includes(normalizedQuery) ||
 	item.name.toLowerCase().includes(normalizedQuery);
 
-const isBorrowTypeFilter = (value: string): value is BorrowState["typeFilter"] =>
-	value === "all" || value === "employee" || value === "customer";
-
 export function BorrowSidebar({ activeBorrowId, listState, updateState, onSelect, onToggle, isCollapsed }: Props) {
 	const { searchValue, typeFilter } = listState;
 	const isLgUp = useMediaQuery(up("lg"));
@@ -56,8 +48,8 @@ export function BorrowSidebar({ activeBorrowId, listState, updateState, onSelect
 		() =>
 			loans.map((loan) => ({
 				id: loan.id,
-				name: loan.borrowerId,
-				code: `${loan.borrowerType} | ${loan.principalAmount.toLocaleString()}`,
+				name: loan.borrowerName,
+				code: `${loan.borrowerType} | ${formatKHR(loan.principalAmount)} | ${loan.borrowerId}`,
 			})),
 		[loans],
 	);
@@ -80,21 +72,14 @@ export function BorrowSidebar({ activeBorrowId, listState, updateState, onSelect
 		enabled: !isLgUp,
 	});
 
-	const handleStatusChange = (value: string) => {
-		if (!isBorrowTypeFilter(value)) return;
-		updateState({ typeFilter: value, page: 1 });
-	};
-
 	return (
 		<SidebarList>
 			<SidebarList.Header
 				showMainTypeFilter={false}
+				showStatusFilter={false}
 				searchPlaceholder="Search loans..."
 				searchValue={searchValue}
 				onSearchChange={(value) => updateState({ searchValue: value, page: 1 })}
-				statusOptions={STATUS_OPTIONS}
-				statusValue={typeFilter}
-				onStatusChange={(value) => handleStatusChange(value)}
 				onMenuClick={onToggle}
 				isCollapsed={isCollapsed}
 			/>

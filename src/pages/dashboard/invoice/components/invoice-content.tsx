@@ -87,6 +87,7 @@ export function InvoiceContent({
 		rowById,
 	} = useInvoiceSelection(pagedData);
 	const displayedPayments = useMemo(() => payments.slice(0, 5), [payments]);
+	const isClosedCycle = activeCycle?.status === "CLOSED";
 
 	const handleOpenBulkUpdate = useCallback(() => {
 		if (selectedInvoiceIds.length === 0) return;
@@ -185,7 +186,6 @@ export function InvoiceContent({
 			state: {
 				selectedInvoiceIds,
 				previewRows,
-				autoPrint: true,
 			},
 		});
 	};
@@ -235,7 +235,7 @@ export function InvoiceContent({
 					<Button
 						size="sm"
 						onClick={() => setIsPaymentDialogOpen(true)}
-						disabled={!activeCycle}
+						disabled={!activeCycle || isClosedCycle}
 						className="gap-1 bg-sky-600 text-white shadow-sm hover:bg-sky-700 disabled:bg-slate-300"
 					>
 						<Icon icon="mdi:cash-plus" />
@@ -244,7 +244,7 @@ export function InvoiceContent({
 					<Button
 						size="sm"
 						onClick={() => setIsConvertDialogOpen(true)}
-						disabled={!activeCycle}
+						disabled={!activeCycle || isClosedCycle}
 						className="gap-1 bg-rose-600 text-white shadow-sm hover:bg-rose-700 disabled:bg-slate-300"
 					>
 						<Icon icon="mdi:hand-coin-outline" />
@@ -316,6 +316,7 @@ export function InvoiceContent({
 				data={pagedData}
 				columns={columns}
 				filterConfig={{
+					showFieldFilter: false,
 					typeOptions: INVOICE_FILTER_TYPE_OPTIONS,
 					fieldOptions: INVOICE_FILTER_FIELD_OPTIONS,
 					typeValue: typeFilter,

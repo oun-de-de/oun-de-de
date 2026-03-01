@@ -10,7 +10,7 @@ import { Label } from "@/core/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/core/ui/tabs";
 import { useCyclePaymentState } from "../hooks/use-cycle-payment-state";
 import { useCyclePayments } from "../hooks/use-cycle-payments";
-import { formatKHR } from "../utils/formatters";
+import { formatDisplayDate, formatKHR } from "../utils/formatters";
 import { PAYMENT_COLUMNS } from "./payment-columns";
 
 type CyclePaymentDialogProps = {
@@ -124,7 +124,7 @@ export function CyclePaymentDialog({
 				startDate: new Date(`${state.loanStartDate}T00:00:00.000Z`).toISOString(),
 			});
 			onOpenChange(false);
-			navigate(`/dashboard/borrow/${loan.id}`);
+			navigate(`/dashboard/loan/${loan.id}`);
 		} catch (_error) {}
 	};
 
@@ -137,7 +137,7 @@ export function CyclePaymentDialog({
 					</DialogTitle>
 					<DialogDescription>
 						{cycle
-							? `${cycle.customerName} · ${new Date(cycle.startDate).toLocaleDateString()} ~ ${new Date(cycle.endDate).toLocaleDateString()}`
+							? `${cycle.customerName} · ${formatDisplayDate(cycle.startDate)} ~ ${formatDisplayDate(cycle.endDate)}`
 							: "No cycle selected"}
 					</DialogDescription>
 				</DialogHeader>

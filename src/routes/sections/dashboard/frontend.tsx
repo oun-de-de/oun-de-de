@@ -2,6 +2,13 @@ import type { RouteObject } from "react-router";
 import ReportDetailTemplate from "@/pages/dashboard/reports/report-detail";
 import { Component } from "../../utils/utils";
 
+const createLoanRoutes = (basePath: "dashboard/borrow" | "dashboard/loan"): RouteObject[] => [
+	{ path: basePath, element: Component("/pages/dashboard/borrow") },
+	{ path: `${basePath}/new`, element: Component("/pages/dashboard/borrow/create") },
+	{ path: `${basePath}/payment`, element: Component("/pages/dashboard/borrow/payment") },
+	{ path: `${basePath}/:id`, element: Component("/pages/dashboard/borrow/detail") },
+];
+
 export function getFrontendDashboardRoutes(): RouteObject[] {
 	const frontendDashboardRoutes: RouteObject[] = [
 		{ index: true, element: Component("/pages/dashboard/_dashboard") },
@@ -20,10 +27,8 @@ export function getFrontendDashboardRoutes(): RouteObject[] {
 		{ path: "dashboard/reports/detail/:slug", element: <ReportDetailTemplate /> },
 		{ path: "dashboard/settings", element: Component("/pages/dashboard/settings") },
 		{ path: "dashboard/audit-log", element: Component("/pages/dashboard/audit-log") },
-		{ path: "dashboard/borrow", element: Component("/pages/dashboard/borrow") },
-		{ path: "dashboard/borrow/new", element: Component("/pages/dashboard/borrow/create") },
-		{ path: "dashboard/borrow/payment", element: Component("/pages/dashboard/borrow/payment") },
-		{ path: "dashboard/borrow/:id", element: Component("/pages/dashboard/borrow/detail") },
+		...createLoanRoutes("dashboard/borrow"),
+		...createLoanRoutes("dashboard/loan"),
 		{ path: "dashboard/equipment", element: Component("/pages/dashboard/equipment") },
 		{ path: "dashboard/equipment/:id", element: Component("/pages/dashboard/equipment/detail") },
 	];

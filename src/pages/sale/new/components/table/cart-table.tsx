@@ -1,9 +1,10 @@
-import { SmartDataTable } from "@/core/components/common/smart-data-table";
+import type { CellContext } from "@tanstack/react-table";
 import { useMemo } from "react";
-import { CellContext } from "@tanstack/react-table";
+import { SmartDataTable } from "@/core/components/common/smart-data-table";
 import { Icon } from "@/core/components/icon";
+import type { SaleProduct } from "@/core/domain/sales/entities/sale-product";
 import { cn } from "@/core/utils";
-import { SaleProduct } from "@/core/domain/sales/entities/sale-product";
+import { formatNumber } from "@/core/utils/formatters";
 
 export interface CartTableProps {
 	data?: SaleProduct[];
@@ -31,12 +32,12 @@ export function CartTable({ data = [], className }: CartTableProps) {
 			{
 				header: "PRICE",
 				accessorKey: "price",
-				cell: (ctx: CellContext<SaleProduct, number>) => ctx.getValue()?.toLocaleString(),
+				cell: (ctx: CellContext<SaleProduct, number>) => formatNumber(ctx.getValue()),
 			},
 			{
 				header: "AMOUNT",
 				accessorKey: "amount",
-				cell: (ctx: CellContext<SaleProduct, number>) => ctx.getValue()?.toLocaleString(),
+				cell: (ctx: CellContext<SaleProduct, number>) => formatNumber(ctx.getValue()),
 				meta: { headerClassName: "w-60" },
 			},
 			{
@@ -46,7 +47,7 @@ export function CartTable({ data = [], className }: CartTableProps) {
 				meta: { headerClassName: "w-12" },
 			},
 		],
-		[data],
+		[],
 	);
 
 	return <SmartDataTable data={data} columns={columns} className={cn("px-1", className)} />;

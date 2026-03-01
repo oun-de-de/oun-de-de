@@ -37,6 +37,7 @@ export default function BorrowPage() {
 					onSelect={handleSelectCustomer}
 					onToggle={handleToggle}
 					isCollapsed={isCollapsed}
+					showPaymentTermFilter={false}
 				/>
 			}
 			content={

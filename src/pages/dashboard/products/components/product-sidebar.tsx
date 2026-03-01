@@ -54,6 +54,8 @@ export function ProductSidebar({ activeProductId, onSelect, onToggle, isCollapse
 	return (
 		<SidebarList>
 			<SidebarList.Header
+				showMainTypeFilter={false}
+				showStatusFilter={false}
 				onMenuClick={onToggle}
 				searchPlaceholder="Search..."
 				onSearchChange={setSearchTerm}

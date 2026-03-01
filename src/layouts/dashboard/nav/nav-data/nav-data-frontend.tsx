@@ -15,22 +15,6 @@ export const frontendNavData: NavProps["data"] = [
 				path: "/dashboard/customers",
 				icon: <Icon icon="lucide:users" size="24" />,
 				roles: ["SUPER_ADMIN"],
-				actions: [
-					{
-						title: "Create Customer",
-						path: "/dashboard/customers/create",
-					},
-					{
-						title: "Create Cash Sale",
-					},
-					{
-						title: "Create Invoice",
-					},
-					{
-						title: "Create Receipt",
-						path: "/dashboard/customers/create-receipt",
-					},
-				],
 			},
 			{
 				title: "Invoice",
@@ -49,16 +33,10 @@ export const frontendNavData: NavProps["data"] = [
 				path: "/dashboard/coupons",
 				icon: <Icon icon="lucide:ticket" size="24" />,
 				roles: ["SUPER_ADMIN"],
-				actions: [
-					{
-						title: "New Coupon",
-						path: "/dashboard/coupons/create",
-					},
-				],
 			},
 			{
 				title: "Loan",
-				path: "/dashboard/borrow",
+				path: "/dashboard/loan",
 				icon: <Icon icon="lucide:clipboard-list" size="24" />,
 				roles: ["SUPER_ADMIN"],
 			},

@@ -1,5 +1,7 @@
-import { SaleProduct } from "@/core/domain/sales/entities/sale-product";
 import styled from "styled-components";
+import type { SaleProduct } from "@/core/domain/sales/entities/sale-product";
+import { formatNumber } from "@/core/utils/formatters";
+
 interface ProductCardProps {
 	item: SaleProduct;
 	height?: number;
@@ -8,7 +10,7 @@ interface ProductCardProps {
 
 function formatPrice(value: number, currency?: string) {
 	const suffix = currency ?? "៛";
-	return `${value.toLocaleString()} ${suffix}`;
+	return `${formatNumber(value)} ${suffix}`;
 }
 
 export function ProductCard({ item, height = 240, onClick }: ProductCardProps) {

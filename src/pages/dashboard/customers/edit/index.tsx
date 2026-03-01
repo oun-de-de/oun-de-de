@@ -11,11 +11,11 @@ import { useGetCustomer } from "../hooks/use-get-customer";
 import { useGetCustomerVehicles } from "../hooks/use-get-vehicles";
 import { useUpdateCustomerInfo } from "../hooks/use-update-customer-info";
 import { useUpdateCustomerVehicles } from "../hooks/use-update-customer-vehicles";
+import { useFormOptions } from "../hooks/use-form-options";
 import { mapCustomerFormToUpdatePayload } from "../utils/map-customer-form-to-update-payload";
 import { ProductSettingsForm } from "./components/product-settings-form";
 import { WarehouseSettingsForm } from "./components/warehouse-settings-form";
 import { useCustomerDefaults } from "./hooks/use-customer-defaults";
-import { useFormOptions } from "./hooks/use-form-options";
 
 export default function CustomerEditPage() {
 	const navigate = useNavigate();
@@ -72,6 +72,7 @@ export default function CustomerEditPage() {
 		}
 
 		toast.success("Customer updated successfully");
+		navigate("/dashboard/customers");
 	};
 
 	if (isLoadingCustomer) {

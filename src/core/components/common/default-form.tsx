@@ -49,6 +49,7 @@ export type FormFieldConfig = {
 	type: FormType;
 	placeholder?: string;
 	required?: boolean;
+	disabled?: boolean;
 	options?: { label: string; value: string }[];
 	defaultValue?: FormValue;
 	helperText?: string;
@@ -130,6 +131,7 @@ export function DefaultForm<TFormData extends DefaultFormData = DefaultFormData>
 			placeholder: field.placeholder,
 			helperText: field.helperText,
 			requiredMark: field.required,
+			disabled: field.disabled,
 			containerClassName: field.className,
 			rules,
 		};

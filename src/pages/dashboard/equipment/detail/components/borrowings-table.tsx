@@ -6,6 +6,7 @@ import type { InventoryBorrowing } from "@/core/types/inventory";
 import { Badge } from "@/core/ui/badge";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
+import { formatDisplayDate } from "@/core/utils/formatters";
 
 type BorrowingsTableProps = {
 	borrowings: InventoryBorrowing[];
@@ -20,7 +21,7 @@ export function BorrowingsTable({ borrowings, onReturn, onPay, isReturnPending }
 			{
 				accessorKey: "borrowDate",
 				header: "Borrow Date",
-				cell: ({ row }) => new Date(row.original.borrowDate).toLocaleDateString(),
+				cell: ({ row }) => formatDisplayDate(row.original.borrowDate),
 			},
 			{
 				accessorKey: "customerId",
@@ -31,13 +32,12 @@ export function BorrowingsTable({ borrowings, onReturn, onPay, isReturnPending }
 			{
 				accessorKey: "expectedReturnDate",
 				header: "Expected Return",
-				cell: ({ row }) => new Date(row.original.expectedReturnDate).toLocaleDateString(),
+				cell: ({ row }) => formatDisplayDate(row.original.expectedReturnDate),
 			},
 			{
 				accessorKey: "actualReturnDate",
 				header: "Actual Return",
-				cell: ({ row }) =>
-					row.original.actualReturnDate ? new Date(row.original.actualReturnDate).toLocaleDateString() : "-",
+				cell: ({ row }) => (row.original.actualReturnDate ? formatDisplayDate(row.original.actualReturnDate) : "-"),
 			},
 			{
 				accessorKey: "status",

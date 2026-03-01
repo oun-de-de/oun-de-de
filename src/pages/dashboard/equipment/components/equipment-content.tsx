@@ -61,6 +61,7 @@ export function EquipmentContent({ activeItemId }: Props) {
 					if (link) navigate(link);
 				}}
 				filterConfig={{
+					showTypeFilter: false,
 					typeOptions: EQUIPMENT_TYPE_OPTIONS,
 					fieldOptions: EQUIPMENT_FIELD_OPTIONS,
 					typeValue: table.typeFilter,

@@ -41,6 +41,8 @@ export function CouponSidebar({ activeCouponId, onSelect, onToggle, isCollapsed 
 	return (
 		<SidebarList>
 			<SidebarList.Header
+				showMainTypeFilter={false}
+				showStatusFilter={false}
 				onMenuClick={onToggle}
 				searchPlaceholder="Search coupons..."
 				onSearchChange={setSearchTerm}

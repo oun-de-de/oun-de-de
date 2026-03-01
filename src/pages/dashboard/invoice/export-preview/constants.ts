@@ -22,15 +22,14 @@ export const SORT_LABELS: Record<SortMode, string> = {
 	"balance-desc": "Balance (High-Low)",
 };
 
+const PAPER_SIZE_WRAPPER_CLASS_NAMES: Record<PaperSizeMode, string> = {
+	a4: "print:mx-auto print:w-[186mm] print:max-w-[186mm]",
+	a5: "print:mx-auto print:w-[124mm] print:max-w-[124mm]",
+	letter: "print:mx-auto print:w-[192mm] print:max-w-[192mm]",
+};
+
 export function getPaperSizeWrapperClassName(paperSizeMode: PaperSizeMode): string {
-	switch (paperSizeMode) {
-		case "a5":
-			return "print:mx-auto print:max-w-[560px]";
-		case "letter":
-			return "print:mx-auto print:max-w-[816px]";
-		default:
-			return "print:mx-auto print:max-w-[794px]";
-	}
+	return PAPER_SIZE_WRAPPER_CLASS_NAMES[paperSizeMode];
 }
 
 export function getTemplateClassName(templateMode: TemplateMode): string {
