@@ -91,7 +91,6 @@ export default function CreateCouponPage() {
 
 	const handleFillSampleData = () => {
 		setDefaultValues({
-			vehicleId: "7e6e290e-693e-4dbe-9a88-8b758d3a5125",
 			driverName: "Nguyen Phu Hoi",
 			remark: "buy 10kg solid ice",
 			couponNo: 19,
