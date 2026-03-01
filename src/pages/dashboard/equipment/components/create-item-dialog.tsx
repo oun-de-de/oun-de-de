@@ -38,6 +38,12 @@ export function CreateItemDialog({ onSubmit, isPending }: CreateItemDialogProps)
 		setQuantityOnHand("0");
 		setAlertThreshold("0");
 	};
+	const handleOpenChange = (nextOpen: boolean) => {
+		if (!nextOpen) {
+			resetForm();
+		}
+		setOpen(nextOpen);
+	};
 
 	const handleSubmit = () => {
 		onSubmit({
@@ -47,12 +53,11 @@ export function CreateItemDialog({ onSubmit, isPending }: CreateItemDialogProps)
 			quantityOnHand: Number(quantityOnHand),
 			alertThreshold: Number(alertThreshold),
 		});
-		resetForm();
-		setOpen(false);
+		handleOpenChange(false);
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<DialogTrigger asChild>
 				<Button size="sm" className="gap-1">
 					<Icon icon="mdi:plus" />
@@ -122,7 +127,7 @@ export function CreateItemDialog({ onSubmit, isPending }: CreateItemDialogProps)
 				</div>
 
 				<DialogFooter>
-					<Button variant="outline" onClick={() => setOpen(false)}>
+					<Button variant="outline" onClick={() => handleOpenChange(false)}>
 						Cancel
 					</Button>
 					<Button onClick={handleSubmit} disabled={isPending || !name}>

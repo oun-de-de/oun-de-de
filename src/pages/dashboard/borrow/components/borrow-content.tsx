@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
-import { SplitButton } from "@/core/components/common/split-button";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
 import type { BorrowState } from "@/pages/dashboard/borrow/stores/borrow-store";
@@ -24,24 +23,27 @@ type Props = {
 
 export function BorrowContent({ activeCustomerId, activeCustomerName, listState, updateState }: Props) {
 	const navigate = useNavigate();
-	const { fieldFilter, searchValue, typeFilter } = listState;
+	const { searchValue, typeFilter } = listState;
 	const { data: loansResponse } = useLoans();
 
 	const loans = useMemo(
-		() => (loansResponse?.content ?? []).filter((loan) => !activeCustomerId || loan.borrowerId === activeCustomerId),
+		() =>
+			(loansResponse?.content ?? []).filter(
+				(loan) => !activeCustomerId || (loan.borrowerType === "customer" && loan.borrowerId === activeCustomerId),
+			),
 		[loansResponse, activeCustomerId],
 	);
 
 	const filteredLoans = useMemo(
-		() => filterLoans(loans, { fieldFilter, searchValue, typeFilter }),
-		[fieldFilter, loans, searchValue, typeFilter],
+		() => filterLoans(loans, { searchValue, typeFilter }),
+		[loans, searchValue, typeFilter],
 	);
 	const summaryCards = useMemo(() => buildLoanSummaryCards(loans), [loans]);
 	const { totalItems, totalPages, paginatedLoans, paginationItems } = useMemo(
 		() => paginateLoans(filteredLoans, listState.page, listState.pageSize),
 		[filteredLoans, listState.page, listState.pageSize],
 	);
-	const { mainAction, options, newBorrowMainAction } = useMemo(
+	const { newBorrowMainAction } = useMemo(
 		() => buildLoanViewActions({ activeView: listState.activeView, updateState, navigate }),
 		[listState.activeView, navigate, updateState],
 	);
@@ -67,14 +69,6 @@ export function BorrowContent({ activeCustomerId, activeCustomerName, listState,
 		<>
 			<div className="flex flex-wrap items-center justify-between gap-2 mb-4">
 				<div className="flex items-center gap-2">
-					<SplitButton
-						variant="outline"
-						size="sm"
-						mainAction={mainAction}
-						options={options}
-						mainButtonClassName="bg-blue-400 text-white hover:bg-blue-500 border-blue-400"
-						triggerButtonClassName="bg-blue-400 text-white hover:bg-blue-500 border-blue-400"
-					/>
 					<Text variant="body2" className="text-slate-400">
 						{activeCustomerId ? `${activeCustomerName || activeCustomerId} selected` : "All Customers"}
 					</Text>
@@ -102,9 +96,9 @@ export function BorrowContent({ activeCustomerId, activeCustomerName, listState,
 				maxBodyHeight="100%"
 				data={paginatedLoans}
 				columns={borrowColumns}
-				filterConfig={filterConfig}
+				filterConfig={{ ...filterConfig, showFieldFilter: false }}
 				paginationConfig={paginationConfig}
-				onRowClick={(row) => navigate(`/dashboard/borrow/${row.id}`)}
+				onRowClick={(row) => navigate(`/dashboard/loan/${row.id}`)}
 			/>
 		</>
 	);

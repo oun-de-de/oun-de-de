@@ -33,7 +33,7 @@ export function useBorrowPaymentForm() {
 		mutationFn: loanService.createLoan,
 		onSuccess: () => {
 			toast.success("Loan created successfully!");
-			navigate("/dashboard/borrow", { replace: true });
+			navigate("/dashboard/loan", { replace: true });
 		},
 		onError: () => {
 			toast.error("Failed to create loan");

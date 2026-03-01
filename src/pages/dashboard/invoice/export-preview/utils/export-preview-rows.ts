@@ -1,5 +1,6 @@
-import { format, isValid, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
 import type { InvoiceExportLineResult, InvoiceExportPreviewRow } from "@/core/types/invoice";
+import { formatNumber as coreFormatNumber, formatDisplayDate } from "@/core/utils/formatters";
 import type { ReportTemplateRow } from "@/pages/dashboard/reports/components/layout/report-template-table";
 import type { SortMode } from "../constants";
 
@@ -7,13 +8,11 @@ const EMPTY_CELL = "-";
 
 function formatNumber(value: number | null): string {
 	if (value === null) return EMPTY_CELL;
-	return value.toLocaleString();
+	return coreFormatNumber(value);
 }
 
 function formatReportDate(value: string): string {
-	const parsed = parseISO(value);
-	if (!isValid(parsed)) return value;
-	return format(parsed, "dd/MM/yyyy");
+	return formatDisplayDate(value, value);
 }
 
 export function resolveOriginalAmount(row: InvoiceExportPreviewRow): number | null {

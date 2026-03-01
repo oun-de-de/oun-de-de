@@ -75,7 +75,7 @@ export const updateInvoice = (invoiceIds: string[], customerName?: string, type?
 		url: `${INVOICE_API.LIST}/update-batch`,
 		data: {
 			invoiceIds,
-			...(customerName ? { customerName } : {}),
+			...(customerName !== undefined ? { customerName } : {}),
 			...(type ? { type: toApiInvoiceType(type) } : {}),
 		},
 	});

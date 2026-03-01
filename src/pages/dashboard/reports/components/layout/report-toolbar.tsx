@@ -25,6 +25,8 @@ export interface ReportColumnVisibility {
 	phone: boolean;
 }
 
+export type ReportColumnLabels = Partial<Record<keyof ReportColumnVisibility, string>>;
+
 interface ReportToolbarProps {
 	leftActions?: React.ReactNode;
 	rightActions?: React.ReactNode;
@@ -33,8 +35,19 @@ interface ReportToolbarProps {
 	onShowSectionsChange?: (sections: ReportSectionVisibility) => void;
 	showColumns?: ReportColumnVisibility;
 	onShowColumnsChange?: (columns: ReportColumnVisibility) => void;
+	columnLabels?: ReportColumnLabels;
 	onPrint?: () => void;
+	onExportExcel?: () => void;
+	isExportExcelDisabled?: boolean;
 }
+
+const DEFAULT_COLUMN_LABELS: Record<keyof ReportColumnVisibility, string> = {
+	refNo: "Ref No",
+	category: "Category",
+	geography: "Geography",
+	address: "Address",
+	phone: "Phone",
+};
 
 export function ReportToolbar({
 	leftActions,
@@ -44,8 +57,13 @@ export function ReportToolbar({
 	onShowSectionsChange,
 	showColumns,
 	onShowColumnsChange,
+	columnLabels,
 	onPrint,
+	onExportExcel,
+	isExportExcelDisabled = false,
 }: ReportToolbarProps) {
+	const resolvedColumnLabels = { ...DEFAULT_COLUMN_LABELS, ...columnLabels };
+
 	return (
 		<div
 			className={cn(
@@ -132,7 +150,7 @@ export function ReportToolbar({
 										showColumns && onShowColumnsChange?.({ ...showColumns, refNo: !!checked })
 									}
 								>
-									Ref No
+									{resolvedColumnLabels.refNo}
 								</DropdownMenuCheckboxItem>
 								<DropdownMenuCheckboxItem
 									checked={showColumns?.category}
@@ -140,7 +158,7 @@ export function ReportToolbar({
 										showColumns && onShowColumnsChange?.({ ...showColumns, category: !!checked })
 									}
 								>
-									Category
+									{resolvedColumnLabels.category}
 								</DropdownMenuCheckboxItem>
 								<DropdownMenuCheckboxItem
 									checked={showColumns?.geography}
@@ -148,7 +166,7 @@ export function ReportToolbar({
 										showColumns && onShowColumnsChange?.({ ...showColumns, geography: !!checked })
 									}
 								>
-									Geography
+									{resolvedColumnLabels.geography}
 								</DropdownMenuCheckboxItem>
 								<DropdownMenuCheckboxItem
 									checked={showColumns?.address}
@@ -156,7 +174,7 @@ export function ReportToolbar({
 										showColumns && onShowColumnsChange?.({ ...showColumns, address: !!checked })
 									}
 								>
-									Address
+									{resolvedColumnLabels.address}
 								</DropdownMenuCheckboxItem>
 								<DropdownMenuCheckboxItem
 									checked={showColumns?.phone}
@@ -164,7 +182,7 @@ export function ReportToolbar({
 										showColumns && onShowColumnsChange?.({ ...showColumns, phone: !!checked })
 									}
 								>
-									Phone
+									{resolvedColumnLabels.phone}
 								</DropdownMenuCheckboxItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
@@ -178,7 +196,12 @@ export function ReportToolbar({
 				{rightActions || (
 					<>
 						<ToolbarButton icon="mdi:cog-outline" label="Customize" />
-						<ToolbarButton icon="mdi:file-excel-outline" label="Export Excel" />
+						<ToolbarButton
+							icon="mdi:file-excel-outline"
+							label="Export Excel"
+							onClick={onExportExcel}
+							disabled={isExportExcelDisabled}
+						/>
 						<ToolbarButton icon="mdi:printer-outline" label="Print" onClick={onPrint} />
 						<ToolbarButton icon="mdi:content-copy" label="Copy" />
 					</>
@@ -193,15 +216,17 @@ interface ToolbarButtonProps {
 	label: string;
 	onClick?: () => void;
 	className?: string;
+	disabled?: boolean;
 }
 
-function ToolbarButton({ icon, label, onClick, className }: ToolbarButtonProps) {
+function ToolbarButton({ icon, label, onClick, className, disabled = false }: ToolbarButtonProps) {
 	return (
 		<Button
 			variant="ghost"
 			size="sm"
 			className={cn("h-8 gap-1.5 px-2 text-sky-600 hover:text-sky-700 hover:bg-sky-50", className)}
 			onClick={onClick}
+			disabled={disabled}
 		>
 			<Icon icon={icon} size="1.2em" />
 			<span className="text-xs font-medium">{label}</span>

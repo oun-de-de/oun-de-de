@@ -75,7 +75,7 @@ export function itemColumns(): ColumnDef<ItemRow>[] {
 			accessorKey: "type",
 			header: "Type",
 			cell: ({ row }) => (
-				<Badge variant={row.original.type === "CONSUMABLE" ? "info" : "destructive"} className="w-4/5">
+				<Badge variant={row.original.type === "CONSUMABLE" ? "info" : "default"} className="w-4/5">
 					{row.original.type}
 				</Badge>
 			),

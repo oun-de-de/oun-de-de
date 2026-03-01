@@ -1,8 +1,8 @@
-import Icon from "@/core/components/icon/icon";
-import { Text, Title } from "@/core/ui/typography";
-import { fNumber } from "@/core/utils/format-number";
-import type { SummaryStatCardData } from "@/core/types/common";
 import styled from "styled-components";
+import Icon from "@/core/components/icon/icon";
+import type { SummaryStatCardData } from "@/core/types/common";
+import { Text, Title } from "@/core/ui/typography";
+import { formatNumber } from "@/core/utils/formatters";
 
 const CardRoot = styled.div.attrs({
 	className: "flex items-center justify-between rounded-lg border px-4 py-3",
@@ -23,7 +23,7 @@ const IconWrap = styled.span.attrs<{ $color: string }>(({ $color }) => ({
 }))``;
 
 export function SummaryStatCard({ label, value, color, icon }: SummaryStatCardData) {
-	const displayValue = typeof value === "number" ? fNumber(value) : value;
+	const displayValue = typeof value === "number" ? formatNumber(value) : value;
 
 	return (
 		<CardRoot>

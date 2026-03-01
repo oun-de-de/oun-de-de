@@ -2,6 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { format, parseISO } from "date-fns";
 import type { Loan } from "@/core/types/loan";
 import { Badge } from "@/core/ui/badge";
+import { formatKHR } from "@/core/utils/formatters";
 
 export const borrowColumns: ColumnDef<Loan>[] = [
 	{ accessorKey: "borrowerName", header: "Borrower Name" },
@@ -30,7 +31,7 @@ export const borrowColumns: ColumnDef<Loan>[] = [
 	{
 		accessorKey: "principalAmount",
 		header: "Principal",
-		cell: ({ row }) => row.original.principalAmount.toLocaleString(),
+		cell: ({ row }) => formatKHR(row.original.principalAmount),
 		meta: { bodyClassName: "text-right" },
 	},
 	{
@@ -41,7 +42,7 @@ export const borrowColumns: ColumnDef<Loan>[] = [
 	{
 		accessorKey: "monthlyPayment",
 		header: "Monthly Pay",
-		cell: ({ row }) => row.original.monthlyPayment.toLocaleString(),
+		cell: ({ row }) => formatKHR(row.original.monthlyPayment),
 		meta: { bodyClassName: "text-right" },
 	},
 ];

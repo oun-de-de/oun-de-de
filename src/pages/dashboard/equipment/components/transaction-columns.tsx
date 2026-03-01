@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { InventoryTransaction } from "@/core/types/inventory";
 import { Badge } from "@/core/ui/badge";
-import { formatDateTime } from "../utils/utils";
+import { formatDateTime } from "@/core/utils/formatters";
 
 export type TransactionRow = {
 	id: string;

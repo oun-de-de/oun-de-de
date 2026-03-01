@@ -49,7 +49,7 @@ export function BorrowPaymentRightPanel({
 
 					<div className="flex gap-4 w-full">
 						<div className="space-y-2 flex-[1]">
-							<Label className="font-medium text-gray-500">Term (M)</Label>
+							<Label className="font-medium text-gray-500">Term (Month)</Label>
 							<Input
 								type="number"
 								min={1}
@@ -59,7 +59,7 @@ export function BorrowPaymentRightPanel({
 							/>
 						</div>
 						<div className="space-y-2 flex-[2.5]">
-							<Label className="font-medium text-gray-500">Due Date</Label>
+							<Label className="font-medium text-gray-500">Start Date</Label>
 							<Input
 								type="date"
 								value={formatDateToYYYYMMDD(dueDate)}

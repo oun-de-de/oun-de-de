@@ -3,17 +3,22 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
 import { toast } from "sonner";
 import invoiceService from "@/core/api/services/invoice-service";
+import { useAuthUser } from "@/core/services/auth/hooks/use-auth";
 import type { InvoiceExportPreviewLocationState } from "@/core/types/invoice";
 import { cn } from "@/core/utils";
-import { type ReportTemplateMetaColumn, ReportTemplateTable } from "../../reports/components/layout/report-template-table";
+import {
+	type ReportTemplateMetaColumn,
+	ReportTemplateTable,
+} from "../../reports/components/layout/report-template-table";
 import type { ReportSectionVisibility } from "../../reports/components/layout/report-toolbar";
 import {
 	DEFAULT_REPORT_SECTIONS,
+	formatReportTimestamp,
 	REPORT_DEFAULT_DATE,
 	REPORT_FOOTER_TEXT,
 	REPORT_KHMER_TITLE,
-	REPORT_TIMESTAMP_TEXT,
 } from "../../reports/report-detail/constants";
+import { formatDisplayDateTime, formatNumber } from "../utils/formatters";
 import { EXPORT_PREVIEW_COLUMNS } from "./components/export-preview-columns";
 import { ExportPreviewToolbar } from "./components/export-preview-toolbar";
 import {
@@ -30,9 +35,9 @@ import {
 	sortPreviewRows,
 } from "./utils/export-preview-rows";
 import { buildInvoiceExportBlob } from "./utils/invoice-export-template";
-
 export default function InvoiceExportPreviewPage() {
 	const location = useLocation();
+	const authUser = useAuthUser();
 	const [isExporting, setIsExporting] = useState(false);
 	const state = (location.state as InvoiceExportPreviewLocationState | null) ?? null;
 	const selectedInvoiceIds = state?.selectedInvoiceIds ?? [];
@@ -72,13 +77,23 @@ export default function InvoiceExportPreviewPage() {
 	const tableClassName = useMemo(() => getTemplateClassName(templateMode), [templateMode]);
 
 	const reportRows = useMemo(() => buildReportRows(sortedPreviewRows), [sortedPreviewRows]);
-	const reportNo = useMemo(() => sortedPreviewRows[0]?.refNo || "-", [sortedPreviewRows]);
-	const reportDate = useMemo(() => sortedPreviewRows[0]?.date || REPORT_DEFAULT_DATE, [sortedPreviewRows]);
+	const reportDate = useMemo(
+		() => formatDisplayDateTime(sortedPreviewRows[0]?.date, REPORT_DEFAULT_DATE),
+		[sortedPreviewRows],
+	);
+	const invoiceSummaryText = useMemo(() => {
+		const uniqueRefNos = [...new Set(sortedPreviewRows.map((row) => row.refNo).filter(Boolean))];
+		if (uniqueRefNos.length === 1) {
+			return `Invoice No: ${uniqueRefNos[0]}`;
+		}
+		return `Total Invoices: ${uniqueRefNos.length}`;
+	}, [sortedPreviewRows]);
 	const metaColumns = useMemo<ReportTemplateMetaColumn[]>(
 		() => [
 			{
 				key: "left-meta",
-				rows: [`Invoice No: ${reportNo}`],
+				rows: [invoiceSummaryText],
+				align: "left",
 			},
 			{
 				key: "center-meta",
@@ -91,10 +106,14 @@ export default function InvoiceExportPreviewPage() {
 				align: "right",
 			},
 		],
-		[reportDate, reportNo],
+		[invoiceSummaryText, reportDate],
 	);
 
 	const totalBalance = useMemo(() => calculateTotalBalance(previewRows), [previewRows]);
+	const timestampText = useMemo(() => {
+		const employeeName = authUser?.data?.username || "Unknown";
+		return formatReportTimestamp(employeeName, new Date());
+	}, [authUser]);
 
 	const handleConfirmExport = async () => {
 		if (selectedInvoiceIds.length === 0) {
@@ -140,7 +159,7 @@ export default function InvoiceExportPreviewPage() {
 	}, [hasAutoPrinted, state?.autoPrint, exportQuery.isLoading, previewRows.length, handlePrint]);
 
 	return (
-		<div className="invoice-export-preview-page flex h-full flex-col gap-4 p-2 print:block print:h-auto print:p-0">
+		<div className="invoice-export-preview-page flex h-full flex-col gap-4 p-1 overflow-auto print:block print:h-auto print:p-0">
 			<div className="flex flex-col print:block">
 				<div className="print:hidden">
 					<ExportPreviewToolbar
@@ -164,7 +183,7 @@ export default function InvoiceExportPreviewPage() {
 					/>
 				</div>
 
-				<div className={cn("invoice-export-preview-template w-full", tableWrapperClassName)}>
+				<div className={cn("invoice-export-preview-template w-full print:w-auto", tableWrapperClassName)}>
 					<ReportTemplateTable
 						className={cn("invoice-export-print-target invoice-print-sheet", tableClassName)}
 						showSections={showSections}
@@ -172,7 +191,7 @@ export default function InvoiceExportPreviewPage() {
 						subtitle={reportDate}
 						headerContent={
 							<div className="invoice-print-header flex flex-col items-center gap-1 text-center">
-								<div className="text-[10px] text-slate-500">Rabbit - Open Invoice On Period By Group</div>
+								<div className="text-[10px] text-slate-500">Open Invoice On Period By Group</div>
 								<div className="text-xl font-bold leading-none text-slate-700">{REPORT_KHMER_TITLE}</div>
 								<div className="text-sm font-semibold text-slate-600 underline underline-offset-2">TEL: 070669898</div>
 							</div>
@@ -183,9 +202,9 @@ export default function InvoiceExportPreviewPage() {
 						rows={reportRows}
 						summaryRows={[
 							{ key: "total-customer", label: "Total Customer: ", value: String(selectedInvoiceIds.length) },
-							{ key: "total-balance", label: "Total Balance: ", value: `${totalBalance.toLocaleString()} ៛` },
+							{ key: "total-balance", label: "Total Balance: ", value: `${formatNumber(totalBalance)} ៛` },
 						]}
-						timestampText={REPORT_TIMESTAMP_TEXT}
+						timestampText={timestampText}
 						footerText={REPORT_FOOTER_TEXT}
 					/>
 				</div>

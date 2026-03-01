@@ -9,6 +9,7 @@ import { CycleContent } from "./components/cycle-content";
 import { InvoiceContent } from "./components/invoice-content";
 import { useCycleDetail } from "./hooks/use-cycle-detail";
 import { useInvoiceTable } from "./hooks/use-invoice-table";
+import { formatDisplayDate } from "./utils/formatters";
 
 export default function InvoicePage() {
 	const [searchParams] = useSearchParams();
@@ -54,7 +55,7 @@ export default function InvoicePage() {
 	});
 
 	const activeInvoiceLabel = activeCycle
-		? `${activeCustomerName ?? activeCycle.customerName} — ${new Date(activeCycle.startDate).toLocaleDateString()} ~ ${new Date(activeCycle.endDate).toLocaleDateString()}`
+		? `${activeCustomerName ?? activeCycle.customerName} — ${formatDisplayDate(activeCycle.startDate)} ~ ${formatDisplayDate(activeCycle.endDate)}`
 		: null;
 
 	return (
@@ -66,6 +67,7 @@ export default function InvoicePage() {
 					onSelect={handleSelectCustomer}
 					onToggle={handleToggle}
 					isCollapsed={isCollapsed}
+					showPaymentTermFilter={false}
 				/>
 			}
 			content={

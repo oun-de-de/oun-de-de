@@ -13,10 +13,9 @@ type WarehouseSettingsFormProps = {
 };
 
 export function WarehouseSettingsForm({ customerId, currentWarehouseId }: WarehouseSettingsFormProps) {
-	const { selectedWarehouse, availableWarehouses, isLoading, isSaving, handleAdd, handleRemove, handleSave } =
-		useWarehouseSettingsForm(customerId, currentWarehouseId);
+	const form = useWarehouseSettingsForm(customerId, currentWarehouseId);
 
-	if (isLoading) {
+	if (form.isLoading) {
 		return <div>Loading warehouses...</div>;
 	}
 
@@ -31,8 +30,8 @@ export function WarehouseSettingsForm({ customerId, currentWarehouseId }: Wareho
 							Create Warehouse
 						</Link>
 					</Button>
-					<Button onClick={handleSave} disabled={isSaving}>
-						{isSaving ? "Saving..." : "Save Settings"}
+					<Button onClick={form.handleSave} disabled={form.isSaving}>
+						{form.isSaving ? "Saving..." : "Save Settings"}
 					</Button>
 				</div>
 			</div>
@@ -43,13 +42,13 @@ export function WarehouseSettingsForm({ customerId, currentWarehouseId }: Wareho
 						<CardTitle className="text-sm font-medium">Available Warehouses</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-2 h-full">
-						{availableWarehouses.length === 0 ? (
+						{form.availableWarehouses.length === 0 ? (
 							<Text variant="caption" className="text-gray-500 flex items-center justify-center h-full w-full">
 								No warehouses available
 							</Text>
 						) : (
-							availableWarehouses.map((warehouse, index) => (
-								<AvailableWarehouseItem key={warehouse.id} warehouse={warehouse} index={index} onAdd={handleAdd} />
+							form.availableWarehouses.map((warehouse, index) => (
+								<AvailableWarehouseItem key={warehouse.id} warehouse={warehouse} index={index} onAdd={form.handleAdd} />
 							))
 						)}
 					</CardContent>
@@ -61,12 +60,12 @@ export function WarehouseSettingsForm({ customerId, currentWarehouseId }: Wareho
 							<CardTitle className="text-sm font-medium">Customer Warehouses</CardTitle>
 						</CardHeader>
 						<CardContent className="space-y-2 h-full">
-							{!selectedWarehouse ? (
+							{!form.selectedWarehouse ? (
 								<Text variant="caption" className="text-gray-500 flex items-center justify-center w-full h-full">
 									No warehouses assigned. Click on available warehouses to add.
 								</Text>
 							) : (
-								<SelectedWarehouseItem warehouse={selectedWarehouse} onRemove={handleRemove} />
+								<SelectedWarehouseItem warehouse={form.selectedWarehouse} onRemove={form.handleRemove} />
 							)}
 						</CardContent>
 					</Card>

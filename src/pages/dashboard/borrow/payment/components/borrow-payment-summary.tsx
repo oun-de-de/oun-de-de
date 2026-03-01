@@ -1,3 +1,4 @@
+import { formatKHR } from "@/core/utils/formatters";
 import type { CartItem } from "@/pages/dashboard/borrow/stores/borrow-cart-store";
 
 interface BorrowPaymentSummaryProps {
@@ -22,7 +23,7 @@ export function BorrowPaymentSummary({ cart, totalAmount }: BorrowPaymentSummary
 				</div>
 				<div className="flex items-center gap-2 ml-auto">
 					<span className="text-gray-500 font-medium text-xs uppercase">Net Amount:</span>
-					<span className="font-bold text-gray-800">${totalAmount.toFixed(2)}</span>
+					<span className="font-bold text-gray-800">{formatKHR(totalAmount)}</span>
 				</div>
 			</div>
 		</div>

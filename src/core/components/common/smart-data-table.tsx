@@ -19,6 +19,10 @@ import { TablePagination } from "./table-pagination";
  * Pass this to `filterConfig` prop to enable the filter bar above the table.
  */
 export type SmartTableFilterConfig = {
+	/** Whether to show the first dropdown */
+	showTypeFilter?: boolean;
+	/** Whether to show the second dropdown */
+	showFieldFilter?: boolean;
 	/** Options for the first dropdown (e.g., Transaction Type) */
 	typeOptions?: { value: string; label: string }[];
 	/** Options for the second dropdown (e.g., Field Name) */
@@ -262,6 +266,8 @@ export function SmartDataTable<T extends object>({
 		<div className={cn("flex flex-col gap-4", className)}>
 			{showFilterBar && filterConfig && (
 				<TableFilterBar
+					showTypeFilter={filterConfig.showTypeFilter}
+					showFieldFilter={filterConfig.showFieldFilter}
 					typeOptions={filterConfig.typeOptions || []}
 					fieldOptions={filterConfig.fieldOptions || []}
 					typeValue={filterConfig.typeValue}

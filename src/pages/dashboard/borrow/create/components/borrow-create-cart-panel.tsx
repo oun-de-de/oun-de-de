@@ -18,7 +18,7 @@ export function BorrowCreateCartPanel() {
 
 	const handleProceed = () => {
 		if (cart.length === 0) return;
-		navigate("/dashboard/borrow/payment");
+		navigate("/dashboard/loan/payment");
 	};
 
 	return (

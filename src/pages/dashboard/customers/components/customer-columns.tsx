@@ -1,6 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Customer } from "@/core/types/customer";
 import { Badge } from "@/core/ui/badge";
+import { formatDisplayDate } from "@/core/utils/formatters";
 import { getStatusVariant } from "@/core/utils/get-status-variant";
 import { CustomerActions } from "./customer-actions";
 
@@ -9,7 +10,7 @@ export const columns: ColumnDef<Customer>[] = [
 		header: "Register Date",
 		size: 80,
 		accessorKey: "registerDate",
-		cell: ({ row }) => new Date(row.original.registerDate).toLocaleDateString(),
+		cell: ({ row }) => formatDisplayDate(row.original.registerDate),
 		meta: { bodyClassName: "text-center" },
 	},
 	{

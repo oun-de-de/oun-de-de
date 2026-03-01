@@ -2,6 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { Installment } from "@/core/types/loan";
 import { Badge } from "@/core/ui/badge";
 import { Button } from "@/core/ui/button";
+import { formatDisplayDate, formatKHR } from "@/core/utils/formatters";
 
 type InstallmentsColumnsOptions = {
 	isPayPending?: boolean;
@@ -30,12 +31,12 @@ export function getInstallmentsColumns({
 		{
 			accessorKey: "dueDate",
 			header: "Due Date",
-			cell: ({ row }) => new Date(row.original.dueDate).toLocaleDateString(),
+			cell: ({ row }) => formatDisplayDate(row.original.dueDate),
 		},
 		{
 			accessorKey: "amount",
 			header: "Amount",
-			cell: ({ row }) => row.original.amount.toLocaleString(),
+			cell: ({ row }) => formatKHR(row.original.amount),
 			meta: { bodyClassName: "text-right" },
 		},
 		{
@@ -60,7 +61,7 @@ export function getInstallmentsColumns({
 			accessorKey: "paidAt",
 			header: "Paid At",
 			size: 120,
-			cell: ({ row }) => (row.original.paidAt ? new Date(row.original.paidAt).toLocaleDateString() : "-"),
+			cell: ({ row }) => formatDisplayDate(row.original.paidAt),
 		},
 		{
 			id: "action",

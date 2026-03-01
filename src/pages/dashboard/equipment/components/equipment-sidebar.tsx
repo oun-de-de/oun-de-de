@@ -55,6 +55,7 @@ export function EquipmentSidebar({ activeItemId, onSelect, onToggle, isCollapsed
 		<SidebarList>
 			<SidebarList.Header
 				showMainTypeFilter={false}
+				showStatusFilter={false}
 				searchPlaceholder="Search equipment..."
 				searchValue={searchTerm}
 				onSearchChange={setSearchTerm}

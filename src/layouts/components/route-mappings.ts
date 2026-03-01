@@ -3,6 +3,33 @@ export type RouteMappingProps = {
 	title: string;
 };
 
+const LOAN_ROUTE_MAPPINGS = [
+	{
+		path: "/dashboard/borrow",
+		title: "Loan",
+	},
+	{
+		path: "/dashboard/borrow/new",
+		title: "New Loan Center",
+	},
+	{
+		path: "/dashboard/borrow/payment",
+		title: "Loan Payment Center",
+	},
+	{
+		path: "/dashboard/loan",
+		title: "Loan",
+	},
+	{
+		path: "/dashboard/loan/new",
+		title: "New Loan Center",
+	},
+	{
+		path: "/dashboard/loan/payment",
+		title: "Loan Payment Center",
+	},
+] as const satisfies readonly RouteMappingProps[];
+
 export const ROUTE_TITLE_MAPPINGS = [
 	// Specific route mappings from frontend routes
 	{
@@ -45,18 +72,7 @@ export const ROUTE_TITLE_MAPPINGS = [
 		path: "/dashboard/audit-log",
 		title: "Audit Log",
 	},
-	{
-		path: "/dashboard/borrow",
-		title: "Borrow",
-	},
-	{
-		path: "/dashboard/borrow/new",
-		title: "New Borrow Center",
-	},
-	{
-		path: "/dashboard/borrow/payment",
-		title: "Borrow Payment Center",
-	},
+	...LOAN_ROUTE_MAPPINGS,
 	{
 		path: "/dashboard/equipment",
 		title: "Equipment Center",

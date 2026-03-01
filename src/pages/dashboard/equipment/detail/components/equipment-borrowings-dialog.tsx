@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { SmartDataTable } from "@/core/components/common";
 import type { Customer } from "@/core/types/customer";
@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Input } from "@/core/ui/input";
 import { Label } from "@/core/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/ui/select";
+import { formatDisplayDate } from "@/core/utils/formatters";
 import { useInventoryBorrowings } from "../../hooks/use-inventory-items";
 import { useCreateBorrowing, useReturnBorrowing } from "../../hooks/use-inventory-mutations";
 
@@ -19,21 +20,54 @@ type EquipmentBorrowingsDialogProps = {
 };
 
 export function EquipmentBorrowingsDialog({ itemId, customers }: EquipmentBorrowingsDialogProps) {
+	const [open, setOpen] = useState(false);
 	const [customerId, setCustomerId] = useState("");
 	const [quantity, setQuantity] = useState("1");
 	const [expectedReturnDate, setExpectedReturnDate] = useState("");
 	const [memo, setMemo] = useState("");
+	const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
+	const [historyPage, setHistoryPage] = useState(1);
+	const [historyPageSize, setHistoryPageSize] = useState(10);
 
 	const { data: borrowings = [], isLoading } = useInventoryBorrowings(itemId);
 	const createBorrowing = useCreateBorrowing(itemId);
 	const returnBorrowing = useReturnBorrowing(itemId);
+	const previewBorrowings = borrowings.slice(0, 5);
+	const totalHistoryPages = Math.max(1, Math.ceil(borrowings.length / historyPageSize));
+	const pagedBorrowings = borrowings.slice((historyPage - 1) * historyPageSize, historyPage * historyPageSize);
+	const resetBorrowingForm = useCallback(() => {
+		setCustomerId("");
+		setQuantity("1");
+		setExpectedReturnDate("");
+		setMemo("");
+	}, []);
+	const handleOpenChange = useCallback(
+		(nextOpen: boolean) => {
+			if (!nextOpen) {
+				resetBorrowingForm();
+			}
+			setOpen(nextOpen);
+		},
+		[resetBorrowingForm],
+	);
+	const handleReturnBorrowing = useCallback(
+		(borrowingId: string) => {
+			returnBorrowing.mutate(borrowingId, {
+				onSuccess: () => {
+					handleOpenChange(false);
+					setIsHistoryDialogOpen(false);
+				},
+			});
+		},
+		[returnBorrowing, handleOpenChange],
+	);
 
 	const columns = useMemo<ColumnDef<InventoryBorrowing>[]>(
 		() => [
 			{
 				accessorKey: "borrowDate",
 				header: "Borrow Date",
-				cell: ({ row }) => new Date(row.original.borrowDate).toLocaleDateString(),
+				cell: ({ row }) => formatDisplayDate(row.original.borrowDate),
 			},
 			{
 				accessorKey: "customerName",
@@ -44,7 +78,7 @@ export function EquipmentBorrowingsDialog({ itemId, customers }: EquipmentBorrow
 			{
 				accessorKey: "expectedReturnDate",
 				header: "Expected Return",
-				cell: ({ row }) => new Date(row.original.expectedReturnDate).toLocaleDateString(),
+				cell: ({ row }) => formatDisplayDate(row.original.expectedReturnDate),
 			},
 			{
 				accessorKey: "status",
@@ -61,7 +95,7 @@ export function EquipmentBorrowingsDialog({ itemId, customers }: EquipmentBorrow
 						<Button
 							variant="secondary"
 							className="text-xs"
-							onClick={() => returnBorrowing.mutate(row.original.id)}
+							onClick={() => handleReturnBorrowing(row.original.id)}
 							disabled={returnBorrowing.isPending}
 						>
 							Return
@@ -69,7 +103,7 @@ export function EquipmentBorrowingsDialog({ itemId, customers }: EquipmentBorrow
 					),
 			},
 		],
-		[returnBorrowing],
+		[returnBorrowing, handleReturnBorrowing],
 	);
 
 	const handleCreateBorrowing = () => {
@@ -97,70 +131,113 @@ export function EquipmentBorrowingsDialog({ itemId, customers }: EquipmentBorrow
 			},
 			{
 				onSuccess: () => {
-					setQuantity("1");
-					setCustomerId("");
-					setExpectedReturnDate("");
-					setMemo("");
+					handleOpenChange(false);
 				},
 			},
 		);
 	};
 
 	return (
-		<Dialog>
-			<DialogTrigger asChild>
-				<Button size="sm" variant="secondary">
-					Borrowings
-				</Button>
-			</DialogTrigger>
-			<DialogContent className="sm:max-w-7xl">
-				<DialogHeader>
-					<DialogTitle>Equipment Borrowings</DialogTitle>
-				</DialogHeader>
-
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-					<div className="space-y-2 md:col-span-2">
-						<Label>Customer</Label>
-						<Select value={customerId} onValueChange={setCustomerId}>
-							<SelectTrigger>
-								<SelectValue placeholder="Select customer" />
-							</SelectTrigger>
-							<SelectContent>
-								{customers.map((customer) => (
-									<SelectItem key={customer.id} value={customer.id}>
-										{customer.name}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-					<div className="space-y-1">
-						<Label>Quantity</Label>
-						<Input type="number" min={1} value={quantity} onChange={(e) => setQuantity(e.target.value)} />
-					</div>
-					<div className="space-y-2">
-						<Label>Expected Return Date</Label>
-						<Input type="date" value={expectedReturnDate} onChange={(e) => setExpectedReturnDate(e.target.value)} />
-					</div>
-				</div>
-
-				<div className="space-y-2">
-					<Label>Memo</Label>
-					<Input value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="Additional notes" />
-				</div>
-
-				<DialogFooter>
-					<Button onClick={handleCreateBorrowing} disabled={createBorrowing.isPending}>
-						{createBorrowing.isPending ? "Saving..." : "Create Borrowing"}
+		<div className="contents">
+			<Dialog open={open} onOpenChange={handleOpenChange}>
+				<DialogTrigger asChild>
+					<Button size="sm" variant="secondary">
+						Borrowings
 					</Button>
-				</DialogFooter>
+				</DialogTrigger>
+				<DialogContent className="sm:max-w-7xl">
+					<DialogHeader>
+						<DialogTitle>Equipment Borrowings</DialogTitle>
+					</DialogHeader>
 
-				<div className="space-y-2">
-					<Label className="text-sm font-semibold">Borrowing History</Label>
-					<SmartDataTable className="max-h-[320px]" maxBodyHeight="320px" data={borrowings} columns={columns} />
-					{isLoading && <p className="text-xs text-slate-500">Loading borrowings...</p>}
-				</div>
-			</DialogContent>
-		</Dialog>
+					<div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+						<div className="space-y-2 md:col-span-2">
+							<Label>Customer</Label>
+							<Select value={customerId} onValueChange={setCustomerId}>
+								<SelectTrigger>
+									<SelectValue placeholder="Select customer" />
+								</SelectTrigger>
+								<SelectContent>
+									{customers.map((customer) => (
+										<SelectItem key={customer.id} value={customer.id}>
+											{customer.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+						<div className="space-y-1">
+							<Label>Quantity</Label>
+							<Input type="number" min={1} value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+						</div>
+						<div className="space-y-2">
+							<Label>Expected Return Date</Label>
+							<Input type="date" value={expectedReturnDate} onChange={(e) => setExpectedReturnDate(e.target.value)} />
+						</div>
+					</div>
+
+					<div className="space-y-2">
+						<Label>Memo</Label>
+						<Input value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="Additional notes" />
+					</div>
+
+					<DialogFooter>
+						<Button onClick={handleCreateBorrowing} disabled={createBorrowing.isPending}>
+							{createBorrowing.isPending ? "Saving..." : "Create Borrowing"}
+						</Button>
+					</DialogFooter>
+
+					<div className="space-y-2">
+						<div className="flex items-center justify-between gap-2">
+							<Label className="text-sm font-semibold">Borrowing History</Label>
+							{borrowings.length > previewBorrowings.length && (
+								<Button
+									size="sm"
+									variant="secondary"
+									onClick={() => {
+										setHistoryPage(1);
+										setIsHistoryDialogOpen(true);
+									}}
+								>
+									View more
+								</Button>
+							)}
+						</div>
+						<SmartDataTable
+							className="max-h-[320px]"
+							maxBodyHeight="320px"
+							data={previewBorrowings}
+							columns={columns}
+						/>
+						{isLoading && <p className="text-xs text-slate-500">Loading borrowings...</p>}
+					</div>
+				</DialogContent>
+			</Dialog>
+			<Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
+				<DialogContent className="sm:max-w-6xl">
+					<DialogHeader>
+						<DialogTitle>Borrowing History</DialogTitle>
+					</DialogHeader>
+					<SmartDataTable
+						className="rounded-md border border-slate-200 pb-2"
+						maxBodyHeight="60vh"
+						data={pagedBorrowings}
+						columns={columns}
+						paginationConfig={{
+							page: historyPage,
+							pageSize: historyPageSize,
+							totalItems: borrowings.length,
+							totalPages: totalHistoryPages,
+							paginationItems: Array.from({ length: totalHistoryPages }, (_, index) => index + 1),
+							onPageChange: setHistoryPage,
+							onPageSizeChange: (pageSize) => {
+								setHistoryPageSize(pageSize);
+								setHistoryPage(1);
+							},
+						}}
+					/>
+				</DialogContent>
+			</Dialog>
+		</div>
 	);
 }

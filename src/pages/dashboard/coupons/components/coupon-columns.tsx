@@ -1,6 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Coupon } from "@/core/types/coupon";
 import { Badge } from "@/core/ui/badge";
+import { formatDisplayDate, formatNumber } from "@/core/utils/formatters";
 
 const mappingVehicleType: Record<string, string> = {
 	TUK_TUK: "Tuk Tuk",
@@ -28,7 +29,7 @@ export const columns: ColumnDef<Coupon>[] = [
 	{
 		header: "Date",
 		accessorKey: "date",
-		cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+		cell: ({ row }) => formatDisplayDate(row.original.date),
 	},
 	{
 		header: "Plate Number",
@@ -81,7 +82,7 @@ export const columns: ColumnDef<Coupon>[] = [
 			const records = row.original.weightRecords;
 			if (!records || records.length === 0) return "-";
 			const total = records.reduce((sum, r) => sum + (r.weight ?? 0), 0);
-			return <span className="font-semibold text-emerald-600">{total.toLocaleString()} kg</span>;
+			return <span className="font-semibold text-emerald-600">{formatNumber(total)} kg</span>;
 		},
 		meta: {
 			bodyClassName: "text-right",

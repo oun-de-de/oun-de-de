@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { VendorTransactionRow } from "@/core/types/common";
-import { fNumber } from "@/core/utils/format-number";
+import { formatKHR } from "@/core/utils/formatters";
 
 export const columns: ColumnDef<VendorTransactionRow>[] = [
 	{
@@ -36,7 +36,7 @@ export const columns: ColumnDef<VendorTransactionRow>[] = [
 	},
 	{
 		header: "Amount",
-		cell: ({ row }) => <span className="font-semibold">{fNumber(row.original.amount)} KHR</span>,
+		cell: ({ row }) => <span className="font-semibold">{formatKHR(row.original.amount)}</span>,
 		meta: { headerClassName: "text-right", bodyClassName: "text-right" },
 	},
 	{

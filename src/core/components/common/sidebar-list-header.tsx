@@ -27,6 +27,7 @@ export type SidebarListHeaderProps = {
 	onSearchChange?: (value: string) => void;
 
 	// Status Filter
+	showStatusFilter?: boolean;
 	statusOptions?: SidebarOption[];
 	statusPlaceholder?: string;
 	statusValue?: string;
@@ -39,6 +40,7 @@ type SearchStatusRowProps = {
 	searchPlaceholder: string;
 	localSearch: string;
 	onLocalSearchChange: (value: string) => void;
+	showStatusFilter: boolean;
 	resolvedStatusLabel?: string;
 	statusOptions: SidebarOption[];
 	statusPlaceholder: string;
@@ -50,6 +52,7 @@ function SearchStatusRow({
 	searchPlaceholder,
 	localSearch,
 	onLocalSearchChange,
+	showStatusFilter,
 	resolvedStatusLabel,
 	statusOptions,
 	statusPlaceholder,
@@ -57,25 +60,27 @@ function SearchStatusRow({
 	onStatusChange,
 }: SearchStatusRowProps) {
 	return (
-		<div className="flex gap-2">
+		<div className="flex flex-1 min-w-0 gap-2">
 			<Input
 				placeholder={searchPlaceholder}
 				value={localSearch}
 				onChange={(e) => onLocalSearchChange(e.target.value)}
 				className="flex-1"
 			/>
-			<Select value={statusValue} onValueChange={onStatusChange}>
-				<SelectTrigger className="w-[110px] shrink-0">
-					<SelectValue placeholder={statusPlaceholder}>{resolvedStatusLabel}</SelectValue>
-				</SelectTrigger>
-				<SelectContent>
-					{statusOptions.map((opt) => (
-						<SelectItem key={opt.value} value={opt.value}>
-							{opt.label}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
+			{showStatusFilter && (
+				<Select value={statusValue} onValueChange={onStatusChange}>
+					<SelectTrigger className="w-[110px] shrink-0">
+						<SelectValue placeholder={statusPlaceholder}>{resolvedStatusLabel}</SelectValue>
+					</SelectTrigger>
+					<SelectContent>
+						{statusOptions.map((opt) => (
+							<SelectItem key={opt.value} value={opt.value}>
+								{opt.label}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			)}
 		</div>
 	);
 }
@@ -83,6 +88,7 @@ function SearchStatusRow({
 export function SidebarListHeader({
 	className,
 	showMainTypeFilter = true,
+	showStatusFilter = true,
 	mainTypeOptions = [],
 	mainTypePlaceholder = "Select Type",
 	mainTypeValue,
@@ -162,6 +168,7 @@ export function SidebarListHeader({
 						searchPlaceholder={searchPlaceholder}
 						localSearch={localSearch}
 						onLocalSearchChange={setLocalSearch}
+						showStatusFilter={showStatusFilter}
 						resolvedStatusLabel={resolvedStatusLabel}
 						statusOptions={statusOptions}
 						statusPlaceholder={statusPlaceholder}
@@ -177,6 +184,7 @@ export function SidebarListHeader({
 					searchPlaceholder={searchPlaceholder}
 					localSearch={localSearch}
 					onLocalSearchChange={setLocalSearch}
+					showStatusFilter={showStatusFilter}
 					resolvedStatusLabel={resolvedStatusLabel}
 					statusOptions={statusOptions}
 					statusPlaceholder={statusPlaceholder}

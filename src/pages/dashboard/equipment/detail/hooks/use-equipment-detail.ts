@@ -38,29 +38,35 @@ export function useEquipmentDetail() {
 	const [updateQty, setUpdateQty] = useState("1");
 	const [updateMemo, setUpdateMemo] = useState("");
 	const [updateReason, setUpdateReason] = useState("purchase");
+	const resetUpdateStockForm = useCallback(() => {
+		setUpdateQty("1");
+		setUpdateMemo("");
+		setUpdateReason("purchase");
+	}, []);
 
-	const handleUpdateStock = useCallback((onSuccess?: () => void) => {
-		updateStockMutation.mutate(
-			{ quantity: Number(updateQty), reason: updateReason, memo: updateMemo },
-			{
-				onSuccess: () => {
-					const parsedQty = Number(updateQty);
-					if (activeItem && Number.isFinite(parsedQty)) {
-						const updatedQty = activeItem.quantityOnHand + getQuantityDelta(updateReason, parsedQty);
-						if (updatedQty < activeItem.alertThreshold) {
-							toast.warning(
-								`Stock is below threshold (${updatedQty} < ${activeItem.alertThreshold}) for ${activeItem.name}.`,
-							);
+	const handleUpdateStock = useCallback(
+		(onSuccess?: () => void) => {
+			updateStockMutation.mutate(
+				{ quantity: Number(updateQty), reason: updateReason, memo: updateMemo },
+				{
+					onSuccess: () => {
+						const parsedQty = Number(updateQty);
+						if (activeItem && Number.isFinite(parsedQty)) {
+							const updatedQty = activeItem.quantityOnHand + getQuantityDelta(updateReason, parsedQty);
+							if (updatedQty < activeItem.alertThreshold) {
+								toast.warning(
+									`Stock is below threshold (${updatedQty} < ${activeItem.alertThreshold}) for ${activeItem.name}.`,
+								);
+							}
 						}
-					}
-					setUpdateQty("1");
-					setUpdateMemo("");
-					setUpdateReason("purchase");
-					onSuccess?.();
+						resetUpdateStockForm();
+						onSuccess?.();
+					},
 				},
-			},
-		);
-	}, [updateStockMutation, updateQty, updateReason, updateMemo, activeItem]);
+			);
+		},
+		[updateStockMutation, updateQty, updateReason, updateMemo, activeItem, resetUpdateStockForm],
+	);
 
 	// --- Table state ---
 	const [tableTypeFilter, setTableTypeFilter] = useState("all");
@@ -93,6 +99,7 @@ export function useEquipmentDetail() {
 			setQty: setUpdateQty,
 			setMemo: setUpdateMemo,
 			setReason: setUpdateReason,
+			reset: resetUpdateStockForm,
 			submit: handleUpdateStock,
 			isPending: updateStockMutation.isPending,
 		},

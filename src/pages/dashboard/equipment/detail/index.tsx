@@ -9,7 +9,6 @@ import { buildPagination } from "@/core/utils/dashboard-utils";
 import { useRouter } from "@/routes/hooks/use-router";
 import { EquipmentBorrowingsDialog } from "./components/equipment-borrowings-dialog";
 import { EquipmentInfoCard } from "./components/equipment-info-card";
-import { EquipmentQuickActions } from "./components/equipment-quick-actions";
 import { UpdateStockDialog } from "./components/update-stock-dialog";
 import { useEquipmentDetail } from "./hooks/use-equipment-detail";
 
@@ -23,6 +22,12 @@ export default function EquipmentDetailPage() {
 	});
 	const customers = customerPage?.list ?? [];
 	const isEquipment = activeItem?.type === "EQUIPMENT";
+	const handleUpdateStockOpenChange = (open: boolean) => {
+		if (!open) {
+			stockUpdate.reset();
+		}
+		setIsUpdateStockOpen(open);
+	};
 
 	if (isItemLoading) {
 		return (
@@ -67,23 +72,17 @@ export default function EquipmentDetailPage() {
 					<UpdateStockDialog
 						item={activeItem}
 						open={isUpdateStockOpen}
-						onOpenChange={setIsUpdateStockOpen}
+						onOpenChange={handleUpdateStockOpenChange}
 						quantity={stockUpdate.qty}
 						reason={stockUpdate.reason}
 						memo={stockUpdate.memo}
 						onQuantityChange={stockUpdate.setQty}
 						onReasonChange={stockUpdate.setReason}
 						onMemoChange={stockUpdate.setMemo}
-						onSubmit={() => stockUpdate.submit(() => setIsUpdateStockOpen(false))}
+						onSubmit={() => stockUpdate.submit(() => handleUpdateStockOpenChange(false))}
 						isPending={stockUpdate.isPending}
 					/>
 					{isEquipment && <EquipmentBorrowingsDialog itemId={activeItem.id} customers={customers} />}
-					<EquipmentQuickActions
-						onPrintReport={() => {}}
-						onExport={() => {}}
-						onDuplicate={() => {}}
-						onArchive={() => {}}
-					/>
 				</div>
 			</div>
 

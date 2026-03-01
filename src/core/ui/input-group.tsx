@@ -22,7 +22,7 @@ function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
 				"has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3",
 
 				// Focus state.
-				"has-[[data-slot=input-group-control]:focus-visible]:ring-ring has-[[data-slot=input-group-control]:focus-visible]:ring-1",
+				"has-[[data-slot=input-group-control]:focus-visible]:border-gray-300 has-[[data-slot=input-group-control]:focus-visible]:[box-shadow:var(--ids-sem-ring-focus)]",
 
 				// Error state.
 				"has-[[data-slot][aria-invalid=true]]:ring-destructive/20 has-[[data-slot][aria-invalid=true]]:border-destructive dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40",
@@ -124,7 +124,7 @@ const InputGroupInput = React.forwardRef<React.ElementRef<typeof Input>, React.C
 				ref={ref}
 				data-slot="input-group-control"
 				className={cn(
-					"flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent",
+					"flex-1 rounded-none border-0! bg-transparent shadow-none focus-visible:border-0! focus-visible:[box-shadow:none] focus-visible:ring-0 dark:bg-transparent",
 					className,
 				)}
 				{...props}

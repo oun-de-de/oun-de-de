@@ -2,13 +2,14 @@ import type { ColumnDef } from "@tanstack/react-table";
 import Icon from "@/core/components/icon/icon";
 import type { Product } from "@/core/types/product";
 import { Button } from "@/core/ui/button";
+import { formatDisplayDate, formatNumber } from "@/core/utils/formatters";
 
 export const columns: ColumnDef<Product>[] = [
 	{
 		header: "Date",
 		size: 80,
 		accessorKey: "date",
-		cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+		cell: ({ row }) => formatDisplayDate(row.original.date),
 	},
 	{
 		header: "Ref No",
@@ -35,14 +36,14 @@ export const columns: ColumnDef<Product>[] = [
 		header: "Cost",
 		size: 70,
 		accessorKey: "cost",
-		cell: ({ row }) => (row.original.cost || 0).toLocaleString(),
+		cell: ({ row }) => formatNumber(row.original.cost),
 		meta: { bodyClassName: "text-right" },
 	},
 	{
 		header: "Price",
 		size: 70,
 		accessorKey: "price",
-		cell: ({ row }) => <span className="font-semibold">{(row.original.price || 0).toLocaleString()}</span>,
+		cell: ({ row }) => <span className="font-semibold">{formatNumber(row.original.price)}</span>,
 		meta: { bodyClassName: "text-right" },
 	},
 	{
@@ -60,10 +61,7 @@ export const columns: ColumnDef<Product>[] = [
 		header: "Default Price",
 		size: 100,
 		id: "defaultPrice",
-		cell: ({ row }) => {
-			const price = row.original.defaultProductSetting?.price;
-			return price !== null && price !== undefined ? Number(price).toLocaleString() : "-";
-		},
+		cell: ({ row }) => formatNumber(row.original.defaultProductSetting?.price, "-"),
 		meta: { bodyClassName: "text-right" },
 	},
 	{

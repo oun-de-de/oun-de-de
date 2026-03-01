@@ -6,6 +6,7 @@ import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
 import type { CouponState } from "../stores/coupon-state";
 import { columns } from "./coupon-columns";
+import { useNavigate } from "react-router";
 
 type CouponContentProps = {
 	activeCustomerName: string | null | undefined;
@@ -21,18 +22,6 @@ type CouponContentProps = {
 
 const summaryCards = couponSummaryCards;
 
-const filterTypeOptions = [
-	{ value: "all", label: "All" },
-	{ value: "completed", label: "Completed" },
-	{ value: "pending", label: "Pending" },
-];
-
-const filterFieldOptions = [
-	{ value: "all", label: "All Fields" },
-	{ value: "plate-number", label: "Plate Number" },
-	{ value: "driver", label: "Driver" },
-];
-
 export function CouponContent({
 	activeCustomerName,
 	listState,
@@ -43,6 +32,7 @@ export function CouponContent({
 	currentPage,
 	paginationItems,
 }: CouponContentProps) {
+	const navigate = useNavigate();
 	// const activeCoupon = pagedCoupons.find((item) => item.id === activeCouponId);
 
 	return (
@@ -57,6 +47,11 @@ export function CouponContent({
 						{activeCustomerName ? `${activeCustomerName} selected` : "No customer selected"}
 					</Text>
 				</div>
+				<div className="flex items-center gap-2">
+					<Button size="sm" onClick={() => navigate("/dashboard/coupons/create")}>
+						Create Coupons
+					</Button>
+				</div>
 			</div>
 
 			<div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -70,17 +65,7 @@ export function CouponContent({
 				maxBodyHeight="100%"
 				data={pagedCoupons}
 				columns={columns}
-				filterConfig={{
-					typeOptions: filterTypeOptions,
-					fieldOptions: filterFieldOptions,
-					typeValue: listState.typeFilter,
-					fieldValue: listState.fieldFilter,
-					searchValue: listState.searchValue,
-					typePlaceholder: "Status",
-					onTypeChange: (value: string) => updateState({ typeFilter: value, page: 1 }),
-					onFieldChange: (value: string) => updateState({ fieldFilter: value, page: 1 }),
-					onSearchChange: (value: string) => updateState({ searchValue: value, page: 1 }),
-				}}
+				enableFilterBar={false}
 				paginationConfig={{
 					page: currentPage,
 					pageSize: listState.pageSize,

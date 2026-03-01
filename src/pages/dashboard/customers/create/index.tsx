@@ -1,38 +1,16 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import customerService from "@/core/api/services/customer-service";
-import employeeService from "@/core/api/services/employee-service";
 import type { CreateCustomer } from "@/core/types/customer";
 import { Text } from "@/core/ui/typography";
 import { toUtcIsoPreferNowIfToday, toUtcIsoStartOfDay } from "@/core/utils/date-utils";
+import { useFormOptions } from "../hooks/use-form-options";
 import { CustomerForm, type CustomerFormData } from "./components/customer-form";
 
 export default function CreateCustomerPage() {
 	const navigate = useNavigate();
-
-	const { data: employees = [] } = useQuery({
-		queryKey: ["employees", "all"],
-		queryFn: () => employeeService.getEmployeeList(),
-	});
-
-	const employeeOptions = employees.map((emp) => ({
-		label: emp.firstName && emp.lastName ? `${emp.firstName} ${emp.lastName}` : emp.username,
-		value: emp.id,
-	}));
-
-	const { data: customersResponse } = useQuery({
-		queryKey: ["customers", "referredByOptions"],
-		queryFn: () => customerService.getCustomerList({ limit: 1000 }),
-	});
-
-	const customerOptions =
-		customersResponse?.list && customersResponse.list.length > 0
-			? customersResponse.list.map((cus) => ({
-					label: cus.name,
-					value: cus.id,
-				}))
-			: [{ label: "None", value: "none", disabled: true }];
+	const { employeeOptions, customerOptions } = useFormOptions();
 
 	const { mutateAsync: createCustomer } = useMutation({
 		mutationFn: async (data: CreateCustomer) => {
@@ -67,7 +45,7 @@ export default function CreateCustomerPage() {
 		const payload: CreateCustomer = {
 			registerDate: new Date(registerDateIso),
 			name: data.name,
-			status: !!data.status,
+			status: true,
 			referredById,
 			warehouseId: data.warehouseId,
 			memo: data.memo,

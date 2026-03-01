@@ -1,12 +1,19 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
 import Icon from "@/core/components/icon/icon";
 import type { Cycle } from "@/core/types/cycle";
 import { Button } from "@/core/ui/button";
-import { Input } from "@/core/ui/input";
+import {
+	Combobox,
+	ComboboxContent,
+	ComboboxEmpty,
+	ComboboxInput,
+	ComboboxItem,
+	ComboboxList,
+	useComboboxAnchor,
+} from "@/core/ui/combobox";
 import { Label } from "@/core/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/ui/select";
 import { Text } from "@/core/ui/typography";
 import { DURATION_OPTIONS } from "../constants/constants";
 import { useCycleTable } from "../hooks/use-cycle-table";
@@ -17,6 +24,14 @@ type CycleContentProps = {
 	customerName: string | null;
 	onSelectCycle: (cycle: Cycle) => void;
 	requireCustomer?: boolean;
+};
+
+const sanitizeDurationInput = (value: string) => value.replace(/\D+/g, "");
+
+const getDurationDisplayValue = (duration: number) => {
+	const selectedOption = DURATION_OPTIONS.find((option) => option.value === String(duration));
+	if (selectedOption) return selectedOption.label;
+	return duration > 0 ? String(duration) : "";
 };
 
 export function CycleContent({ customerId, customerName, onSelectCycle, requireCustomer = false }: CycleContentProps) {
@@ -37,11 +52,16 @@ export function CycleContent({ customerId, customerName, onSelectCycle, requireC
 		isLoading,
 	} = useCycleTable(customerId, requireCustomer);
 
-	const [customDuration, setCustomDuration] = useState("");
+	const [durationInput, setDurationInput] = useState(() => getDurationDisplayValue(duration));
 	const durationStr = String(duration);
-	const isCustom = !DURATION_OPTIONS.some((o) => o.value === durationStr);
+	const selectedDurationOption = DURATION_OPTIONS.find((option) => option.value === durationStr) ?? null;
+	const anchorRef = useComboboxAnchor();
 
 	const columns = useMemo(() => getCycleColumns(), []);
+
+	useEffect(() => {
+		setDurationInput(getDurationDisplayValue(duration));
+	}, [duration]);
 
 	if (requireCustomer && !customerId) {
 		return (
@@ -86,51 +106,30 @@ export function CycleContent({ customerId, customerName, onSelectCycle, requireC
 			<div className="flex flex-wrap items-end gap-4 rounded-lg border p-4">
 				<div className="space-y-1.5">
 					<Label>Duration</Label>
-					<Select
-						value={isCustom ? "custom" : durationStr}
-						onValueChange={(v) => {
-							if (v === "custom") return;
-							onDurationChange(Number(v));
+					<Combobox<(typeof DURATION_OPTIONS)[number]>
+						items={DURATION_OPTIONS}
+						value={selectedDurationOption}
+						inputValue={durationInput}
+						onValueChange={(nextValue) => {
+							const nextDuration = Number(nextValue?.value ?? "0");
+							setDurationInput(nextValue?.label ?? getDurationDisplayValue(0));
+							onDurationChange(nextDuration);
+						}}
+						onInputValueChange={(nextInputValue) => {
+							const sanitizedValue = sanitizeDurationInput(nextInputValue);
+							setDurationInput(sanitizedValue);
+							onDurationChange(sanitizedValue === "" ? 0 : Number(sanitizedValue));
 						}}
 					>
-						<SelectTrigger className="w-[140px]">
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
-							{DURATION_OPTIONS.map((opt) => (
-								<SelectItem key={opt.value} value={opt.value}>
-									{opt.label}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</div>
-
-				{isCustom && (
-					<div className="flex items-end gap-2">
-						<div className="space-y-1.5">
-							<Label>Custom (days)</Label>
-							<Input
-								type="number"
-								min={1}
-								className="w-[100px]"
-								value={customDuration}
-								onChange={(e) => setCustomDuration(e.target.value)}
-								placeholder="e.g. 60"
-							/>
+						<div ref={anchorRef} className="w-[180px]">
+							<ComboboxInput className="w-full bg-background" placeholder="Duration" aria-label="Duration" />
 						</div>
-						<Button
-							size="sm"
-							variant="outline"
-							onClick={() => {
-								const val = Number(customDuration);
-								if (val > 0) onDurationChange(val);
-							}}
-						>
-							Apply
-						</Button>
-					</div>
-				)}
+						<ComboboxContent anchor={anchorRef}>
+							<ComboboxEmpty>No matching option.</ComboboxEmpty>
+							<ComboboxList>{(item) => <ComboboxItem value={item}>{item.label}</ComboboxItem>}</ComboboxList>
+						</ComboboxContent>
+					</Combobox>
+				</div>
 
 				{/* <div className="space-y-1.5">
 					<Label>From</Label>
@@ -143,7 +142,7 @@ export function CycleContent({ customerId, customerName, onSelectCycle, requireC
 				<Button
 					size="sm"
 					onClick={() => {
-						setCustomDuration("");
+						setDurationInput(getDurationDisplayValue(0));
 						onResetFilters();
 					}}
 				>

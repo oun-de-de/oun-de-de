@@ -69,6 +69,7 @@ export function ProductContent({
 				data={pagedData}
 				columns={columns}
 				filterConfig={{
+					showTypeFilter: false,
 					fieldOptions: FILTER_FIELD_OPTIONS,
 					fieldValue: listState.fieldFilter,
 					searchValue: listState.searchValue,
