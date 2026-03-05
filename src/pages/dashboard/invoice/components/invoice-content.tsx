@@ -45,6 +45,40 @@ type InvoiceContentProps = {
 	activeCycle?: Cycle | null;
 };
 
+const resolveBulkUpdateInitialValues = (invoices: Invoice[]) => {
+	// set initial values for bulk update form
+	const firstInvoice = invoices[0];
+	// check if has same customer name
+	const hasSameCustomerName =
+		invoices.length > 0 && invoices.every((invoice) => invoice.customerName === firstInvoice?.customerName);
+	// check if has same type
+	const hasSameType = invoices.length > 0 && invoices.every((invoice) => invoice.type === firstInvoice?.type);
+
+	return {
+		customerName: hasSameCustomerName ? firstInvoice?.customerName : undefined,
+		type: hasSameType ? firstInvoice?.type : undefined,
+	};
+};
+
+const resetInvoiceSelection = (row: Invoice, id: string): InvoiceExportPreviewRow => {
+	const invoiceSelection = {
+		refNo: row?.refNo ?? id,
+		customerName: row?.customerName ?? "-",
+		date: row?.date ?? "",
+		productName: null,
+		unit: null,
+		pricePerProduct: null,
+		quantityPerProduct: null,
+		quantity: null,
+		amount: null,
+		total: null,
+		memo: null,
+		paid: null,
+		balance: null,
+	};
+	return invoiceSelection;
+};
+
 export function InvoiceContent({
 	pagedData,
 	summaryCards,
@@ -89,12 +123,20 @@ export function InvoiceContent({
 	const displayedPayments = useMemo(() => payments.slice(0, 5), [payments]);
 	const isClosedCycle = activeCycle?.status === "CLOSED";
 
+	const getSelectedInvoices = useCallback(
+		(ids: string[]) =>
+			ids.map((id) => selectedInvoiceById[id] ?? rowById.get(id)).filter((invoice): invoice is Invoice => !!invoice),
+		[selectedInvoiceById, rowById],
+	);
+
 	const handleOpenBulkUpdate = useCallback(() => {
 		if (selectedInvoiceIds.length === 0) return;
+		const selectedInvoices = getSelectedInvoices(selectedInvoiceIds);
+
 		setUpdateTargetIds(selectedInvoiceIds);
-		setUpdateInitialValues({});
+		setUpdateInitialValues(resolveBulkUpdateInitialValues(selectedInvoices));
 		setIsUpdateDialogOpen(true);
-	}, [selectedInvoiceIds]);
+	}, [getSelectedInvoices, selectedInvoiceIds]);
 
 	const handleOpenSingleUpdate = useCallback((invoice: Invoice) => {
 		setUpdateTargetIds([invoice.id]);
@@ -165,21 +207,7 @@ export function InvoiceContent({
 
 		const previewRows: InvoiceExportPreviewRow[] = selectedInvoiceIds.map((id) => {
 			const row = selectedInvoiceById[id] ?? rowById.get(id);
-			return {
-				refNo: row?.refNo ?? id,
-				customerName: row?.customerName ?? "-",
-				date: row?.date ?? "",
-				productName: null,
-				unit: null,
-				pricePerProduct: null,
-				quantityPerProduct: null,
-				quantity: null,
-				amount: null,
-				total: null,
-				memo: null,
-				paid: null,
-				balance: null,
-			};
+			return resetInvoiceSelection(row, id);
 		});
 
 		navigate(`/dashboard/invoice/export-preview?ids=${selectedInvoiceIds.join(",")}`, {
