@@ -43,7 +43,7 @@ export function ProductContent({
 				<div className="flex items-center gap-2">
 					<Button size="sm" className="gap-1">
 						<Icon icon="mdi:package-variant" />
-						Inventory
+						Product
 					</Button>
 					<Text variant="body2" className="text-muted-foreground">
 						{activeProduct ? `${activeProduct.name} selected` : "No item selected"}

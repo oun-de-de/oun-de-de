@@ -9,7 +9,7 @@ export function useCycleTable(customerId: string | null, requireCustomer = false
 	const [fromDate, setFromDate] = useState("");
 	const [toDate, setToDate] = useState("");
 	const [page, setPage] = useState(1);
-	const [pageSize, setPageSize] = useState(100);
+	const [pageSize, setPageSize] = useState(10);
 	const isQueryEnabled = requireCustomer ? !!customerId : true;
 
 	const query = useQuery({
@@ -21,7 +21,7 @@ export function useCycleTable(customerId: string | null, requireCustomer = false
 				to: toDate ? `${toDate}T23:59:59` : undefined,
 				duration: duration > 0 ? duration : undefined,
 				page,
-				size: pageSize,
+				size: Math.max(10, pageSize),
 			}),
 		enabled: isQueryEnabled,
 	});

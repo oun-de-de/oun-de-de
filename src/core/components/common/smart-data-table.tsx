@@ -246,7 +246,7 @@ export function SmartDataTable<T extends object>({
 		}
 	}, [currentPage]);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: columns identity changes require recomputing scroll state
 	useEffect(() => {
 		updateScrollState();
 	}, [updateScrollState, data, columns]);
@@ -388,7 +388,7 @@ export function SmartDataTable<T extends object>({
 					totalPages={paginationConfig.totalPages}
 					totalItems={paginationConfig.totalItems}
 					pageSize={paginationConfig.pageSize}
-					pageSizeOptions={[10, 20, 50]}
+					pageSizeOptions={[10, 20, 50, 100]}
 					goToValue={goToPageValue}
 					onPrev={table.getCanPreviousPage() ? () => table.previousPage() : undefined}
 					onNext={table.getCanNextPage() ? () => table.nextPage() : undefined}

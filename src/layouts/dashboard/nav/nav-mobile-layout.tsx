@@ -2,16 +2,16 @@ import { Icon } from "@/core/components/icon";
 import Logo from "@/core/components/logo";
 import { NavVertical } from "@/core/components/nav";
 import type { NavProps } from "@/core/components/nav/types";
-import { GLOBAL_CONFIG } from "@/global-config";
 import { Button } from "@/core/ui/button";
 import { ScrollArea } from "@/core/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/core/ui/sheet";
+import { GLOBAL_CONFIG } from "@/global-config";
 
 export function NavMobileLayout({ data }: NavProps) {
 	return (
 		<Sheet modal={false}>
 			<SheetTrigger asChild>
-				<Button variant="ghost" size="icon">
+				<Button variant="ghost" size="icon" className="print:hidden">
 					<Icon icon="local:ic-menu" size={24} />
 				</Button>
 			</SheetTrigger>
