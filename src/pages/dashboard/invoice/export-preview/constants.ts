@@ -23,9 +23,9 @@ export const SORT_LABELS: Record<SortMode, string> = {
 };
 
 const PAPER_SIZE_WRAPPER_CLASS_NAMES: Record<PaperSizeMode, string> = {
-	a4: "print:mx-auto print:w-[190mm] print:max-w-[190mm]",
-	a5: "print:mx-auto print:w-[130mm] print:max-w-[130mm]",
-	letter: "print:mx-auto print:w-[196mm] print:max-w-[196mm]",
+	a4: "print:mx-auto print:w-[186mm] print:max-w-[186mm]",
+	a5: "print:mx-auto print:w-[118mm] print:max-w-[118mm]",
+	letter: "print:mx-auto print:w-[184mm] print:max-w-[184mm]",
 };
 
 const PAPER_SIZE_PAGE_VALUES: Record<PaperSizeMode, string> = {

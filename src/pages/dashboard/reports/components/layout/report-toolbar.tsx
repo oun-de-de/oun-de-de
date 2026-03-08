@@ -45,6 +45,7 @@ interface ReportToolbarProps {
 	showColumns?: ReportColumnVisibility;
 	onShowColumnsChange?: (columns: ReportColumnVisibility) => void;
 	columnLabels?: ReportColumnLabels;
+	enableColumnCustomization?: boolean;
 	onPrint?: () => void;
 	onExportExcel?: () => void;
 	onCopy?: () => void;
@@ -74,6 +75,7 @@ function ReportToolbarComponent({
 	showColumns,
 	onShowColumnsChange,
 	columnLabels,
+	enableColumnCustomization = true,
 	onPrint,
 	onExportExcel,
 	onCopy,
@@ -154,60 +156,62 @@ function ReportToolbarComponent({
 								</DropdownMenuContent>
 							</DropdownMenu>
 
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild className="border-none">
-									<Button
-										variant="ghost"
-										size="sm"
-										className="h-8 gap-1.5 px-2 text-sky-600 hover:text-sky-700 hover:bg-sky-50"
-									>
-										<Icon icon="mdi:view-column-outline" size="1.2em" />
-										<span className="text-xs font-medium">Columns</span>
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align="start" className="w-48">
-									<DropdownMenuCheckboxItem
-										checked={showColumns?.refNo}
-										onCheckedChange={(checked) =>
-											showColumns && onShowColumnsChange?.({ ...showColumns, refNo: !!checked })
-										}
-									>
-										{resolvedColumnLabels.refNo}
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={showColumns?.category}
-										onCheckedChange={(checked) =>
-											showColumns && onShowColumnsChange?.({ ...showColumns, category: !!checked })
-										}
-									>
-										{resolvedColumnLabels.category}
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={showColumns?.geography}
-										onCheckedChange={(checked) =>
-											showColumns && onShowColumnsChange?.({ ...showColumns, geography: !!checked })
-										}
-									>
-										{resolvedColumnLabels.geography}
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={showColumns?.address}
-										onCheckedChange={(checked) =>
-											showColumns && onShowColumnsChange?.({ ...showColumns, address: !!checked })
-										}
-									>
-										{resolvedColumnLabels.address}
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={showColumns?.phone}
-										onCheckedChange={(checked) =>
-											showColumns && onShowColumnsChange?.({ ...showColumns, phone: !!checked })
-										}
-									>
-										{resolvedColumnLabels.phone}
-									</DropdownMenuCheckboxItem>
-								</DropdownMenuContent>
-							</DropdownMenu>
+							{enableColumnCustomization && (
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild className="border-none">
+										<Button
+											variant="ghost"
+											size="sm"
+											className="h-8 gap-1.5 px-2 text-sky-600 hover:text-sky-700 hover:bg-sky-50"
+										>
+											<Icon icon="mdi:view-column-outline" size="1.2em" />
+											<span className="text-xs font-medium">Columns</span>
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="start" className="w-48">
+										<DropdownMenuCheckboxItem
+											checked={showColumns?.refNo}
+											onCheckedChange={(checked) =>
+												showColumns && onShowColumnsChange?.({ ...showColumns, refNo: !!checked })
+											}
+										>
+											{resolvedColumnLabels.refNo}
+										</DropdownMenuCheckboxItem>
+										<DropdownMenuCheckboxItem
+											checked={showColumns?.category}
+											onCheckedChange={(checked) =>
+												showColumns && onShowColumnsChange?.({ ...showColumns, category: !!checked })
+											}
+										>
+											{resolvedColumnLabels.category}
+										</DropdownMenuCheckboxItem>
+										<DropdownMenuCheckboxItem
+											checked={showColumns?.geography}
+											onCheckedChange={(checked) =>
+												showColumns && onShowColumnsChange?.({ ...showColumns, geography: !!checked })
+											}
+										>
+											{resolvedColumnLabels.geography}
+										</DropdownMenuCheckboxItem>
+										<DropdownMenuCheckboxItem
+											checked={showColumns?.address}
+											onCheckedChange={(checked) =>
+												showColumns && onShowColumnsChange?.({ ...showColumns, address: !!checked })
+											}
+										>
+											{resolvedColumnLabels.address}
+										</DropdownMenuCheckboxItem>
+										<DropdownMenuCheckboxItem
+											checked={showColumns?.phone}
+											onCheckedChange={(checked) =>
+												showColumns && onShowColumnsChange?.({ ...showColumns, phone: !!checked })
+											}
+										>
+											{resolvedColumnLabels.phone}
+										</DropdownMenuCheckboxItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							)}
 
 							{templateMode && onTemplateModeChange && (
 								<DropdownMenu>
@@ -347,42 +351,44 @@ function ReportToolbarComponent({
 							</div>
 						</div>
 
-						<div className="space-y-2">
-							<div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Columns</div>
-							<div className="flex flex-wrap gap-2">
-								<ToolbarToggleButton
-									label={resolvedColumnLabels.refNo}
-									active={!!showColumns?.refNo}
-									onClick={() => showColumns && onShowColumnsChange?.({ ...showColumns, refNo: !showColumns.refNo })}
-								/>
-								<ToolbarToggleButton
-									label={resolvedColumnLabels.category}
-									active={!!showColumns?.category}
-									onClick={() =>
-										showColumns && onShowColumnsChange?.({ ...showColumns, category: !showColumns.category })
-									}
-								/>
-								<ToolbarToggleButton
-									label={resolvedColumnLabels.geography}
-									active={!!showColumns?.geography}
-									onClick={() =>
-										showColumns && onShowColumnsChange?.({ ...showColumns, geography: !showColumns.geography })
-									}
-								/>
-								<ToolbarToggleButton
-									label={resolvedColumnLabels.address}
-									active={!!showColumns?.address}
-									onClick={() =>
-										showColumns && onShowColumnsChange?.({ ...showColumns, address: !showColumns.address })
-									}
-								/>
-								<ToolbarToggleButton
-									label={resolvedColumnLabels.phone}
-									active={!!showColumns?.phone}
-									onClick={() => showColumns && onShowColumnsChange?.({ ...showColumns, phone: !showColumns.phone })}
-								/>
+						{enableColumnCustomization && (
+							<div className="space-y-2">
+								<div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Columns</div>
+								<div className="flex flex-wrap gap-2">
+									<ToolbarToggleButton
+										label={resolvedColumnLabels.refNo}
+										active={!!showColumns?.refNo}
+										onClick={() => showColumns && onShowColumnsChange?.({ ...showColumns, refNo: !showColumns.refNo })}
+									/>
+									<ToolbarToggleButton
+										label={resolvedColumnLabels.category}
+										active={!!showColumns?.category}
+										onClick={() =>
+											showColumns && onShowColumnsChange?.({ ...showColumns, category: !showColumns.category })
+										}
+									/>
+									<ToolbarToggleButton
+										label={resolvedColumnLabels.geography}
+										active={!!showColumns?.geography}
+										onClick={() =>
+											showColumns && onShowColumnsChange?.({ ...showColumns, geography: !showColumns.geography })
+										}
+									/>
+									<ToolbarToggleButton
+										label={resolvedColumnLabels.address}
+										active={!!showColumns?.address}
+										onClick={() =>
+											showColumns && onShowColumnsChange?.({ ...showColumns, address: !showColumns.address })
+										}
+									/>
+									<ToolbarToggleButton
+										label={resolvedColumnLabels.phone}
+										active={!!showColumns?.phone}
+										onClick={() => showColumns && onShowColumnsChange?.({ ...showColumns, phone: !showColumns.phone })}
+									/>
+								</div>
 							</div>
-						</div>
+						)}
 					</div>
 				</div>
 			)}

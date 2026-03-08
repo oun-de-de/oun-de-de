@@ -60,6 +60,7 @@ interface ReportTemplateTableProps {
 	subtitle?: React.ReactNode;
 	headerContent?: React.ReactNode;
 	metaColumns?: ReportTemplateMetaColumn[];
+	showTableHeader?: boolean;
 	columns: ReportTemplateColumn[];
 	rows: ReportTemplateRow[];
 	hiddenColumnKeys?: string[];
@@ -137,6 +138,7 @@ export const ReportTemplateTable = React.memo(function ReportTemplateTable({
 	subtitle,
 	headerContent,
 	metaColumns = [],
+	showTableHeader = true,
 	columns,
 	rows,
 	hiddenColumnKeys = [],
@@ -182,7 +184,7 @@ export const ReportTemplateTable = React.memo(function ReportTemplateTable({
 
 			<ReportTableWrapper>
 				<ReportTableElement>
-					<thead>{renderHeaderGroups(table)}</thead>
+					{showTableHeader && <thead>{renderHeaderGroups(table)}</thead>}
 
 					<tbody>{renderRows(table, hasNoRows, tableColSpan, emptyText)}</tbody>
 
@@ -229,7 +231,7 @@ const ReportTableWrapper = styled.div.attrs({
 
 const ReportTableElement = styled.table.attrs({
 	className:
-		"w-full border-separate border-spacing-0 border-l border-t border-black text-[11px] text-black print:w-full print:text-[10px]",
+		"w-full border-separate border-spacing-0 border-l border-t border-black text-[11px] text-black print:w-full print:table-fixed print:text-[9px]",
 })``;
 
 const TableHeaderRow = styled.tr.attrs({
