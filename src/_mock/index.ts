@@ -1,6 +1,13 @@
 import { setupWorker } from "msw/browser";
 import { createCustomerVehicle, customerList, getCustomerVehicleList } from "./handlers/_customer";
-import { dailyIncomePos, dailyReport, financialOverview, performance } from "./handlers/_dashboard";
+import {
+	dailyIncomePos,
+	dailyReport,
+	financialOverview,
+	inventoryStockReport,
+	performance,
+	reportDailyReport,
+} from "./handlers/_dashboard";
 import { mockTokenExpired } from "./handlers/_demo";
 import {
 	createEmployee as createEmployeeMock,
@@ -33,6 +40,8 @@ const handlers = [
 	financialOverview,
 	performance,
 	dailyReport,
+	reportDailyReport,
+	inventoryStockReport,
 	saleCustomers,
 	saleEmployees,
 	saleWarehouses,

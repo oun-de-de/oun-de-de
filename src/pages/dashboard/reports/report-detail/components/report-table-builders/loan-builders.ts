@@ -12,6 +12,45 @@ function getLoanPaymentTotals(loan: Loan, installments: Installment[] = []) {
 	return { collected, balance };
 }
 
+function getInstallmentSummary(installments: Installment[] = []) {
+	const paidCount = installments.filter((installment) => installment.status === "paid" || installment.paidAt).length;
+	const overdueCount = installments.filter((installment) => installment.status === "overdue").length;
+	const nextDue = installments
+		.filter((installment) => installment.status !== "paid" && !installment.paidAt)
+		.sort((left, right) => left.monthIndex - right.monthIndex)[0];
+
+	return {
+		paidCount,
+		overdueCount,
+		nextDue: nextDue ? formatDisplayDate(nextDue.dueDate) : "-",
+	};
+}
+
+function getCustomerLoanPurpose(loan: Loan, customer?: Customer) {
+	if (loan.termMonths >= 12) return "Vehicle or long-term equipment purchase";
+	if (loan.termMonths >= 6) return "Tank or equipment purchase";
+	if (customer?.name) return `Customer financing for ${customer.name}`;
+	return "Customer loan / installment";
+}
+
+function getCustomerPaymentTerm(loan: Loan, installments: Installment[] = []) {
+	const { paidCount, overdueCount, nextDue } = getInstallmentSummary(installments);
+	return `${loan.termMonths} months | Paid ${paidCount}/${Math.max(loan.termMonths, installments.length || 0)} | Next due ${nextDue}${
+		overdueCount > 0 ? ` | Overdue ${overdueCount}` : ""
+	}`;
+}
+
+function getCustomerOtherText(loan: Loan, installments: Installment[] = []) {
+	const { overdueCount } = getInstallmentSummary(installments);
+	const monthlyText = loan.monthlyPayment > 0 ? `${formatNumber(loan.monthlyPayment)}/month` : "-";
+	return overdueCount > 0 ? `${monthlyText} | ${overdueCount} overdue` : monthlyText;
+}
+
+function getEmployeeLoanMemo(loan: Loan, installments: Installment[] = []) {
+	const { paidCount, nextDue } = getInstallmentSummary(installments);
+	return `${loan.borrowerName} loan account | Paid ${paidCount} installments | Next due ${nextDue}`;
+}
+
 export function buildCustomerLoanRows(
 	loans: Loan[],
 	customers: Customer[],
@@ -20,7 +59,8 @@ export function buildCustomerLoanRows(
 	const customerMap = new Map(customers.map((customer) => [customer.id, customer]));
 	return loans.map((loan, index) => {
 		const customer = customerMap.get(loan.borrowerId);
-		const { collected, balance } = getLoanPaymentTotals(loan, installmentsByLoanId[loan.id]);
+		const installments = installmentsByLoanId[loan.id] ?? [];
+		const { collected, balance } = getLoanPaymentTotals(loan, installments);
 
 		return {
 			key: loan.id,
@@ -29,13 +69,13 @@ export function buildCustomerLoanRows(
 				date: formatDisplayDate(loan.createdAt || loan.startDate),
 				code: customer?.code ?? loan.borrowerId,
 				name: loan.borrowerName,
-				reason: "Loan / installment",
+				reason: getCustomerLoanPurpose(loan, customer),
 				debit: formatNumber(loan.principalAmount),
 				credit: formatNumber(collected),
 				balance: formatNumber(balance),
 				qty: loan.termMonths,
-				paymentTerm: `${loan.termMonths} months`,
-				other: loan.monthlyPayment > 0 ? `${formatNumber(loan.monthlyPayment)}/month` : "-",
+				paymentTerm: getCustomerPaymentTerm(loan, installments),
+				other: getCustomerOtherText(loan, installments),
 			},
 		};
 	});
@@ -46,7 +86,8 @@ export function buildEmployeeLoanRows(
 	installmentsByLoanId: Record<string, Installment[]>,
 ): ReportTemplateRow[] {
 	return loans.map((loan, index) => {
-		const { collected, balance } = getLoanPaymentTotals(loan, installmentsByLoanId[loan.id]);
+		const installments = installmentsByLoanId[loan.id] ?? [];
+		const { collected, balance } = getLoanPaymentTotals(loan, installments);
 
 		return {
 			key: loan.id,
@@ -55,7 +96,7 @@ export function buildEmployeeLoanRows(
 				type: "General Employee",
 				refNo: `${String(index + 1).padStart(5, "0")}-${loan.borrowerId}`,
 				employee: loan.borrowerName,
-				memo: `${loan.borrowerName} loan account`,
+				memo: getEmployeeLoanMemo(loan, installments),
 				name: "",
 				debit: formatNumber(loan.principalAmount),
 				credit: formatNumber(collected),

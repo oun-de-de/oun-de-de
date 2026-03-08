@@ -372,7 +372,7 @@ export const reportSections = [
 		title: "Stock",
 		icon: "mdi:package-variant-closed",
 		items: [
-			{ slug: "inventory-valuation-summary", label: "Inventory Valuation Summary", favorite: false },
+			{ slug: "inventory-valuation-summary", label: "Inventory Stock Report", favorite: false },
 			{ slug: "company-asset", label: "Company Asset Register", favorite: false },
 		],
 	},

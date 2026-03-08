@@ -1,21 +1,22 @@
-import React from "react";
-import { toast } from "sonner";
 import invoiceService from "@/core/api/services/invoice-service";
 import { cn } from "@/core/utils";
 import {
-	getPaperSizeWrapperClassName,
+	getPaperSizePageValue,
 	getTemplateClassName,
 	type PaperSizeMode,
 	type SortMode,
 	type TemplateMode,
 } from "@/pages/dashboard/invoice/export-preview/constants";
 import { buildInvoiceExportBlob } from "@/pages/dashboard/invoice/export-preview/utils/invoice-export-template";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { ReportFilterBar } from "../../components/layout/report-filter-bar";
 import { ReportLayout } from "../../components/layout/report-layout";
 import type { ReportTemplateColumn, ReportTemplateRow } from "../../components/layout/report-template-table";
 import { ReportToolbar } from "../../components/layout/report-toolbar";
 import { DEFAULT_REPORT_COLUMNS, DEFAULT_REPORT_SECTIONS, REPORT_DEFAULT_DATE_INPUT } from "../constants";
 import { getReportDefinition } from "../report-registry";
+import { hasVisibleReportFilters } from "../report-types";
 import { ReportFilters, type ReportFiltersValue } from "./report-filters";
 import { ReportTable } from "./report-table";
 
@@ -40,14 +41,14 @@ function areReportFiltersEqual(left: ReportFiltersValue, right: ReportFiltersVal
 }
 
 export function ReportDetailView({ reportSlug }: ReportDetailViewProps) {
-	const [showSections, setShowSections] = React.useState(DEFAULT_REPORT_SECTIONS);
-	const [showColumns, setShowColumns] = React.useState(DEFAULT_REPORT_COLUMNS);
-	const [exportInvoiceIds, setExportInvoiceIds] = React.useState<string[]>([]);
-	const [isExporting, setIsExporting] = React.useState(false);
-	const [templateMode, setTemplateMode] = React.useState<TemplateMode>("standard");
-	const [paperSizeMode, setPaperSizeMode] = React.useState<PaperSizeMode>("a4");
-	const [sortMode, setSortMode] = React.useState<SortMode>("default");
-	const [tableData, setTableData] = React.useState<{
+	const [showSections, setShowSections] = useState(DEFAULT_REPORT_SECTIONS);
+	const [showColumns, setShowColumns] = useState(DEFAULT_REPORT_COLUMNS);
+	const [exportInvoiceIds, setExportInvoiceIds] = useState<string[]>([]);
+	const [isExporting, setIsExporting] = useState(false);
+	const [templateMode, setTemplateMode] = useState<TemplateMode>("standard");
+	const [paperSizeMode, setPaperSizeMode] = useState<PaperSizeMode>("a4");
+	const [sortMode, setSortMode] = useState<SortMode>("default");
+	const [tableData, setTableData] = useState<{
 		rows: ReportTemplateRow[];
 		columns: ReportTemplateColumn[];
 		hiddenColumnKeys: string[];
@@ -56,17 +57,35 @@ export function ReportDetailView({ reportSlug }: ReportDetailViewProps) {
 		columns: [],
 		hiddenColumnKeys: [],
 	});
-	const [draftFilters, setDraftFilters] = React.useState<ReportFiltersValue>(DEFAULT_REPORT_FILTERS);
-	const [appliedFilters, setAppliedFilters] = React.useState<ReportFiltersValue>(DEFAULT_REPORT_FILTERS);
+	const [draftFilters, setDraftFilters] = useState<ReportFiltersValue>(DEFAULT_REPORT_FILTERS);
+	const [appliedFilters, setAppliedFilters] = useState<ReportFiltersValue>(DEFAULT_REPORT_FILTERS);
 	const hasPendingFilterChanges = !areReportFiltersEqual(draftFilters, appliedFilters);
 	const handlePrint = () => window.print();
-	const reportDefinition = React.useMemo(() => getReportDefinition(reportSlug), [reportSlug]);
+	const reportDefinition = useMemo(() => getReportDefinition(reportSlug), [reportSlug]);
 	const isExcelExportReport =
 		reportSlug === "open-invoice-detail-by-customer" || reportSlug === "receipt-detail-by-customer";
-	const tableWrapperClassName = React.useMemo(() => getPaperSizeWrapperClassName(paperSizeMode), [paperSizeMode]);
-	const tableClassName = React.useMemo(() => getTemplateClassName(templateMode), [templateMode]);
+	// const tableWrapperClassName = useMemo(() => getPaperSizeWrapperClassName(paperSizeMode), [paperSizeMode]);
+	const pageSizeValue = useMemo(() => getPaperSizePageValue(paperSizeMode), [paperSizeMode]);
+	const tableClassName = useMemo(() => getTemplateClassName(templateMode), [templateMode]);
+	const hasVisibleFilters = hasVisibleReportFilters(reportDefinition.filterConfig);
+	const enableColumnCustomization = Boolean(reportDefinition.hiddenColumnKeys);
 
-	const handleCopy = React.useCallback(async () => {
+	useEffect(() => {
+		const styleId = "report-page-size-style";
+		let styleEl = document.getElementById(styleId) as HTMLStyleElement | null;
+		if (!styleEl) {
+			styleEl = document.createElement("style");
+			styleEl.id = styleId;
+			document.head.appendChild(styleEl);
+		}
+		styleEl.textContent = `@media print { @page { size: ${pageSizeValue}; margin: 6mm; } }`;
+
+		return () => {
+			styleEl?.remove();
+		};
+	}, [pageSizeValue]);
+
+	const handleCopy = useCallback(async () => {
 		const visibleColumns = tableData.columns.filter((column) => !tableData.hiddenColumnKeys.includes(column.id));
 		if (visibleColumns.length === 0 || tableData.rows.length === 0) {
 			toast.error("No table data available to copy");
@@ -89,25 +108,30 @@ export function ReportDetailView({ reportSlug }: ReportDetailViewProps) {
 		}
 	}, [tableData]);
 
-	const handleSubmitFilters = React.useCallback(() => {
-		if (!draftFilters.fromDate || !draftFilters.toDate) {
+	const handleSubmitFilters = useCallback(() => {
+		if (reportDefinition.filterConfig?.singleDate && !draftFilters.fromDate) {
+			toast.error("Date is required");
+			return;
+		}
+
+		if (reportDefinition.filterConfig?.dateRange && (!draftFilters.fromDate || !draftFilters.toDate)) {
 			toast.error("From and To dates are required");
 			return;
 		}
 
-		if (draftFilters.fromDate > draftFilters.toDate) {
+		if (reportDefinition.filterConfig?.dateRange && draftFilters.fromDate > draftFilters.toDate) {
 			toast.error("From date cannot be after To date");
 			return;
 		}
 
 		setAppliedFilters(draftFilters);
-	}, [draftFilters]);
+	}, [draftFilters, reportDefinition.filterConfig]);
 
-	const handleResetFilters = React.useCallback(() => {
+	const handleResetFilters = useCallback(() => {
 		setDraftFilters(appliedFilters);
 	}, [appliedFilters]);
 
-	const handleExportExcel = React.useCallback(async () => {
+	const handleExportExcel = useCallback(async () => {
 		if (!isExcelExportReport) {
 			toast.error("Export Excel is only available for invoice reports");
 			return;
@@ -140,7 +164,7 @@ export function ReportDetailView({ reportSlug }: ReportDetailViewProps) {
 
 	return (
 		<ReportLayout className="report-print-page">
-			{showSections.filter && (
+			{showSections.filter && hasVisibleFilters && (
 				<ReportFilterBar title="Filter" icon="mdi:filter-outline" defaultOpen={true} className="print:hidden">
 					<ReportFilters
 						value={draftFilters}
@@ -148,6 +172,7 @@ export function ReportDetailView({ reportSlug }: ReportDetailViewProps) {
 						onSubmit={handleSubmitFilters}
 						onReset={handleResetFilters}
 						hasPendingChanges={hasPendingFilterChanges}
+						filterConfig={reportDefinition.filterConfig ?? { customer: false, dateRange: false }}
 					/>
 				</ReportFilterBar>
 			)}
@@ -159,6 +184,7 @@ export function ReportDetailView({ reportSlug }: ReportDetailViewProps) {
 					showColumns={showColumns}
 					onShowColumnsChange={setShowColumns}
 					columnLabels={reportDefinition.columnLabels}
+					enableColumnCustomization={enableColumnCustomization}
 					templateMode={templateMode}
 					onTemplateModeChange={setTemplateMode}
 					paperSizeMode={paperSizeMode}
@@ -172,7 +198,8 @@ export function ReportDetailView({ reportSlug }: ReportDetailViewProps) {
 					className="rounded-b-none border-b-0 print:hidden"
 				/>
 
-				<div className={cn("w-full", tableWrapperClassName)}>
+				{/* <div className={cn("w-full", tableWrapperClassName)}> */}
+				<div className="w-full">
 					<ReportTable
 						showSections={showSections}
 						showColumns={showColumns}

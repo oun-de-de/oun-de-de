@@ -38,12 +38,17 @@ export const ReportTable = React.memo(function ReportTable({
 	onInvoiceIdsChange,
 	onTableDataChange,
 }: ReportTableProps) {
-	const { definition, invoiceIds, previewRows, sortedRows } = useReportTableData({ reportSlug, filters, sortMode });
+	const { definition, invoiceIds, previewRows, selectedCustomerLabel, sourceRows, sortedRows } = useReportTableData({
+		reportSlug,
+		filters,
+		sortMode,
+	});
 	const columns = useMemo(() => definition.buildColumns(), [definition]);
 	const hiddenColumnKeys = useMemo(() => definition.hiddenColumnKeys?.(showColumns) ?? [], [definition, showColumns]);
 	const presentation = useMemo(
-		() => buildReportPresentation(reportSlug, definition.title, filters, sortedRows, previewRows),
-		[definition.title, filters, previewRows, reportSlug, sortedRows],
+		() =>
+			buildReportPresentation(reportSlug, definition.title, filters, selectedCustomerLabel, sourceRows, previewRows),
+		[definition.title, filters, previewRows, reportSlug, selectedCustomerLabel, sourceRows],
 	);
 
 	useEffect(() => {
@@ -62,6 +67,7 @@ export const ReportTable = React.memo(function ReportTable({
 			subtitle={definition.subtitle}
 			headerContent={presentation.headerContent}
 			metaColumns={presentation.metaColumns}
+			showTableHeader={presentation.showTableHeader}
 			columns={columns}
 			rows={sortedRows}
 			hiddenColumnKeys={hiddenColumnKeys}

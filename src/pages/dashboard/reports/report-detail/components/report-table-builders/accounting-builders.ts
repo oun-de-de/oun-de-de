@@ -4,18 +4,30 @@ import type { ReportTemplateRow } from "../../../components/layout/report-templa
 import { parseNumericCell } from "../report-table-utils";
 
 export function buildLedgerRows(): ReportTemplateRow[] {
-	return accountingRows.map((row, index) => ({
-		key: `${row.refNo}-${index}`,
-		cells: {
-			no: index + 1,
-			date: row.date,
-			refNo: row.refNo,
-			account: row.type,
-			memo: row.memo || row.currency,
-			debit: row.dr || "-",
-			credit: row.cr || "-",
-		},
-	}));
+	let runningBalance = 0;
+
+	return accountingRows.map((row, index) => {
+		const debit = parseNumericCell(row.dr);
+		const credit = parseNumericCell(row.cr);
+		runningBalance += debit - credit;
+
+		return {
+			key: `${row.refNo}-${index}`,
+			cells: {
+				date: row.date,
+				type: row.type,
+				refNo: row.refNo,
+				employee: "General Employee",
+				memo: row.memo || row.currency || "-",
+				class: row.currency || "General",
+				name: row.type,
+				product: "-",
+				debit: row.dr || "-",
+				credit: row.cr || "-",
+				balance: formatNumber(runningBalance),
+			},
+		};
+	});
 }
 
 export function buildTrialBalanceRows(): ReportTemplateRow[] {
