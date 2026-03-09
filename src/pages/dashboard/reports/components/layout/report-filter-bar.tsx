@@ -39,7 +39,7 @@ export function ReportFilterBar({ title, icon, children, defaultOpen = true, cla
 						</CollapsibleTrigger>
 					</div>
 					<CollapsibleContent>
-						<div className="pt-2">{children}</div>
+						<div className="px-1 pt-2">{children}</div>
 					</CollapsibleContent>
 				</CardContent>
 			</Collapsible>

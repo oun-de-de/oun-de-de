@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { HttpResponse, http } from "msw";
 import type { DailyIncomeAccounting, DailyIncomePos } from "@/core/domain/dashboard/entities/daily-income";
 import { ResultStatus } from "@/core/types/enum";
+import type { DailyReportResponse, InventoryStockReportLine } from "@/core/types/report";
 
 /**
  * Generate mock daily income POS data using faker
@@ -58,6 +59,77 @@ function generateDailyIncomeAccountingData(days: number): DailyIncomeAccounting[
 	}
 
 	return data;
+}
+
+function generateReportDailyReportData(date: string): DailyReportResponse {
+	const dateSeed = new Date(date).getDate() || 1;
+	const soldProducts = Array.from({ length: 3 }, (_, index) => {
+		const totalQuantity = faker.number.int({ min: 20 + dateSeed, max: 250 + dateSeed });
+		const totalAmount = totalQuantity * faker.number.int({ min: 1_000, max: 4_000 });
+
+		return {
+			productName: `Ice Product ${index + 1}`,
+			unit: "bag",
+			totalQuantity,
+			totalAmount,
+		};
+	});
+
+	const boughtItems = Array.from({ length: 2 }, (_, index) => ({
+		itemName: `Expense ${index + 1}`,
+		expense: faker.number.int({ min: 100_000, max: 800_000 }),
+	}));
+
+	const totalRevenue = soldProducts.reduce((sum, item) => sum + (item.totalAmount ?? 0), 0);
+	const totalExpense = boughtItems.reduce((sum, item) => sum + (item.expense ?? 0), 0);
+
+	return {
+		soldProducts,
+		boughtItems,
+		totalRevenue,
+		totalCashReceive: Math.max(totalRevenue - faker.number.int({ min: 0, max: 300_000 }), 0),
+		totalExpense,
+	};
+}
+
+function generateInventoryStockReportData(fromDate: string, toDate: string): InventoryStockReportLine[] {
+	const dates = [fromDate, toDate].filter(Boolean);
+	const [firstDate, secondDate] = dates.length > 1 ? dates : [fromDate, fromDate];
+
+	return [
+		{
+			itemCode: "ICE-BAG-001",
+			itemName: "Ice Bag Small",
+			quantity: 120,
+			type: "IN",
+			reason: "PURCHASE",
+			createdAt: `${firstDate}T08:00:00`,
+		},
+		{
+			itemCode: "ICE-BAG-001",
+			itemName: "Ice Bag Small",
+			quantity: 30,
+			type: "OUT",
+			reason: "CONSUME",
+			createdAt: `${firstDate}T15:00:00`,
+		},
+		{
+			itemCode: "ICE-BAG-002",
+			itemName: "Ice Bag Large",
+			quantity: 90,
+			type: "IN",
+			reason: "PURCHASE",
+			createdAt: `${secondDate}T09:00:00`,
+		},
+		{
+			itemCode: "ICE-BAG-002",
+			itemName: "Ice Bag Large",
+			quantity: 20,
+			type: "OUT",
+			reason: "BORROW",
+			createdAt: `${secondDate}T14:00:00`,
+		},
+	];
 }
 
 const dailyIncomePos = http.get("/api/v1/dashboard/daily-income-pos", ({ request }) => {
@@ -200,4 +272,47 @@ const dailyReport = http.get("/api/v1/dashboard/daily-report", ({ request }) => 
 	);
 });
 
-export { dailyIncomeAccounting, dailyIncomePos, dailyReport, financialOverview, performance };
+const reportDailyReport = http.get("/api/v1/reports/daily-report", ({ request }) => {
+	const url = new URL(request.url);
+	const date = url.searchParams.get("date") ?? format(new Date(), "yyyy-MM-dd");
+	const data = generateReportDailyReportData(date);
+
+	return HttpResponse.json(
+		{
+			message: "",
+			data,
+			status: ResultStatus.SUCCESS,
+		},
+		{
+			status: 200,
+		},
+	);
+});
+
+const inventoryStockReport = http.get("/api/v1/reports/inventory-stock-report", ({ request }) => {
+	const url = new URL(request.url);
+	const fromDate = url.searchParams.get("fromDate") ?? format(new Date(), "yyyy-MM-dd");
+	const toDate = url.searchParams.get("toDate") ?? fromDate;
+	const data = generateInventoryStockReportData(fromDate, toDate);
+
+	return HttpResponse.json(
+		{
+			message: "",
+			data,
+			status: ResultStatus.SUCCESS,
+		},
+		{
+			status: 200,
+		},
+	);
+});
+
+export {
+	dailyIncomeAccounting,
+	dailyIncomePos,
+	dailyReport,
+	financialOverview,
+	inventoryStockReport,
+	performance,
+	reportDailyReport,
+};
