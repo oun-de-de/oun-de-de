@@ -14,7 +14,7 @@ interface HeaderProps {
 export default function Header({ leftSlot }: HeaderProps) {
 	const { breadCrumb } = useSettings();
 	return (
-		<StyledHeader data-slot="slash-layout-header">
+		<StyledHeader className="print:hidden" data-slot="slash-layout-header">
 			<StyledTopRow>
 				<div className="flex items-center min-w-0">
 					{leftSlot}

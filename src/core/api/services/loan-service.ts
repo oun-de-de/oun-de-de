@@ -16,6 +16,11 @@ type InstallmentApiResponse = Omit<Installment, "status"> & {
 	status: string;
 };
 
+function toApiBorrowerType(value?: BorrowerType): string | undefined {
+	if (!value) return undefined;
+	return value.toUpperCase();
+}
+
 function normalizeBorrowerType(value: string): BorrowerType {
 	const normalizedValue = value.toLowerCase();
 	if (normalizedValue === "employee" || normalizedValue === "customer") {
@@ -69,6 +74,7 @@ const getLoans = (params?: {
 			url: LoanApi.Loans,
 			params: {
 				...params,
+				borrower_type: toApiBorrowerType(params?.borrower_type),
 				sort: params?.sort ?? "createAt,desc",
 			},
 		})
@@ -106,10 +112,18 @@ const payInstallment = (loanId: string, installmentId: string): Promise<Installm
 		})
 		.then(normalizeInstallment);
 
+const postponeLoan = (loanId: string): Promise<Installment[]> =>
+	apiClient
+		.post<InstallmentApiResponse[]>({
+			url: `${LoanApi.Loans}/${loanId}/postpone`,
+		})
+		.then((response) => response.map(normalizeInstallment));
+
 export default {
 	getLoans,
 	createLoan,
 	getLoanDetails,
 	getInstallments,
 	payInstallment,
+	postponeLoan,
 };

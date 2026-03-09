@@ -78,7 +78,7 @@ export function getInvoiceColumns({
 			meta: { bodyClassName: "text-center", headerClassName: "print:hidden", cellClassName: "print:hidden" },
 			cell: ({ row }) => (
 				<Button
-					variant="secondary"
+					variant="warning"
 					size="sm"
 					className="h-7 px-2 text-xs print:hidden"
 					onClick={() => onEditOne(row.original)}

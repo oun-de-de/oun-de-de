@@ -1,0 +1,198 @@
+import type { InventoryStockReportLine } from "@/core/types/report";
+import type { Product } from "@/core/types/product";
+import { formatDisplayDate, formatNumber } from "@/core/utils/formatters";
+import type { ReportTemplateRow } from "../../../components/layout/report-template-table";
+import { parseDisplayDate, parseNumericCell } from "../report-table-utils";
+
+const INVENTORY_SUPPLIER = {
+	name: "LC 1988 Supply",
+	phone: "070669898",
+	address: "Phnom Penh",
+} as const;
+
+const EMPTY_CELL = "-";
+
+function getInventoryItemKey(row: ReportTemplateRow) {
+	return String(row.cells.itemCode ?? row.cells.balanceName ?? row.key).trim();
+}
+
+function buildInventoryMovementCells(params: {
+	itemCode?: string | null;
+	itemName?: string | null;
+	date?: string | null;
+	quantity: number;
+	isInbound: boolean;
+	supplierName?: string | null;
+	supplierPhone?: string | null;
+	supplierAddress?: string | null;
+	balanceQty: number;
+}) {
+	const itemName = params.itemName ?? EMPTY_CELL;
+	const itemCode = params.itemCode ?? EMPTY_CELL;
+	const dateText = formatDisplayDate(params.date);
+	const quantityText = formatNumber(params.quantity);
+
+	return {
+		stockInDate: params.isInbound ? dateText : EMPTY_CELL,
+		itemCode,
+		itemName,
+		stockInQty: params.isInbound ? quantityText : EMPTY_CELL,
+		stockOutDate: params.isInbound ? EMPTY_CELL : dateText,
+		stockOutName: params.isInbound ? EMPTY_CELL : itemName,
+		stockOutQty: params.isInbound ? EMPTY_CELL : quantityText,
+		balanceDate: dateText,
+		balanceName: itemName,
+		balanceQty: formatNumber(params.balanceQty),
+		supplierName: params.supplierName ?? EMPTY_CELL,
+		supplierPhone: params.supplierPhone ?? EMPTY_CELL,
+		supplierAddress: params.supplierAddress ?? EMPTY_CELL,
+	};
+}
+
+function buildAssetDetail(product: Product) {
+	return [
+		product.unit?.name ? `Unit: ${product.unit.name}` : null,
+		product.refNo ? `Code: ${product.refNo}` : `Asset ID: ${product.id}`,
+		product.defaultProductSetting?.price ? `Default price: ${formatNumber(product.defaultProductSetting.price)}` : null,
+	]
+		.filter(Boolean)
+		.join(" | ");
+}
+
+function buildAssetOther(product: Product) {
+	return (
+		[
+			product.defaultProductSetting?.quantity
+				? `Default qty ${formatNumber(product.defaultProductSetting.quantity)}`
+				: null,
+			product.price ? `Sale price ${formatNumber(product.price)}` : null,
+		]
+			.filter(Boolean)
+			.join(" | ") || EMPTY_CELL
+	);
+}
+
+export function buildProductListRows(products: Product[]): ReportTemplateRow[] {
+	return products.map((product, index) => ({
+		key: product.id,
+		cells: {
+			no: index + 1,
+			name: product.name ?? "-",
+			unit: product.unit?.name ?? "-",
+			quantity: formatNumber(product.quantity),
+			cost: formatNumber(product.cost),
+			price: formatNumber(product.price),
+			value: formatNumber(product.quantity * product.cost),
+		},
+	}));
+}
+
+export function buildInventoryBagRows(products: Product[]): ReportTemplateRow[] {
+	return products.map((product) => {
+		const stockInQty = Math.max(product.quantity, 0);
+		const stockOutQty = Math.max(Math.round(product.quantity * 0.35), 0);
+		const balanceQty = Math.max(stockInQty - stockOutQty, 0);
+
+		return {
+			key: `inventory-${product.id}`,
+			cells: buildInventoryMovementCells({
+				itemCode: product.refNo ?? product.id,
+				itemName: product.name,
+				date: product.date,
+				quantity: stockInQty,
+				isInbound: true,
+				supplierName: INVENTORY_SUPPLIER.name,
+				supplierPhone: INVENTORY_SUPPLIER.phone,
+				supplierAddress: INVENTORY_SUPPLIER.address,
+				balanceQty,
+			}),
+		};
+	});
+}
+
+export function buildInventoryStockReportRows(lines: InventoryStockReportLine[] | undefined): ReportTemplateRow[] {
+	if (!lines?.length) return [];
+
+	const runningBalanceByItem = new Map<string, number>();
+
+	return [...lines]
+		.sort((left, right) => {
+			const leftTime = left.createdAt ? new Date(left.createdAt).getTime() : 0;
+			const rightTime = right.createdAt ? new Date(right.createdAt).getTime() : 0;
+			return leftTime - rightTime;
+		})
+		.map((line, index) => {
+			const itemKey = line.itemCode?.trim() || line.itemName?.trim() || `item-${index}`;
+			const previousBalance = runningBalanceByItem.get(itemKey) ?? 0;
+			const quantity = Number(line.quantity ?? 0);
+			const isInbound = line.type === "IN";
+			const nextBalance = isInbound ? previousBalance + quantity : previousBalance - quantity;
+
+			runningBalanceByItem.set(itemKey, nextBalance);
+
+			return {
+				key: `inventory-stock-${index}-${itemKey}`,
+				cells: buildInventoryMovementCells({
+					itemCode: line.itemCode,
+					itemName: line.itemName,
+					date: line.createdAt,
+					quantity,
+					isInbound,
+					supplierName: line.reason,
+					balanceQty: nextBalance,
+				}),
+			};
+		});
+}
+
+export function filterInventoryStockReportRowsByDate(
+	rows: ReportTemplateRow[],
+	fromDate: string | undefined,
+	toDate: string | undefined,
+): ReportTemplateRow[] {
+	if (!fromDate && !toDate) return rows;
+
+	const fromTime = fromDate ? new Date(`${fromDate}T00:00:00`).getTime() : Number.NEGATIVE_INFINITY;
+	const toTime = toDate ? new Date(`${toDate}T23:59:59`).getTime() : Number.POSITIVE_INFINITY;
+
+	const rowsWithinRange = rows.filter((row) => {
+		const rowTime = parseDisplayDate(row.cells.balanceDate);
+		return Number.isFinite(rowTime) && rowTime >= fromTime && rowTime <= toTime;
+	});
+
+	const latestRowByItem = new Map<string, ReportTemplateRow>();
+	for (const row of rows) {
+		latestRowByItem.set(getInventoryItemKey(row), row);
+	}
+
+	const visibleItemKeys = new Set(rowsWithinRange.map(getInventoryItemKey));
+
+	for (const [itemKey, row] of latestRowByItem.entries()) {
+		if (visibleItemKeys.has(itemKey)) continue;
+		if (parseNumericCell(row.cells.balanceQty) <= 0) continue;
+
+		rowsWithinRange.push(row);
+	}
+
+	return rowsWithinRange;
+}
+
+export function buildCompanyAssetRows(products: Product[]): ReportTemplateRow[] {
+	return products.map((product, index) => ({
+		key: `asset-${product.id}`,
+		cells: {
+			no: index + 1,
+			name: product.name ?? "-",
+			entryDate: formatDisplayDate(product.date),
+			supplierName: product.refNo ? `Ref ${product.refNo}` : "Internal record",
+			supplierPhone: EMPTY_CELL,
+			supplierAddress: EMPTY_CELL,
+			detail: buildAssetDetail(product),
+			debit: formatNumber(product.quantity * product.cost),
+			credit: EMPTY_CELL,
+			balance: formatNumber(product.quantity * product.cost),
+			qty: formatNumber(product.quantity),
+			other: buildAssetOther(product),
+		},
+	}));
+}

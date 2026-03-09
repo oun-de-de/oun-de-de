@@ -7,5 +7,9 @@ interface ReportLayoutProps {
 }
 
 export function ReportLayout({ children, className }: ReportLayoutProps) {
-	return <div className={cn("flex w-full flex-col gap-4 p-4 overflow-auto", className)}>{children}</div>;
+	return (
+		<div className={cn("flex w-full flex-col gap-4 overflow-auto p-4 print:gap-0 print:p-0", className)}>
+			{children}
+		</div>
+	);
 }
