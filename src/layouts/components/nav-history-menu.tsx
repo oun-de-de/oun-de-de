@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
 import { Icon } from "@/core/components/icon";
 import { useFilteredNavData } from "@/layouts/dashboard/nav/nav-data/index";
@@ -7,21 +7,43 @@ import { RouterLink } from "@/routes/components/router-link";
 import { getRouteTitle, SORTED_PATHS } from "./route-mappings";
 
 type HistoryItem = {
-	path: string;
+	href: string;
+	pathname: string;
 	title: string;
+	state?: unknown;
 };
 
 const DEFAULT_DASHBOARD_PATH = "/";
 const DEFAULT_DASHBOARD_TITLE = "Dashboard";
 const MAX_HISTORY_ITEMS = 12;
+const NAV_HISTORY_STORAGE_KEY = "nav-history";
+
+function normalizePath(path: string) {
+	return path.replace(/\/+$/, "") || DEFAULT_DASHBOARD_PATH;
+}
+
+function buildHref(pathname: string, search: string, hash: string) {
+	return `${pathname}${search}${hash}`;
+}
+
+function toPersistableState(state: unknown) {
+	if (state == null) return undefined;
+
+	try {
+		return JSON.parse(JSON.stringify(state));
+	} catch {
+		return undefined;
+	}
+}
 
 export default function NavHistoryMenu() {
 	const location = useLocation();
+	const navigate = useNavigate();
 	const navData = useFilteredNavData();
 	const rafRef = useRef<number | null>(null);
 	const [history, setHistory] = useState<HistoryItem[]>(() => {
 		// Initialize with Dashboard
-		const saved = localStorage.getItem("nav-history");
+		const saved = localStorage.getItem(NAV_HISTORY_STORAGE_KEY);
 		if (saved) {
 			try {
 				const parsed = JSON.parse(saved);
@@ -31,22 +53,26 @@ export default function NavHistoryMenu() {
 						(item) =>
 							item &&
 							typeof item === "object" &&
-							typeof (item as HistoryItem).path === "string" &&
+							typeof (item as HistoryItem).href === "string" &&
+							typeof (item as HistoryItem).pathname === "string" &&
 							typeof (item as HistoryItem).title === "string",
 					);
 				if (!isHistoryItemArray(parsed)) {
-					return [{ path: DEFAULT_DASHBOARD_PATH, title: DEFAULT_DASHBOARD_TITLE }];
+					return [{ href: DEFAULT_DASHBOARD_PATH, pathname: DEFAULT_DASHBOARD_PATH, title: DEFAULT_DASHBOARD_TITLE }];
 				}
 				// Ensure Dashboard is always first
-				if (parsed.length > 0 && parsed[0].path !== DEFAULT_DASHBOARD_PATH) {
-					return [{ path: DEFAULT_DASHBOARD_PATH, title: DEFAULT_DASHBOARD_TITLE }, ...parsed];
+				if (parsed.length > 0 && parsed[0].pathname !== DEFAULT_DASHBOARD_PATH) {
+					return [
+						{ href: DEFAULT_DASHBOARD_PATH, pathname: DEFAULT_DASHBOARD_PATH, title: DEFAULT_DASHBOARD_TITLE },
+						...parsed,
+					];
 				}
 				return parsed;
 			} catch {
-				return [{ path: DEFAULT_DASHBOARD_PATH, title: DEFAULT_DASHBOARD_TITLE }];
+				return [{ href: DEFAULT_DASHBOARD_PATH, pathname: DEFAULT_DASHBOARD_PATH, title: DEFAULT_DASHBOARD_TITLE }];
 			}
 		}
-		return [{ path: DEFAULT_DASHBOARD_PATH, title: DEFAULT_DASHBOARD_TITLE }];
+		return [{ href: DEFAULT_DASHBOARD_PATH, pathname: DEFAULT_DASHBOARD_PATH, title: DEFAULT_DASHBOARD_TITLE }];
 	});
 
 	const scrollRef = useRef<HTMLDivElement>(null);
@@ -147,51 +173,70 @@ export default function NavHistoryMenu() {
 		[pathToTitleMap],
 	);
 
-	const normalizePath = (path: string) => path.replace(/\/+$/, "") || DEFAULT_DASHBOARD_PATH;
-
-	// Update history when pathname changes
+	// Update history when location changes
 	useEffect(() => {
-		const currentPath = normalizePath(location.pathname);
+		const currentPathname = normalizePath(location.pathname);
+		const currentHref = buildHref(currentPathname, location.search, location.hash);
 
-		if (!currentPath.startsWith("/dashboard") && currentPath !== DEFAULT_DASHBOARD_PATH) {
+		if (!currentPathname.startsWith("/dashboard") && currentPathname !== DEFAULT_DASHBOARD_PATH) {
 			return;
 		}
 
-		if (currentPath === DEFAULT_DASHBOARD_PATH) {
+		if (currentPathname === DEFAULT_DASHBOARD_PATH) {
 			return;
 		}
 
-		const resolvedPath = getCanonicalPath(currentPath);
-		const currentTitle = getTitleFromPath(currentPath);
+		const resolvedPath = getCanonicalPath(currentPathname);
+		const currentTitle = getTitleFromPath(currentPathname);
+		const currentState = toPersistableState(location.state);
 
 		setHistory((prev) => {
-			// If exact path already exists, do nothing
-			const exactExists = prev.some((item) => item.path === currentPath);
-			if (exactExists) return prev;
+			// If exact href already exists, refresh its saved state.
+			const exactIndex = prev.findIndex((item) => item.href === currentHref);
+			if (exactIndex !== -1) {
+				const next = [...prev];
+				next[exactIndex] = {
+					...next[exactIndex],
+					title: currentTitle,
+					state: currentState,
+				};
+				return next;
+			}
 
 			// Find any existing entry that shares the same canonical base
-			const existingIndex = prev.findIndex((item) => getCanonicalPath(item.path) === resolvedPath);
+			const existingIndex = prev.findIndex((item) => getCanonicalPath(item.pathname) === resolvedPath);
 
 			if (existingIndex !== -1) {
-				// Replace in-place (covers both directions:
-				// detail→parent and parent→detail)
 				const next = [...prev];
-				next[existingIndex] = { path: currentPath, title: currentTitle };
+				next[existingIndex] = {
+					href: currentHref,
+					pathname: currentPathname,
+					title: currentTitle,
+					state: currentState,
+				};
 				return next;
 			}
 
 			// New entry — append
-			const next = [...prev, { path: currentPath, title: currentTitle }];
+			const next = [
+				...prev,
+				{
+					href: currentHref,
+					pathname: currentPathname,
+					title: currentTitle,
+					state: currentState,
+				},
+			];
 			if (next.length <= MAX_HISTORY_ITEMS) return next;
 
 			const dashboard =
-				next[0]?.path === DEFAULT_DASHBOARD_PATH
+				next[0]?.pathname === DEFAULT_DASHBOARD_PATH
 					? next[0]
-					: { path: DEFAULT_DASHBOARD_PATH, title: DEFAULT_DASHBOARD_TITLE };
-			const tail = next.filter((item) => item.path !== DEFAULT_DASHBOARD_PATH);
+					: { href: DEFAULT_DASHBOARD_PATH, pathname: DEFAULT_DASHBOARD_PATH, title: DEFAULT_DASHBOARD_TITLE };
+			const tail = next.filter((item) => item.pathname !== DEFAULT_DASHBOARD_PATH);
 			return [dashboard, ...tail.slice(-(MAX_HISTORY_ITEMS - 1))];
 		});
-	}, [location.pathname, getTitleFromPath]);
+	}, [location.pathname, location.search, location.hash, location.state, getTitleFromPath]);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
@@ -211,20 +256,20 @@ export default function NavHistoryMenu() {
 
 	// Save to localStorage whenever history changes
 	useEffect(() => {
-		localStorage.setItem("nav-history", JSON.stringify(history));
+		localStorage.setItem(NAV_HISTORY_STORAGE_KEY, JSON.stringify(history));
 	}, [history]);
 
-	const handleRemove = useCallback((path: string, e: React.MouseEvent) => {
+	const handleRemove = useCallback((href: string, e: React.MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
 
-		setHistory((prev) => prev.filter((item) => item.path !== path));
+		setHistory((prev) => prev.filter((item) => item.href !== href));
 	}, []);
 
-	const currentPath = normalizePath(location.pathname);
-	const isActive = (path: string) => path === currentPath;
-	const isDashboard = (path: string) => path === DEFAULT_DASHBOARD_PATH;
-	const canRemove = (path: string) => !isDashboard(path) && !isActive(path);
+	const currentHref = buildHref(normalizePath(location.pathname), location.search, location.hash);
+	const isActive = (href: string) => href === currentHref;
+	const isDashboard = (pathname: string) => pathname === DEFAULT_DASHBOARD_PATH;
+	const canRemove = (item: HistoryItem) => !isDashboard(item.pathname) && !isActive(item.href);
 
 	return (
 		<StyledContainer>
@@ -235,17 +280,25 @@ export default function NavHistoryMenu() {
 			)}
 			<StyledHistoryList ref={scrollRef} onScroll={updateScrollState}>
 				{history.map((item) => {
-					const active = isActive(item.path);
-					const removable = canRemove(item.path);
+					const active = isActive(item.href);
+					const removable = canRemove(item);
 
 					return (
-						<StyledHistoryItem key={item.path} $active={active}>
-							<StyledHistoryLink href={item.path} $active={active}>
+						<StyledHistoryItem key={item.href} $active={active}>
+							<StyledHistoryLink
+								href={item.href}
+								state={item.state}
+								$active={active}
+								onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+									e.preventDefault();
+									navigate(item.href, item.state !== undefined ? { state: item.state } : undefined);
+								}}
+							>
 								{active && <StyledActiveDot />}
 								<StyledHistoryText $active={active}>{item.title}</StyledHistoryText>
 							</StyledHistoryLink>
 							{removable && (
-								<StyledRemoveButton onClick={(e: React.MouseEvent) => handleRemove(item.path, e)} aria-label="Remove">
+								<StyledRemoveButton onClick={(e: React.MouseEvent) => handleRemove(item.href, e)} aria-label="Remove">
 									<Icon icon="lucide:x" size={14} />
 								</StyledRemoveButton>
 							)}

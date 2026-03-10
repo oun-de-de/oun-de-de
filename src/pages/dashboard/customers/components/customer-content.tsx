@@ -1,10 +1,8 @@
-import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
-import Icon from "@/core/components/icon/icon";
+import { SmartDataTable } from "@/core/components/common";
 import type { Customer } from "@/core/types/customer";
-import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
 import type { ListState } from "../stores/customer-list-store";
-import { FILTER_FIELD_OPTIONS, FILTER_TYPE_OPTIONS, getSummaryStats } from "../utils/customer-utils";
+import { FILTER_FIELD_OPTIONS, FILTER_TYPE_OPTIONS } from "../utils/customer-utils";
 import CustomerButtonActions from "./customer-button-actions";
 import { columns } from "./customer-columns";
 
@@ -30,17 +28,17 @@ export function CustomerContent({
 	currentPage,
 	paginationItems,
 }: CustomerContentProps) {
-	const summaryStats = getSummaryStats(activeCustomer);
+	// const summaryStats = getSummaryStats(activeCustomer);
 	const searchPlaceholder = listState.fieldFilter === "payment_term" ? "Enter payment term in days" : "Search...";
 
 	return (
 		<>
 			<div className="flex flex-wrap items-center justify-between gap-2">
 				<div className="flex items-center gap-2">
-					<Button size="sm" className="gap-1">
+					{/* <Button size="sm" className="gap-1">
 						<Icon icon="mdi:account-multiple-outline" />
 						Customer
-					</Button>
+					</Button> */}
 					<Text variant="body2" className="text-slate-400">
 						{activeCustomer ? `${activeCustomer.name} selected` : "No Customer Selected"}
 					</Text>
@@ -48,11 +46,11 @@ export function CustomerContent({
 				<CustomerButtonActions />
 			</div>
 
-			<div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+			{/* <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
 				{summaryStats.map((card) => (
 					<SummaryStatCard key={card.label} {...card} />
 				))}
-			</div>
+			</div> */}
 
 			<SmartDataTable
 				className="flex-1 min-h-0"

@@ -96,7 +96,7 @@ export function BorrowContent({ activeCustomerId, activeCustomerName, listState,
 				maxBodyHeight="100%"
 				data={paginatedLoans}
 				columns={borrowColumns}
-				filterConfig={{ ...filterConfig, showFieldFilter: false }}
+				filterConfig={filterConfig}
 				paginationConfig={paginationConfig}
 				onRowClick={(row) => navigate(`/dashboard/loan/${row.id}`)}
 			/>

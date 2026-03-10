@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
 import invoiceService from "@/core/api/services/invoice-service";
+import Icon from "@/core/components/icon/icon";
 import { useAuthUser } from "@/core/services/auth/hooks/use-auth";
 import type { InvoiceExportPreviewLocationState } from "@/core/types/invoice";
+import { Button } from "@/core/ui/button";
 import { cn } from "@/core/utils";
 import {
 	type ReportTemplateMetaColumn,
@@ -37,6 +39,17 @@ import {
 } from "./utils/export-preview-rows";
 import { buildInvoiceExportBlob } from "./utils/invoice-export-template";
 
+const EXPORT_PREVIEW_IDS_STORAGE_KEY = "invoice-export-preview:selected-ids";
+
+function parseInvoiceIds(value: string | null) {
+	if (!value) return [];
+
+	return value
+		.split(",")
+		.map((id) => id.trim())
+		.filter(Boolean);
+}
+
 function buildClipboardText(
 	rows: ReturnType<typeof buildReportRows>,
 	visibleColumnIds: string[],
@@ -56,19 +69,19 @@ function buildClipboardText(
 
 export default function InvoiceExportPreviewPage() {
 	const location = useLocation();
+	const navigate = useNavigate();
 	const authUser = useAuthUser();
 	const [isExporting, setIsExporting] = useState(false);
 	const state = (location.state as InvoiceExportPreviewLocationState | null) ?? null;
 	const selectedInvoiceIds = useMemo(() => {
 		if (state?.selectedInvoiceIds?.length) return state.selectedInvoiceIds;
 
-		const idsParam = new URLSearchParams(location.search).get("ids");
-		if (!idsParam) return [];
+		const idsFromSearch = parseInvoiceIds(new URLSearchParams(location.search).get("ids"));
+		if (idsFromSearch.length > 0) return idsFromSearch;
 
-		return idsParam
-			.split(",")
-			.map((id) => id.trim())
-			.filter(Boolean);
+		if (typeof window === "undefined") return [];
+
+		return parseInvoiceIds(window.sessionStorage.getItem(EXPORT_PREVIEW_IDS_STORAGE_KEY));
 	}, [state?.selectedInvoiceIds, location.search]);
 	const fallbackRows = state?.previewRows ?? [];
 	const exportQuery = useQuery({
@@ -183,6 +196,15 @@ export default function InvoiceExportPreviewPage() {
 		window.print();
 	}, []);
 
+	const handleBack = useCallback(() => {
+		if (window.history.length > 1) {
+			navigate(-1);
+			return;
+		}
+
+		navigate("/dashboard/invoice");
+	}, [navigate]);
+
 	const handleCopy = useCallback(async () => {
 		const clipboardText = buildClipboardText(reportRows, visibleColumnIds, columns);
 
@@ -193,6 +215,12 @@ export default function InvoiceExportPreviewPage() {
 			toast.error("Failed to copy table data");
 		}
 	}, [columns, reportRows, visibleColumnIds]);
+
+	useEffect(() => {
+		if (selectedInvoiceIds.length === 0 || typeof window === "undefined") return;
+
+		window.sessionStorage.setItem(EXPORT_PREVIEW_IDS_STORAGE_KEY, selectedInvoiceIds.join(","));
+	}, [selectedInvoiceIds]);
 
 	useEffect(() => {
 		if (hasAutoPrinted || !state?.autoPrint) return;
@@ -220,6 +248,13 @@ export default function InvoiceExportPreviewPage() {
 
 	return (
 		<div className="invoice-export-preview-page flex h-full flex-col gap-4 p-1 overflow-auto print:block print:h-auto print:p-0">
+			<div className="print:hidden">
+				<Button variant="ghost" size="sm" onClick={handleBack} className="gap-1 text-sky-600 hover:bg-sky-50">
+					<Icon icon="mdi:arrow-left" />
+					Back
+				</Button>
+			</div>
+
 			<div className="flex flex-col print:block">
 				<div className="print:hidden">
 					<ExportPreviewToolbar

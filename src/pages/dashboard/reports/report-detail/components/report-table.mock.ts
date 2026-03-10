@@ -37,7 +37,6 @@ export const SAMPLE_CYCLE_ROWS: CycleReportRow[] = [
 	{
 		customer: "Nguyen Van A",
 		cycle: "CYC-2026-02",
-		openingBalance: "300,000",
 		invoiceTotal: "1,950,000",
 		paid: "1,500,000",
 		outstanding: "750,000",
@@ -45,7 +44,6 @@ export const SAMPLE_CYCLE_ROWS: CycleReportRow[] = [
 	{
 		customer: "Nguyen Van C",
 		cycle: "CYC-2026-02",
-		openingBalance: "0",
 		invoiceTotal: "800,000",
 		paid: "800,000",
 		outstanding: "0",

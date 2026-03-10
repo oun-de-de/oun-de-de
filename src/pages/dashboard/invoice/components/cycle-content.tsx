@@ -1,8 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
 import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
 import Icon from "@/core/components/icon/icon";
-import type { Cycle } from "@/core/types/cycle";
+import type { Cycle, CycleStatus } from "@/core/types/cycle";
 import { Button } from "@/core/ui/button";
 import {
 	Combobox,
@@ -13,10 +11,14 @@ import {
 	ComboboxList,
 	useComboboxAnchor,
 } from "@/core/ui/combobox";
+import { Input } from "@/core/ui/input";
 import { Label } from "@/core/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/ui/select";
 import { Text } from "@/core/ui/typography";
 import { cn } from "@/core/utils";
-import { DURATION_OPTIONS } from "../constants/constants";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
+import { CYCLE_STATUS_OPTIONS, DURATION_OPTIONS } from "../constants/constants";
 import { useCycleTable } from "../hooks/use-cycle-table";
 import { getCycleColumns } from "./cycle-columns";
 
@@ -35,6 +37,11 @@ const getDurationDisplayValue = (duration: number) => {
 	return String(duration);
 };
 
+const getDurationOption = (duration: number) => ({
+	value: String(duration),
+	label: `${duration} Day${duration === 1 ? "" : "s"}`,
+});
+
 function normalizeDurationInput(value: string) {
 	const trimmedValue = value.trim();
 	if (trimmedValue.toLowerCase() === ALL_DURATION_LABEL.toLowerCase()) {
@@ -49,7 +56,13 @@ export function CycleContent({ customerId, customerName, onSelectCycle, requireC
 		cycles,
 		summaryCards,
 		duration,
+		status,
+		fromDate,
+		toDate,
+		setFromDate,
+		setToDate,
 		onDurationChange,
+		onStatusChange,
 		onResetFilters,
 		currentPage,
 		pageSize,
@@ -63,9 +76,18 @@ export function CycleContent({ customerId, customerName, onSelectCycle, requireC
 
 	const [durationInput, setDurationInput] = useState(() => getDurationDisplayValue(duration));
 	const durationAnchorRef = useComboboxAnchor();
+	const durationOptions = useMemo(() => {
+		if (duration <= 0 || DURATION_OPTIONS.some((option) => option.value === String(duration))) {
+			return DURATION_OPTIONS;
+		}
+
+		return [...DURATION_OPTIONS, getDurationOption(duration)].sort(
+			(left, right) => Number(left.value) - Number(right.value),
+		);
+	}, [duration]);
 	const selectedDurationOption = useMemo(
-		() => DURATION_OPTIONS.find((option) => option.value === String(duration)) ?? null,
-		[duration],
+		() => durationOptions.find((option) => option.value === String(duration)) ?? null,
+		[duration, durationOptions],
 	);
 
 	const columns = useMemo(() => getCycleColumns(), []);
@@ -92,9 +114,6 @@ export function CycleContent({ customerId, customerName, onSelectCycle, requireC
 			{/* Header */}
 			<div className="flex flex-wrap items-center justify-between gap-2">
 				<div className="flex items-center gap-2">
-					<Button size="sm" className="gap-1">
-						Cycles
-					</Button>
 					<Text variant="body2" className="text-muted-foreground">
 						{customerName ? `${customerName} selected` : "Select a customer"}
 					</Text>
@@ -113,12 +132,12 @@ export function CycleContent({ customerId, customerName, onSelectCycle, requireC
 				))}
 			</div>
 
-			{/* Filters: Duration + Date Range */}
+			{/* Filters: Duration + Status + Date Range */}
 			<div className="flex flex-wrap items-center justify gap-4 rounded-lg border p-4">
 				<div className="space-y-1.5">
 					<Label>Duration</Label>
-					<Combobox<(typeof DURATION_OPTIONS)[number]>
-						items={DURATION_OPTIONS}
+					<Combobox<(typeof durationOptions)[number]>
+						items={durationOptions}
 						value={selectedDurationOption}
 						inputValue={durationInput}
 						onValueChange={(option) => {
@@ -144,14 +163,44 @@ export function CycleContent({ customerId, customerName, onSelectCycle, requireC
 					</Combobox>
 				</div>
 
-				{/* <div className="space-y-1.5">
-					<Label>From</Label>
-					<Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+				<div className="space-y-1.5">
+					<Label>Status</Label>
+					<Select value={status} onValueChange={(value) => onStatusChange(value as CycleStatus | "all")}>
+						<SelectTrigger className="w-[180px]" aria-label="Status">
+							<SelectValue placeholder="Status" />
+						</SelectTrigger>
+						<SelectContent>
+							{CYCLE_STATUS_OPTIONS.map((option) => (
+								<SelectItem key={option.value} value={option.value}>
+									{option.label}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
 				</div>
+
+				<div className="space-y-1.5">
+					<Label>From</Label>
+					<Input
+						type="date"
+						value={fromDate}
+						max={toDate || undefined}
+						onChange={(e) => setFromDate(e.target.value)}
+						className="w-[180px]"
+					/>
+				</div>
+
 				<div className="space-y-1.5">
 					<Label>To</Label>
-					<Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-				</div> */}
+					<Input
+						type="date"
+						value={toDate}
+						min={fromDate || undefined}
+						onChange={(e) => setToDate(e.target.value)}
+						className="w-[180px]"
+					/>
+				</div>
+
 				<div className="space-y-1.5">
 					<div className="h-2" aria-hidden="true" />
 					<Button
