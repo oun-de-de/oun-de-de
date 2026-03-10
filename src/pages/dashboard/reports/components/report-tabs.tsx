@@ -24,7 +24,7 @@ export function ReportTabs({ activeTab, onTabChange, className }: ReportTabsProp
 				{reportTabs.map((tab) => (
 					<Button
 						key={tab}
-						variant={activeTab === tab ? "default" : "ghost"}
+						variant={activeTab === tab ? "default" : "outline"}
 						size="sm"
 						className="gap-1"
 						onClick={() => onTabChange(tab)}
