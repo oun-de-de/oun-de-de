@@ -1,0 +1,60 @@
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+name: 🚀 Deploy website on merge
+
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Test FTP from runner
+        run: |
+          curl -v --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
+            ftp://${{ secrets.FTP_SERVER }}/ \
+            --connect-timeout 10
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.8.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: 📦 Install
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗️ Build
+        run: pnpm build
+        env:
+          VITE_APP_DEFAULT_ROUTE: ${{ vars.VITE_APP_DEFAULT_ROUTE }}
+          VITE_APP_PUBLIC_PATH: ${{ vars.VITE_APP_PUBLIC_PATH }}
+          VITE_APP_API_BASE_URL: ${{ vars.VITE_APP_API_BASE_URL }}
+          VITE_APP_API_VERSION: ${{ vars.VITE_APP_API_VERSION }}
+          VITE_APP_ROUTER_MODE: ${{ vars.VITE_APP_ROUTER_MODE }}
+      - name: 📂 Sync files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          port: ${{ secrets.FTP_SERVER_PORT }}
+          protocol: ftp
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/
+          server-dir: ./domains/cdtphuhoi.com/public_html/
+          exclude: |
+            **/.git*/**
+            **/node_modules/**
