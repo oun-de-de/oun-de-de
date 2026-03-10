@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import cycleService from "@/core/api/services/cycle-service";
+import type { CycleStatus } from "@/core/types/cycle";
 import { buildPagination } from "@/core/utils/dashboard-utils";
 import { formatKHR } from "../utils/formatters";
 
 export function useCycleTable(customerId: string | null, requireCustomer = false) {
 	const [duration, setDuration] = useState(0);
+	const [status, setStatus] = useState<CycleStatus | "all">("all");
 	const [fromDate, setFromDate] = useState("");
 	const [toDate, setToDate] = useState("");
 	const [page, setPage] = useState(1);
@@ -13,13 +15,14 @@ export function useCycleTable(customerId: string | null, requireCustomer = false
 	const isQueryEnabled = requireCustomer ? !!customerId : true;
 
 	const query = useQuery({
-		queryKey: ["cycles", customerId, fromDate, toDate, duration, page, pageSize],
+		queryKey: ["cycles", customerId, fromDate, toDate, duration, status, page, pageSize],
 		queryFn: () =>
 			cycleService.getCycles({
 				customerId: customerId ?? undefined,
 				from: fromDate ? `${fromDate}T00:00:00` : undefined,
 				to: toDate ? `${toDate}T23:59:59` : undefined,
 				duration: duration > 0 ? duration : undefined,
+				status: status === "all" ? undefined : status,
 				page,
 				size: Math.max(10, pageSize),
 			}),
@@ -43,8 +46,14 @@ export function useCycleTable(customerId: string | null, requireCustomer = false
 		setPage(1);
 	}, []);
 
+	const onStatusChange = useCallback((value: CycleStatus | "all") => {
+		setStatus(value);
+		setPage(1);
+	}, []);
+
 	const onResetFilters = useCallback(() => {
 		setDuration(0);
+		setStatus("all");
 		setFromDate("");
 		setToDate("");
 		setPage(1);
@@ -72,11 +81,13 @@ export function useCycleTable(customerId: string | null, requireCustomer = false
 		cycles,
 		summaryCards,
 		duration,
+		status,
 		fromDate,
 		toDate,
 		setFromDate,
 		setToDate,
 		onDurationChange,
+		onStatusChange,
 		onResetFilters,
 		currentPage,
 		pageSize,
