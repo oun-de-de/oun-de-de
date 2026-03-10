@@ -27,14 +27,21 @@ export function CouponSidebar({ activeCouponId, onSelect, onToggle, isCollapsed 
 			couponService.getCouponList({
 				page: pageParam,
 				limit: 20,
-				search: searchTerm || undefined,
-				status: status === "all" ? undefined : status,
 			}),
 		initialPageParam: 1,
 		getNextPageParam: (lastPage) => (lastPage.page < lastPage.pageCount ? lastPage.page + 1 : undefined),
 	});
 
-	const coupons = data?.pages.flatMap((page) => page.list) ?? [];
+	const coupons = (data?.pages.flatMap((page) => page.list) ?? []).filter((coupon) => {
+		const matchesSearch =
+			!searchTerm ||
+			coupon.driverName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			coupon.vehicle?.licensePlate?.toLowerCase().includes(searchTerm.toLowerCase());
+
+		const matchesStatus = status === "all";
+
+		return matchesSearch && matchesStatus;
+	});
 	const totalFromApi = data?.pages[0]?.total ?? 0;
 	const total = totalFromApi > 0 ? totalFromApi : coupons.length;
 
