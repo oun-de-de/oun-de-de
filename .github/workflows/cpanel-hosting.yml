@@ -1,42 +1,54 @@
 on:
-  workflow_dispatch:
-name: 🚀 Deploy website on push
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+name: 🚀 Deploy website on merge
+
 jobs:
   web-deploy:
     name: 🎉 Deploy
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+
     steps:
       - name: 🚚 Get latest code
         uses: actions/checkout@v4
-      - name: Make envfile
-        uses: SpicyPizza/create-envfile@v1
-        with:
-          envkey_DEBUG: false
-          envkey_FOO: "foo"
-          envkey_SECRET: ${{ secrets.SECRET }}
-          # directory: <directory_name> # tmp disable for checking
-          file_name: .env
-          fail_on_empty: true
-      - name: Confirm env file
-        run: cat .env
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
           version: 10.8.0
-          cache: false
-      - name: Install
-        run: |
-          pnpm install --frozen-lockfile
-      - name: Build
-        run: |
-          pnpm build
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: 📦 Install
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗️ Build
+        run: pnpm build
+        env:
+          VITE_APP_DEFAULT_ROUTE: ${{ vars.VITE_APP_DEFAULT_ROUTE }}
+          VITE_APP_PUBLIC_PATH: ${{ vars.VITE_APP_PUBLIC_PATH }}
+          VITE_APP_API_BASE_URL: ${{ vars.VITE_APP_API_BASE_URL }}
+          VITE_APP_API_VERSION: ${{ vars.VITE_APP_API_VERSION }}
+          VITE_APP_ROUTER_MODE: ${{ vars.VITE_APP_ROUTER_MODE }}
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: ${{ secrets.FTP_SERVER }}
           port: ${{ secrets.FTP_SERVER_PORT }}
           protocol: ftps
-          username: ${{ secrets.FTP_USRNAME }}
+          username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./test/
+          local-dir: ./dist/
           server-dir: ./domains/cdtphuhoi.com/public_html/
+          exclude: |
+            **/.git*/**
+            **/node_modules/**
