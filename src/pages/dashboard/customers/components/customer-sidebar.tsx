@@ -65,7 +65,7 @@ export function CustomerSidebar({
 				mainTypePlaceholder="Payment Term"
 				mainTypeFilter={<CustomerTypeCombobox value={paymentTermInput} onChange={handlePaymentTermChange} />}
 				onMenuClick={onToggle}
-				searchPlaceholder="Search..."
+				searchPlaceholder="Search for customer"
 				onSearchChange={setSearchTerm}
 				statusOptions={STATUS_OPTIONS}
 				statusValue="all"
