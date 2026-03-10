@@ -1,7 +1,7 @@
-import type { PaginatedResponse } from "@/core/types/common";
+import type { PagePaginatedResponse } from "@/core/types/common";
 import type { Coupon, CreateCouponRequest } from "@/core/types/coupon";
 import type { Pagination } from "@/core/types/pagination";
-import { mapPaginatedResponseToPagination } from "@/core/utils/pagination";
+import { mapPagePaginatedResponseToPagination } from "@/core/utils/pagination";
 import { apiClient } from "../apiClient";
 
 export enum CouponApi {
@@ -9,23 +9,17 @@ export enum CouponApi {
 	Create = "/coupons",
 }
 
-const getCouponList = (params?: {
-	page?: number;
-	limit?: number;
-	search?: string;
-	status?: string;
-}): Promise<Pagination<Coupon>> =>
+const getCouponList = (params?: { page?: number; limit?: number; customerId?: string }): Promise<Pagination<Coupon>> =>
 	apiClient
-		.get<PaginatedResponse<Coupon> | Coupon[]>({
+		.get<PagePaginatedResponse<Coupon>>({
 			url: CouponApi.List,
 			params: {
 				page: params?.page ? params.page - 1 : 0,
 				size: params?.limit,
-				search: params?.search,
-				status: params?.status,
+				customer_id: params?.customerId,
 			},
 		})
-		.then(mapPaginatedResponseToPagination);
+		.then(mapPagePaginatedResponseToPagination);
 
 const createCoupon = (coupon: CreateCouponRequest) => apiClient.post<Coupon>({ url: CouponApi.Create, data: coupon });
 

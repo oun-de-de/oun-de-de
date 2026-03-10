@@ -69,7 +69,8 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 									<Input
 										id="username"
 										autoComplete="username"
-										placeholder={DB_USER.map((user) => user.username).join("/")}
+										// placeholder={DB_USER.map((user) => user.username).join("/")}
+										placeholder={""}
 										{...field}
 									/>
 								</FormControl>
