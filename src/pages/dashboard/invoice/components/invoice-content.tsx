@@ -79,6 +79,11 @@ const resetInvoiceSelection = (row: Invoice, id: string): InvoiceExportPreviewRo
 	return invoiceSelection;
 };
 
+const buildExportPreviewState = (invoices: Invoice[]) => ({
+	selectedInvoiceIds: invoices.map((invoice) => invoice.id),
+	previewRows: invoices.map((invoice) => resetInvoiceSelection(invoice, invoice.id)),
+});
+
 export function InvoiceContent({
 	pagedData,
 	summaryCards,
@@ -202,21 +207,28 @@ export function InvoiceContent({
 	);
 	const allSummaryCards = useMemo(() => [...summaryCards, ...cycleSummaryCards], [summaryCards, cycleSummaryCards]);
 
+	const openExportPreview = useCallback(
+		(invoices: Invoice[]) => {
+			if (invoices.length === 0) return;
+
+			const exportState = buildExportPreviewState(invoices);
+			navigate(`/dashboard/invoice/export-preview?ids=${exportState.selectedInvoiceIds.join(",")}`, {
+				state: exportState,
+			});
+		},
+		[navigate],
+	);
+
 	const handleOpenExportPreview = () => {
-		if (selectedInvoiceIds.length === 0) return;
-
-		const previewRows: InvoiceExportPreviewRow[] = selectedInvoiceIds.map((id) => {
-			const row = selectedInvoiceById[id] ?? rowById.get(id);
-			return resetInvoiceSelection(row, id);
-		});
-
-		navigate(`/dashboard/invoice/export-preview?ids=${selectedInvoiceIds.join(",")}`, {
-			state: {
-				selectedInvoiceIds,
-				previewRows,
-			},
-		});
+		openExportPreview(getSelectedInvoices(selectedInvoiceIds));
 	};
+
+	const handleOpenInvoiceExportPreview = useCallback(
+		(invoice: Invoice) => {
+			openExportPreview([invoice]);
+		},
+		[openExportPreview],
+	);
 
 	return (
 		<div className={`flex w-full flex-col gap-4 ${isLoading ? "opacity-60 pointer-events-none" : ""}`}>
@@ -343,6 +355,7 @@ export function InvoiceContent({
 				maxBodyHeight="100%"
 				data={pagedData}
 				columns={columns}
+				onRowClick={handleOpenInvoiceExportPreview}
 				filterConfig={{
 					showFieldFilter: false,
 					typeOptions: INVOICE_FILTER_TYPE_OPTIONS,
