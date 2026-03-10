@@ -24,20 +24,12 @@ export default function CouponsPage() {
 	};
 
 	const { data, isLoading } = useQuery({
-		queryKey: [
-			"coupons",
-			listState.page,
-			listState.pageSize,
-			listState.searchValue,
-			listState.typeFilter,
-			activeCustomer?.id,
-		],
+		queryKey: ["coupons", listState.page, listState.pageSize, activeCustomer?.id],
 		queryFn: () =>
 			couponService.getCouponList({
 				page: listState.page,
 				limit: listState.pageSize,
-				search: activeCustomer?.name || listState.searchValue || undefined,
-				status: listState.typeFilter !== "all" ? listState.typeFilter : undefined,
+				customerId: activeCustomer?.id || undefined,
 			}),
 	});
 
