@@ -12,7 +12,6 @@ export type MainReportRow = {
 export type CycleReportRow = {
 	customer: string;
 	cycle: string;
-	openingBalance: string;
 	invoiceTotal: string;
 	paid: string;
 	outstanding: string;

@@ -15,7 +15,6 @@ export function buildCycleReportRows(cycles: Cycle[]): ReportTemplateRow[] {
 			cells: {
 				customer: cycle.customerName ?? "-",
 				cycle: `${startDate} - ${endDate}`,
-				openingBalance: 0,
 				invoiceTotal: formatKHR(invoiceTotal),
 				paid: formatKHR(paid),
 				outstanding: formatKHR(outstanding),
