@@ -1,12 +1,21 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
 import Icon from "@/core/components/icon/icon";
 import type { Cycle } from "@/core/types/cycle";
 import { Button } from "@/core/ui/button";
-import { Input } from "@/core/ui/input";
+import {
+	Combobox,
+	ComboboxContent,
+	ComboboxEmpty,
+	ComboboxInput,
+	ComboboxItem,
+	ComboboxList,
+	useComboboxAnchor,
+} from "@/core/ui/combobox";
 import { Label } from "@/core/ui/label";
 import { Text } from "@/core/ui/typography";
+import { cn } from "@/core/utils";
 import { DURATION_OPTIONS } from "../constants/constants";
 import { useCycleTable } from "../hooks/use-cycle-table";
 import { getCycleColumns } from "./cycle-columns";
@@ -25,6 +34,14 @@ const getDurationDisplayValue = (duration: number) => {
 	if (duration === 0) return ALL_DURATION_LABEL;
 	return String(duration);
 };
+
+function normalizeDurationInput(value: string) {
+	const trimmedValue = value.trim();
+	if (trimmedValue.toLowerCase() === ALL_DURATION_LABEL.toLowerCase()) {
+		return ALL_DURATION_LABEL;
+	}
+	return sanitizeDurationInput(trimmedValue);
+}
 
 export function CycleContent({ customerId, customerName, onSelectCycle, requireCustomer = false }: CycleContentProps) {
 	const navigate = useNavigate();
@@ -45,8 +62,17 @@ export function CycleContent({ customerId, customerName, onSelectCycle, requireC
 	} = useCycleTable(customerId, requireCustomer);
 
 	const [durationInput, setDurationInput] = useState(() => getDurationDisplayValue(duration));
+	const durationAnchorRef = useComboboxAnchor();
+	const selectedDurationOption = useMemo(
+		() => DURATION_OPTIONS.find((option) => option.value === String(duration)) ?? null,
+		[duration],
+	);
 
 	const columns = useMemo(() => getCycleColumns(), []);
+
+	useEffect(() => {
+		setDurationInput(getDurationDisplayValue(duration));
+	}, [duration]);
 
 	if (requireCustomer && !customerId) {
 		return (
@@ -88,44 +114,34 @@ export function CycleContent({ customerId, customerName, onSelectCycle, requireC
 			</div>
 
 			{/* Filters: Duration + Date Range */}
-			<div className="flex flex-wrap items-end gap-4 rounded-lg border p-4">
+			<div className="flex flex-wrap items-center justify gap-4 rounded-lg border p-4">
 				<div className="space-y-1.5">
 					<Label>Duration</Label>
-					<Input
-						className="w-[180px] bg-background"
-						value={durationInput}
-						placeholder="Duration"
-						aria-label="Duration"
-						inputMode="numeric"
-						list="cycle-duration-options"
-						onKeyDown={(event) => {
-							if (event.key === "Enter") {
-								event.preventDefault();
-								return;
-							}
-							if (["e", "E", "+", "-", "."].includes(event.key)) {
-								event.preventDefault();
-							}
+					<Combobox<(typeof DURATION_OPTIONS)[number]>
+						items={DURATION_OPTIONS}
+						value={selectedDurationOption}
+						inputValue={durationInput}
+						onValueChange={(option) => {
+							const nextDuration = Number(option?.value ?? 0);
+							setDurationInput(option?.label ?? ALL_DURATION_LABEL);
+							onDurationChange(nextDuration);
 						}}
-						onChange={(event) => {
-							if (event.target.value === ALL_DURATION_LABEL) {
-								setDurationInput(ALL_DURATION_LABEL);
-								onDurationChange(0);
-								return;
-							}
-							const sanitizedValue = sanitizeDurationInput(event.target.value);
-							setDurationInput(sanitizedValue);
-							onDurationChange(sanitizedValue === "" ? 0 : Number(sanitizedValue));
+						onInputValueChange={(nextInputValue) => {
+							const normalizedInput = normalizeDurationInput(nextInputValue);
+							setDurationInput(normalizedInput);
+							onDurationChange(
+								normalizedInput === "" || normalizedInput === ALL_DURATION_LABEL ? 0 : Number(normalizedInput),
+							);
 						}}
-					/>
-					<datalist id="cycle-duration-options">
-						<option value={ALL_DURATION_LABEL} />
-						{DURATION_OPTIONS.filter((option) => option.value !== "0").map((option) => (
-							<option key={option.value} value={option.value}>
-								{option.label}
-							</option>
-						))}
-					</datalist>
+					>
+						<div ref={durationAnchorRef} className="w-[180px]">
+							<ComboboxInput className={cn("w-full bg-background")} placeholder="Duration" aria-label="Duration" />
+						</div>
+						<ComboboxContent anchor={durationAnchorRef}>
+							<ComboboxEmpty>No matching duration.</ComboboxEmpty>
+							<ComboboxList>{(option) => <ComboboxItem value={option}>{option.label}</ComboboxItem>}</ComboboxList>
+						</ComboboxContent>
+					</Combobox>
 				</div>
 
 				{/* <div className="space-y-1.5">
@@ -136,15 +152,19 @@ export function CycleContent({ customerId, customerName, onSelectCycle, requireC
 					<Label>To</Label>
 					<Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
 				</div> */}
-				<Button
-					size="sm"
-					onClick={() => {
-						setDurationInput(getDurationDisplayValue(0));
-						onResetFilters();
-					}}
-				>
-					Reset Default
-				</Button>
+				<div className="space-y-1.5">
+					<div className="h-2" aria-hidden="true" />
+					<Button
+						size="sm"
+						className="h-8"
+						onClick={() => {
+							setDurationInput(getDurationDisplayValue(0));
+							onResetFilters();
+						}}
+					>
+						Reset Default
+					</Button>
+				</div>
 			</div>
 
 			{/* Cycles Table */}

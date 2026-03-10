@@ -39,10 +39,10 @@ export const borrowColumns: ColumnDef<Loan>[] = [
 		header: "Term (Months)",
 		meta: { bodyClassName: "text-right" },
 	},
-	{
-		accessorKey: "monthlyPayment",
-		header: "Monthly Pay",
-		cell: ({ row }) => formatKHR(row.original.monthlyPayment),
-		meta: { bodyClassName: "text-right" },
-	},
+	// {
+	// 	accessorKey: "monthlyPayment",
+	// 	header: "Monthly Pay",
+	// 	cell: ({ row }) => formatKHR(row.original.monthlyPayment),
+	// 	meta: { bodyClassName: "text-right" },
+	// },
 ];

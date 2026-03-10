@@ -42,7 +42,8 @@ function getCustomerPaymentTerm(loan: Loan, installments: Installment[] = []) {
 
 function getCustomerOtherText(loan: Loan, installments: Installment[] = []) {
 	const { overdueCount } = getInstallmentSummary(installments);
-	const monthlyText = loan.monthlyPayment > 0 ? `${formatNumber(loan.monthlyPayment)}/month` : "-";
+	const monthlyPayment = loan.monthlyPayment ?? 0;
+	const monthlyText = monthlyPayment > 0 ? `${formatNumber(monthlyPayment)}/month` : "-";
 	return overdueCount > 0 ? `${monthlyText} | ${overdueCount} overdue` : monthlyText;
 }
 
