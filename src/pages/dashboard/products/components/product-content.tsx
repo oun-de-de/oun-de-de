@@ -1,10 +1,9 @@
-import { useNavigate } from "react-router";
-import { productSummaryCards } from "@/_mock/data/dashboard";
-import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
+import { SmartDataTable } from "@/core/components/common";
 import Icon from "@/core/components/icon/icon";
 import type { Product } from "@/core/types/product";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
+import { useNavigate } from "react-router";
 import { columns } from "./product-columns";
 
 type ProductContentProps = {
@@ -17,8 +16,6 @@ type ProductContentProps = {
 	currentPage: number;
 	paginationItems: Array<number | "...">;
 };
-
-const summaryCards = productSummaryCards;
 
 const FILTER_FIELD_OPTIONS = [
 	{ value: "all", label: "All" },
@@ -41,10 +38,6 @@ export function ProductContent({
 		<>
 			<div className="flex flex-wrap items-center justify-between gap-2">
 				<div className="flex items-center gap-2">
-					<Button size="sm" className="gap-1">
-						<Icon icon="mdi:package-variant" />
-						Product
-					</Button>
 					<Text variant="body2" className="text-muted-foreground">
 						{activeProduct ? `${activeProduct.name} selected` : "No item selected"}
 					</Text>
@@ -57,11 +50,11 @@ export function ProductContent({
 				</div>
 			</div>
 
-			<div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+			{/* <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
 				{summaryCards.map((card) => (
 					<SummaryStatCard key={card.label} {...card} />
 				))}
-			</div>
+			</div> */}
 
 			<SmartDataTable
 				className="flex-1 min-h-0"
