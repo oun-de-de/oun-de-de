@@ -5,7 +5,6 @@ export function buildCycleColumns(): ReportTemplateColumn[] {
 	return buildSizedColumns([
 		["customer", "Customer"],
 		["cycle", "Cycle"],
-		["openingBalance", "Opening Balance"],
 		["invoiceTotal", "Invoice Total"],
 		["paid", "Paid"],
 	]);

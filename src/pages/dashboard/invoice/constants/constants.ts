@@ -25,3 +25,10 @@ export const DURATION_OPTIONS = [
 	{ value: "30", label: "30 Days" },
 	{ value: "45", label: "45 Days" },
 ] as const;
+
+export const CYCLE_STATUS_OPTIONS = [
+	{ value: "all", label: "All Status" },
+	{ value: "OPEN", label: "Open" },
+	{ value: "CLOSED", label: "Closed" },
+	{ value: "OVERDUE", label: "Overdue" },
+] as const;

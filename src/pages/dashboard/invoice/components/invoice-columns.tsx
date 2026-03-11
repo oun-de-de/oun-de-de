@@ -32,6 +32,7 @@ export function getInvoiceColumns({
 				<div className="print:hidden">
 					<Checkbox
 						checked={allSelected ? true : partiallySelected ? "indeterminate" : false}
+						onClick={(event) => event.stopPropagation()}
 						onCheckedChange={(checked) => onToggleAll(checked === true)}
 						aria-label="Select all invoices"
 					/>
@@ -41,6 +42,7 @@ export function getInvoiceColumns({
 				<div className="print:hidden">
 					<Checkbox
 						checked={selectedIds.has(row.original.id)}
+						onClick={(event) => event.stopPropagation()}
 						onCheckedChange={(checked) => onToggleOne(row.original.id, checked === true)}
 						aria-label={`Select invoice ${row.original.refNo}`}
 					/>
@@ -81,7 +83,10 @@ export function getInvoiceColumns({
 					variant="warning"
 					size="sm"
 					className="h-7 px-2 text-xs print:hidden"
-					onClick={() => onEditOne(row.original)}
+					onClick={(event) => {
+						event.stopPropagation();
+						onEditOne(row.original);
+					}}
 				>
 					Edit
 				</Button>

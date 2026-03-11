@@ -1,13 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import cycleService from "@/core/api/services/cycle-service";
-import type { ConvertToLoanRequest, CreatePaymentRequest } from "@/core/types/cycle";
+import type { ConvertToLoanRequest, CreatePaymentRequest, Cycle, CyclePayment } from "@/core/types/cycle";
+import type { Pagination } from "@/core/types/pagination";
 
 export function useCyclePayments(cycleId?: string) {
 	const queryClient = useQueryClient();
 
 	const paymentQueryKey = ["cycle-payments", cycleId] as const;
-	const createInvalidateKeys = [paymentQueryKey, ["cycles"], ["invoices"]] as const;
+	const cycleDetailQueryKey = ["cycle-detail", cycleId] as const;
+	const createInvalidateKeys = [paymentQueryKey, cycleDetailQueryKey, ["cycles"], ["invoices"]] as const;
 	const convertInvalidateKeys = [["cycles"], ["invoices"], ["loans"]] as const;
 
 	// invalidate many queries
@@ -29,7 +31,37 @@ export function useCyclePayments(cycleId?: string) {
 
 	const createPaymentMutation = useMutation({
 		mutationFn: (payload: CreatePaymentRequest) => cycleService.createPayment(requireCycleId(), payload),
-		onSuccess: async () => {
+		onSuccess: async (createdPayment) => {
+			queryClient.setQueryData<CyclePayment[]>(paymentQueryKey, (previousPayments = []) => [
+				createdPayment,
+				...previousPayments,
+			]);
+
+			queryClient.setQueryData<Cycle | undefined>(cycleDetailQueryKey, (previousCycle) =>
+				previousCycle
+					? {
+							...previousCycle,
+							totalPaidAmount: (previousCycle.totalPaidAmount ?? 0) + (createdPayment.amount ?? 0),
+						}
+					: previousCycle,
+			);
+
+			queryClient.setQueriesData<Pagination<Cycle>>({ queryKey: ["cycles"] }, (previousPagination) => {
+				if (!previousPagination) return previousPagination;
+
+				return {
+					...previousPagination,
+					list: previousPagination.list.map((cycle) =>
+						cycle.id === createdPayment.cycleId
+							? {
+									...cycle,
+									totalPaidAmount: (cycle.totalPaidAmount ?? 0) + (createdPayment.amount ?? 0),
+								}
+							: cycle,
+					),
+				};
+			});
+
 			toast.success("Payment created successfully");
 			await invalidateMany(createInvalidateKeys);
 		},
