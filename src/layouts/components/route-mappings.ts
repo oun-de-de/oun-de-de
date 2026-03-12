@@ -9,10 +9,6 @@ const LOAN_ROUTE_MAPPINGS = [
 		title: "Loan",
 	},
 	{
-		path: "/dashboard/borrow/new",
-		title: "New Loan Center",
-	},
-	{
 		path: "/dashboard/borrow/payment",
 		title: "Loan Payment Center",
 	},

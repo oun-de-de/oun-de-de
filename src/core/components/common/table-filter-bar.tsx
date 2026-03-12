@@ -20,9 +20,9 @@ import { cn } from "@/core/utils";
 const filterBarVariants = cva("flex flex-wrap items-center", {
 	variants: {
 		variant: {
-			default: "gap-2",
-			compact: "gap-1",
-			transparent: "gap-2 bg-transparent",
+			default: "gap-1",
+			compact: "gap-0.5",
+			transparent: "gap-1 bg-transparent",
 		},
 	},
 	defaultVariants: {
@@ -57,7 +57,11 @@ function FilterSearchCombobox({ value, placeholder, options, onChange }: FilterS
 			onInputValueChange={(nextInputValue) => onChange(nextInputValue.trim().toLowerCase())}
 		>
 			<div ref={anchorRef} className="w-full">
-				<ComboboxInput className={cn("w-full bg-background")} placeholder={placeholder} aria-label={placeholder} />
+				<ComboboxInput
+					className={cn("h-7 w-full bg-background px-2 text-xs")}
+					placeholder={placeholder}
+					aria-label={placeholder}
+				/>
 			</div>
 			<ComboboxContent anchor={anchorRef}>
 				<ComboboxEmpty>No matching option.</ComboboxEmpty>
@@ -161,14 +165,14 @@ export function TableFilterBar({
 	return (
 		<FilterContainer className={cn(filterBarVariants({ variant }), className)}>
 			{onFilterClick && (
-				<Button variant="outline" size="icon" className="h-9 w-9" onClick={onFilterClick} aria-label="Filter">
+				<Button variant="outline" size="icon" className="h-7 w-7" onClick={onFilterClick} aria-label="Filter">
 					<Icon icon="mdi:filter-variant" />
 				</Button>
 			)}
 
 			{showTypeFilter && (
 				<Select value={typeValue ?? ""} onValueChange={handleOnTypeChange}>
-					<SelectTrigger className="w-[160px]">
+					<SelectTrigger className="h-7 w-[124px] text-xs">
 						<SelectValue placeholder={typePlaceholder} />
 					</SelectTrigger>
 					<SelectContent>
@@ -183,7 +187,7 @@ export function TableFilterBar({
 
 			{showFieldFilter && (
 				<Select value={fieldValue ?? ""} onValueChange={handleOnFieldChange}>
-					<SelectTrigger className="w-[160px]">
+					<SelectTrigger className="h-7 w-[124px] text-xs">
 						<SelectValue placeholder={fieldPlaceholder} />
 					</SelectTrigger>
 					<SelectContent>
@@ -208,7 +212,7 @@ export function TableFilterBar({
 					<>
 						<Input
 							placeholder={searchPlaceholder}
-							className="pl-9"
+							className="h-7 pl-7 text-xs"
 							value={localSearch}
 							onChange={(event) => setLocalSearch(event.target.value)}
 						/>
@@ -226,10 +230,10 @@ export function TableFilterBar({
 const FilterContainer = styled.div``;
 
 const SearchWrapper = styled.div.attrs({
-	className: "relative flex-1 min-w-[180px]",
+	className: "relative flex-1 min-w-[152px]",
 })``;
 
 const SearchIconWrapper = styled.span.attrs({
-	className: "absolute left-3 top-1/2 -translate-y-1/2 text-gray-500",
+	className: "absolute left-2 top-1/2 -translate-y-1/2 text-gray-500",
 })``;
 //#endregion Styled components

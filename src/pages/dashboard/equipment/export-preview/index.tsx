@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
+import { BackButton } from "@/core/components/common";
 import { useAuthUser } from "@/core/services/auth/hooks/use-auth";
 import {
 	getPaperSizePageValue,
@@ -79,6 +80,7 @@ function toReportRow(row: PreviewRow): ReportTemplateRow {
 
 export default function EquipmentExportPreviewPage() {
 	const location = useLocation();
+	const navigate = useNavigate();
 	const authUser = useAuthUser();
 	const { itemId, transactionId } = useMemo(() => parseQuery(location.search), [location.search]);
 	const { data: item, isLoading: isItemLoading } = useInventoryItem(itemId || undefined);
@@ -104,6 +106,14 @@ export default function EquipmentExportPreviewPage() {
 	const isLoading = isItemLoading || isTransactionsLoading;
 	const emptyText = isLoading ? EMPTY_LOADING_TEXT : EMPTY_NOT_FOUND_TEXT;
 	const handlePrint = useCallback(() => window.print(), []);
+	const handleBack = useCallback(() => {
+		if (window.history.length > 1) {
+			navigate(-1);
+			return;
+		}
+
+		navigate("/dashboard/equipment");
+	}, [navigate]);
 
 	const metaColumns = useMemo<ReportTemplateMetaColumn[]>(
 		() => buildPreviewMetaColumns(item, transactionId),
@@ -135,6 +145,7 @@ export default function EquipmentExportPreviewPage() {
 	return (
 		<PageRoot>
 			<PrintHiddenSection>
+				<BackButton onClick={handleBack} className="mb-3" />
 				<StyledReportToolbar
 					showSections={showSections}
 					onShowSectionsChange={setShowSections}

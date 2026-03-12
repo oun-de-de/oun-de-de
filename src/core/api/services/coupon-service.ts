@@ -9,7 +9,12 @@ export enum CouponApi {
 	Create = "/coupons",
 }
 
-const getCouponList = (params?: { page?: number; limit?: number; customerId?: string }): Promise<Pagination<Coupon>> =>
+const getCouponList = (params?: {
+	page?: number;
+	limit?: number;
+	customerId?: string;
+	sort?: string;
+}): Promise<Pagination<Coupon>> =>
 	apiClient
 		.get<PagePaginatedResponse<Coupon>>({
 			url: CouponApi.List,
@@ -17,6 +22,7 @@ const getCouponList = (params?: { page?: number; limit?: number; customerId?: st
 				page: params?.page ? params.page - 1 : 0,
 				size: params?.limit,
 				customer_id: params?.customerId,
+				sort: params?.sort || "couponNo,desc",
 			},
 		})
 		.then(mapPagePaginatedResponseToPagination);

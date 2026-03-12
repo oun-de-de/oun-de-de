@@ -6,11 +6,12 @@ import invoiceService from "@/core/api/services/invoice-service";
 import loanService from "@/core/api/services/loan-service";
 import productService from "@/core/api/services/product-service";
 import reportService from "@/core/api/services/report-service";
+import type { Customer } from "@/core/types/customer";
 import type { InvoiceExportPreviewRow } from "@/core/types/invoice";
 import type { Installment } from "@/core/types/loan";
 import type { SortMode } from "../../../invoice/export-preview/constants";
 import type { ReportTemplateRow } from "../../components/layout/report-template-table";
-import { getReportDefinition } from "../report-registry";
+import { getReportDefinition } from "../report-specs";
 import {
 	isAssetListDataSource,
 	isCustomerListDataSource,
@@ -20,157 +21,23 @@ import {
 	isInvoiceDataSource,
 	isLoanListDataSource,
 	isProductListDataSource,
-	type ReportDataSource,
 } from "../report-types";
 import type { ReportFiltersValue } from "./report-filters";
 import {
-	buildCompanyAssetRows,
-	buildCustomerListRows,
-	buildCustomerLoanRows,
-	buildCustomerTransactionRows,
-	buildCycleReportRows,
-	buildApiDailyReportRows,
-	buildEmployeeLoanRows,
-	buildInventoryBagRows,
-	filterInventoryStockReportRowsByDate,
-	buildInventoryStockReportRows,
-	buildInvoiceReportRows,
-	buildOpenInvoiceRows,
-	buildLedgerRows,
-	buildMonthlyRevenueExpenseRows,
-	buildProductListRows,
-	buildSaleDetailRows,
-	buildTrialBalanceRows,
-	mapExportLinesToPreviewRows,
-} from "./report-table-builders";
+	fallbackReportCustomers,
+	fallbackReportExportLines,
+	fallbackReportInstallmentsByLoanId,
+	fallbackReportInvoices,
+	fallbackReportLoans,
+	fallbackReportProducts,
+} from "./report-template-fallback-mocks";
+import { mapExportLinesToPreviewRows } from "./report-table-builders";
 import { normalizeReportFilters, sortReportRows } from "./report-table-utils";
 
 interface UseReportTableDataParams {
 	reportSlug: string;
 	filters?: ReportFiltersValue;
 	sortMode: SortMode;
-}
-
-type InvoiceList = Awaited<ReturnType<typeof invoiceService.getInvoices>>["list"];
-type InvoiceExportLines = Awaited<ReturnType<typeof invoiceService.exportInvoice>>;
-type CycleList = Awaited<ReturnType<typeof cycleService.getCycles>>["list"];
-type CustomerList = Awaited<ReturnType<typeof customerService.getCustomerList>>["list"];
-type LoanContent = Awaited<ReturnType<typeof loanService.getLoans>>["content"];
-type ProductList = Awaited<ReturnType<typeof productService.getProductList>>;
-type DailyReportData = Awaited<ReturnType<typeof reportService.getDailyReport>>;
-type InventoryStockReportData = Awaited<ReturnType<typeof reportService.getInventoryStockReport>>;
-
-interface BuildSourceRowsParams {
-	reportSlug: string;
-	dataSource: ReportDataSource;
-	loanBorrowerType?: "customer" | "employee";
-	invoices: InvoiceList;
-	exportLines: InvoiceExportLines;
-	previewRows: InvoiceExportPreviewRow[];
-	cycles: CycleList;
-	filteredCustomers: CustomerList;
-	allCustomers: CustomerList;
-	loanContent: LoanContent;
-	installmentsByLoanId: Record<string, Installment[]>;
-	products: ProductList;
-	dailyReport: DailyReportData | undefined;
-	inventoryStockReport: InventoryStockReportData | undefined;
-	inventoryDateFrom?: string;
-	inventoryDateTo?: string;
-}
-
-function buildInvoiceSourceRows({
-	reportSlug,
-	invoices,
-	exportLines,
-	previewRows,
-}: Pick<BuildSourceRowsParams, "reportSlug" | "invoices" | "exportLines" | "previewRows">): ReportTemplateRow[] {
-	if (reportSlug === "sale-detail-by-customer") {
-		return buildSaleDetailRows(invoices, exportLines);
-	}
-	if (reportSlug === "open-invoice-detail-by-customer") {
-		return buildOpenInvoiceRows(invoices, previewRows);
-	}
-	if (reportSlug === "profit-and-loss") {
-		return buildMonthlyRevenueExpenseRows(invoices, previewRows);
-	}
-	if (reportSlug === "customer-transaction") {
-		return buildCustomerTransactionRows(invoices);
-	}
-	return buildInvoiceReportRows(exportLines);
-}
-
-function buildLoanSourceRows({
-	loanBorrowerType,
-	loanContent,
-	allCustomers,
-	installmentsByLoanId,
-}: Pick<BuildSourceRowsParams, "loanBorrowerType" | "loanContent" | "allCustomers" | "installmentsByLoanId">) {
-	return loanBorrowerType === "employee"
-		? buildEmployeeLoanRows(loanContent, installmentsByLoanId)
-		: buildCustomerLoanRows(loanContent, allCustomers, installmentsByLoanId);
-}
-
-function buildProductSourceRows({
-	reportSlug,
-	products,
-}: Pick<BuildSourceRowsParams, "reportSlug" | "products">): ReportTemplateRow[] {
-	return reportSlug === "inventory-valuation-summary"
-		? buildInventoryBagRows(products)
-		: buildProductListRows(products);
-}
-
-function buildSourceRows({
-	reportSlug,
-	dataSource,
-	loanBorrowerType,
-	invoices,
-	exportLines,
-	previewRows,
-	cycles,
-	filteredCustomers,
-	allCustomers,
-	loanContent,
-	installmentsByLoanId,
-	products,
-	dailyReport,
-	inventoryStockReport,
-	inventoryDateFrom,
-	inventoryDateTo,
-}: BuildSourceRowsParams): ReportTemplateRow[] {
-	switch (dataSource) {
-		case "invoice-export":
-		case "invoice-summary":
-			return buildInvoiceSourceRows({ reportSlug, invoices, exportLines, previewRows });
-		case "cycle":
-			return buildCycleReportRows(cycles);
-		case "customer-list":
-			return buildCustomerListRows(filteredCustomers);
-		case "loan-list":
-			return buildLoanSourceRows({
-				loanBorrowerType,
-				loanContent,
-				allCustomers,
-				installmentsByLoanId,
-			});
-		case "asset-list":
-			return buildCompanyAssetRows(products);
-		case "product-list":
-			return buildProductSourceRows({ reportSlug, products });
-		case "inventory-stock-report-api":
-			return filterInventoryStockReportRowsByDate(
-				buildInventoryStockReportRows(inventoryStockReport),
-				inventoryDateFrom,
-				inventoryDateTo,
-			);
-		case "accounting-mock":
-			return reportSlug === "trial-balance" ? buildTrialBalanceRows() : buildLedgerRows();
-		case "daily-report-api":
-			return buildApiDailyReportRows(dailyReport);
-		case "unsupported":
-		default:
-			return [];
-	}
 }
 
 export function useReportTableData({ reportSlug, filters, sortMode }: UseReportTableDataParams) {
@@ -186,7 +53,6 @@ export function useReportTableData({ reportSlug, filters, sortMode }: UseReportT
 	const isLoanList = isLoanListDataSource(dataSource);
 	const isDailyReportApi = isDailyReportApiDataSource(dataSource);
 	const isInventoryStockReportApi = isInventoryStockReportApiDataSource(dataSource);
-	const isSimpleTransactionReport = reportSlug === "customer-transaction";
 	const reportDate =
 		(isDailyReportApi ? filters?.fromDate : undefined) || filters?.toDate || new Date().toISOString().slice(0, 10);
 	const inventoryDateFrom = filters?.fromDate || reportDate;
@@ -230,7 +96,7 @@ export function useReportTableData({ reportSlug, filters, sortMode }: UseReportT
 	const exportQuery = useQuery({
 		queryKey: ["report", "invoice-export", invoiceIds],
 		queryFn: () => invoiceService.exportInvoice(invoiceIds),
-		enabled: isInvoiceExport && !isSimpleTransactionReport && invoiceIds.length > 0,
+		enabled: isInvoiceExport && invoiceIds.length > 0,
 	});
 
 	const customerQuery = useQuery({
@@ -290,10 +156,11 @@ export function useReportTableData({ reportSlug, filters, sortMode }: UseReportT
 		})),
 	});
 
-	const filteredCustomers = useMemo(() => {
-		const customers = customerQuery.data?.list ?? [];
-		return customerId ? customers.filter((customer) => customer.id === customerId) : customers;
-	}, [customerId, customerQuery.data?.list]);
+	const customers = customerQuery.data ? customerQuery.data.list : fallbackReportCustomers;
+	const filteredCustomers = useMemo(
+		() => (customerId ? customers.filter((customer) => customer.id === customerId) : customers),
+		[customerId, customers],
+	);
 
 	const installmentsByLoanId = useMemo<Record<string, Installment[]>>(
 		() =>
@@ -304,26 +171,31 @@ export function useReportTableData({ reportSlug, filters, sortMode }: UseReportT
 		[loanInstallmentQueries, loanQuery.data?.content],
 	);
 
-	const previewRows = useMemo<InvoiceExportPreviewRow[]>(
-		() => mapExportLinesToPreviewRows(exportQuery.data ?? []),
-		[exportQuery.data],
-	);
+	const invoices = invoiceQuery.data ? invoiceQuery.data.list : fallbackReportInvoices;
+	const exportLines = exportQuery.data ?? (invoiceQuery.data ? [] : fallbackReportExportLines);
+	const products = productQuery.data ?? fallbackReportProducts;
+	const loanContent = loanQuery.data ? loanQuery.data.content : fallbackReportLoans;
+	const resolvedInstallmentsByLoanId =
+		loanQuery.data && Object.keys(installmentsByLoanId).length === 0
+			? installmentsByLoanId
+			: loanQuery.data
+				? installmentsByLoanId
+				: fallbackReportInstallmentsByLoanId;
+
+	const previewRows = useMemo<InvoiceExportPreviewRow[]>(() => mapExportLinesToPreviewRows(exportLines), [exportLines]);
 
 	const sourceRows = useMemo<ReportTemplateRow[]>(
 		() =>
-			buildSourceRows({
-				reportSlug,
-				dataSource,
-				loanBorrowerType: definition.loanBorrowerType,
-				invoices: invoiceQuery.data?.list ?? [],
-				exportLines: exportQuery.data ?? [],
+			definition.buildRows({
+				invoices,
+				exportLines,
 				previewRows,
 				cycles: cycleQuery.data?.list ?? [],
 				filteredCustomers,
-				allCustomers: customerQuery.data?.list ?? [],
-				loanContent: loanQuery.data?.content ?? [],
-				installmentsByLoanId,
-				products: productQuery.data ?? [],
+				allCustomers: customers,
+				loanContent,
+				installmentsByLoanId: resolvedInstallmentsByLoanId,
+				products,
 				dailyReport: dailyReportQuery.data,
 				inventoryStockReport: inventoryStockReportQuery.data,
 				inventoryDateFrom,
@@ -331,19 +203,19 @@ export function useReportTableData({ reportSlug, filters, sortMode }: UseReportT
 			}),
 		[
 			cycleQuery.data?.list,
-			customerQuery.data?.list,
-			dataSource,
+			customers,
 			dailyReportQuery.data,
-			definition.loanBorrowerType,
-			exportQuery.data,
+			definition,
+			exportLines,
 			filteredCustomers,
-			installmentsByLoanId,
+			invoices,
+			resolvedInstallmentsByLoanId,
+			inventoryDateFrom,
+			inventoryDateTo,
 			inventoryStockReportQuery.data,
-			invoiceQuery.data?.list,
-			loanQuery.data?.content,
+			loanContent,
 			previewRows,
-			productQuery.data,
-			reportSlug,
+			products,
 		],
 	);
 
@@ -353,12 +225,17 @@ export function useReportTableData({ reportSlug, filters, sortMode }: UseReportT
 		const selectedCustomer = customerQuery.data?.list.find((customer) => customer.id === customerId);
 		return selectedCustomer?.name ?? "Filtered";
 	}, [customerId, customerQuery.data?.list]);
+	const selectedCustomer = useMemo<Customer | undefined>(
+		() => customerQuery.data?.list.find((customer) => customer.id === customerId),
+		[customerId, customerQuery.data?.list],
+	);
 
 	return {
 		definition,
 		invoiceIds,
 		previewRows,
 		selectedCustomerLabel,
+		selectedCustomer,
 		sourceRows,
 		sortedRows,
 	};

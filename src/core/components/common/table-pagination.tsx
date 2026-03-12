@@ -59,7 +59,7 @@ export function TablePagination({
 			return (
 				<div
 					key={`gap-after-${lastPage}`}
-					className="flex h-8 w-8 items-center justify-center select-none text-gray-500"
+					className="flex h-7 w-7 items-center justify-center select-none text-gray-500"
 					aria-hidden="true"
 				>
 					...
@@ -71,7 +71,7 @@ export function TablePagination({
 			<Button
 				key={page}
 				size="icon"
-				className="h-8 w-8"
+				className="h-7 w-7 text-xs"
 				variant={page === currentPage ? "default" : "ghost"}
 				disabled={!onPageChange || page === currentPage}
 				aria-current={page === currentPage ? "page" : undefined}
@@ -83,12 +83,12 @@ export function TablePagination({
 	});
 
 	return (
-		<div className="flex w-full flex-col sm:flex-row flex-wrap items-center justify-between gap-4 p-3 text-xs text-gray-700">
-			<div className="flex items-center gap-1">
+		<div className="flex w-full flex-col gap-3 px-3 py-2 text-xs text-gray-700 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+			<div className="flex min-w-0 w-full items-center gap-1 sm:w-auto sm:flex-1">
 				<Button
 					variant="outline"
 					size="icon"
-					className="h-8 w-8"
+					className="h-7 w-7 shrink-0"
 					onClick={onPrev}
 					disabled={!canPrev || !onPrev}
 					aria-label="Previous page"
@@ -96,12 +96,14 @@ export function TablePagination({
 					<Icon icon="mdi:chevron-left" />
 				</Button>
 
-				<div className="flex items-center gap-1">{pageLinks}</div>
+				<div className="min-w-0 flex-1 overflow-x-auto">
+					<div className="flex w-max min-w-full items-center gap-1">{pageLinks}</div>
+				</div>
 
 				<Button
 					variant="outline"
 					size="icon"
-					className="h-8 w-8"
+					className="h-7 w-7 shrink-0"
 					onClick={onNext}
 					disabled={!canNext || !onNext}
 					aria-label="Next page"
@@ -110,11 +112,11 @@ export function TablePagination({
 				</Button>
 			</div>
 
-			<div className="flex items-center gap-2">
+			<div className="flex w-full flex-wrap items-center gap-1.5 sm:w-auto sm:justify-end">
 				<span>{goToLabel}</span>
-				<div className="w-[56px]">
+				<div className="w-[52px]">
 					<Input
-						className="h-8 px-2 text-xs"
+						className="h-7 px-2 text-xs"
 						value={rawGoTo}
 						inputMode="numeric"
 						onChange={(e) => onGoToChange?.(e.target.value)}
@@ -127,7 +129,7 @@ export function TablePagination({
 				</div>
 
 				<Select value={String(pageSize)} onValueChange={(v) => onPageSizeChange?.(Number(v))}>
-					<SelectTrigger className="h-8 w-[92px] text-xs">
+					<SelectTrigger className="h-7 w-[84px] text-xs">
 						<SelectValue placeholder={`${pageSize}`} />
 					</SelectTrigger>
 					<SelectContent>

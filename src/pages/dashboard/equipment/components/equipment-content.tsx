@@ -1,5 +1,4 @@
-import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
-import { Button } from "@/core/ui/button";
+import { BackButton, SmartDataTable, SummaryStatCard } from "@/core/components/common";
 import { Text } from "@/core/ui/typography";
 import { useNavigate } from "react-router";
 import { useEquipmentContent } from "../hooks/use-equipment-content";
@@ -25,15 +24,21 @@ const SEARCH_PLACEHOLDER = "Search items";
 export function EquipmentContent({ activeItemId }: Props) {
 	const navigate = useNavigate();
 	const { activeItem, summaryCards, createItem, table, getRowLink } = useEquipmentContent(activeItemId);
+	const handleBack = () => {
+		if (window.history.length > 1) {
+			navigate(-1);
+			return;
+		}
+
+		navigate("/dashboard");
+	};
 
 	return (
 		<>
 			{/* Header */}
 			<div className="flex flex-wrap items-center justify-between gap-2">
 				<div className="flex items-center gap-2">
-					<Button size="sm" className="gap-1">
-						Equipment
-					</Button>
+					<BackButton appearance="default" onClick={handleBack} />
 					<Text variant="body2" className="text-slate-400">
 						{activeItem ? `${activeItem.name} selected` : "All equipment"}
 					</Text>

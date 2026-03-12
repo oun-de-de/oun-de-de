@@ -1,8 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { format, parseISO } from "date-fns";
 import type { Loan } from "@/core/types/loan";
 import { Badge } from "@/core/ui/badge";
-import { formatKHR } from "@/core/utils/formatters";
+import { formatDisplayDate, formatKHR } from "@/core/utils/formatters";
 
 export const borrowColumns: ColumnDef<Loan>[] = [
 	{ accessorKey: "borrowerName", header: "Borrower Name" },
@@ -26,7 +25,7 @@ export const borrowColumns: ColumnDef<Loan>[] = [
 	{
 		accessorKey: "startDate",
 		header: "Start Date",
-		cell: ({ row }) => format(parseISO(row.original.startDate), "yyyy-MM-dd"),
+		cell: ({ row }) => formatDisplayDate(row.original.startDate),
 	},
 	{
 		accessorKey: "principalAmount",

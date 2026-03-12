@@ -3,27 +3,36 @@ import { useSettings } from "@/core/store/settingStore";
 import { ThemeLayout } from "@/core/types/enum";
 import { Button } from "@/core/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/core/ui/popover";
+import { useState } from "react";
+import { useNavigate } from "react-router";
 import styled from "styled-components";
 
 type NewActionColumn = {
 	title: string;
-	items: { title: string }[];
+	items: ReadonlyArray<{ title: string; href: string }>;
 };
 
 type NavNewButtonProps = {
-	actions?: NewActionColumn[];
+	actions?: ReadonlyArray<NewActionColumn>;
 };
 
 export function NavNewButton({ actions }: NavNewButtonProps) {
+	const [open, setOpen] = useState(false);
+	const navigate = useNavigate();
 	const { themeLayout } = useSettings();
 	const isMini = themeLayout === ThemeLayout.Mini;
+
+	const handleNavigate = (href: string) => {
+		setOpen(false);
+		navigate(href);
+	};
 
 	if (!actions || actions.length === 0) {
 		return null;
 	}
 
 	return (
-		<Popover>
+		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
 				<StyledButton variant="outline" size="sm" $isMini={isMini}>
 					<Icon icon="lucide:plus" size={16} />
@@ -38,7 +47,9 @@ export function NavNewButton({ actions }: NavNewButtonProps) {
 							<StyledPopoverList>
 								{column.items.map((item, index) => (
 									<StyledPopoverItem key={index}>
-										<StyledPopoverButton>{item.title}</StyledPopoverButton>
+										<StyledPopoverButton type="button" onClick={() => handleNavigate(item.href)}>
+											{item.title}
+										</StyledPopoverButton>
 									</StyledPopoverItem>
 								))}
 							</StyledPopoverList>

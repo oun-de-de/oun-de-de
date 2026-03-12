@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { http, HttpResponse } from "msw";
 import { faker } from "@faker-js/faker";
 import { ResultStatus } from "@/core/types/enum";
@@ -161,7 +162,7 @@ const saleGetProducts = http.get("/api/v1/sale/products", ({ request }) => {
 			amount: Number(faker.commerce.price({ min: 50, max: 500 })),
 			currency: "USD",
 			imageUrl: faker.image.urlPicsumPhotos({ width: 200, height: 200, grayscale: false }),
-			date: date || faker.date.recent({ days: 30 }).toLocaleDateString("en-GB"),
+			date: date || format(faker.date.recent({ days: 30 }), "dd/MM/yyyy"),
 			customer: customer ? makeFilter(customer, `Customer ${customer}`) : makeFilter(id, `Customer ${id}`),
 			employee: employee ? makeFilter(employee, `Employee ${employee}`) : makeFilter(id, `Employee ${id}`),
 			warehouse: warehouse ? makeFilter(warehouse, `Warehouse ${warehouse}`) : makeFilter(id, `Warehouse ${id}`),

@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import { ReportDetailView } from "./components/report-detail-view";
-import { DEFAULT_REPORT_SLUG, hasReportDefinition } from "./report-registry";
+import { DEFAULT_REPORT_SLUG, hasReportDefinition } from "./report-specs";
 
 export default function ReportDetailTemplate() {
 	const { slug } = useParams<{ slug: string }>();

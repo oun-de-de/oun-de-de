@@ -10,6 +10,13 @@ export const CUSTOMER_FIELDS: FormFieldConfig[] = [
 		defaultValue: formatDateToYYYYMMDD(new Date()),
 	},
 	{
+		name: "code",
+		label: "Customer Code",
+		type: "text",
+		required: true,
+		placeholder: "Enter customer code",
+	},
+	{
 		name: "name",
 		label: "Name",
 		type: "text",

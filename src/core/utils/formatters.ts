@@ -14,14 +14,14 @@ export function formatDisplayDate(value?: string | null, fallback = "-"): string
 	if (!value) return fallback;
 	const parsed = new Date(value);
 	if (Number.isNaN(parsed.getTime())) return fallback;
-	return parsed.toLocaleDateString("en-GB"); // dd/MM/yyyy format typically
+	return format(parsed, "dd/MM/yyyy");
 }
 
 export function formatDisplayDateTime(value?: string | null, fallback = "-"): string {
 	if (!value) return fallback;
 	const parsed = new Date(value);
 	if (Number.isNaN(parsed.getTime())) return fallback;
-	return parsed.toLocaleString("en-GB"); // dd/MM/yyyy HH:mm:ss
+	return format(parsed, "dd/MM/yyyy HH:mm:ss");
 }
 
 export function formatDateTime(value?: string | null, fallback = "-"): string {

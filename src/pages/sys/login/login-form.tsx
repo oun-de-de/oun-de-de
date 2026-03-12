@@ -1,4 +1,3 @@
-import { DB_USER } from "@/_mock/assets_backup";
 import type { SignInReq } from "@/core/api/services/userService";
 import { useSignIn } from "@/core/services/auth/hooks/use-auth";
 import { Button } from "@/core/ui/button";
@@ -24,7 +23,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 
 	const form = useForm<SignInReq>({
 		defaultValues: {
-			username: DB_USER[0].username,
+			username: "",
 			password: "",
 		},
 	});

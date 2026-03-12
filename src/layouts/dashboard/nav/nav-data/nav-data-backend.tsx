@@ -33,20 +33,27 @@ export const backendNavData: NavProps["data"] = convert(convertFlatToTree(DB_MEN
 
 export const newActions = [
 	{
-		title: "Customers",
-		items: [{ title: "Create Cash Sale" }, { title: "Create Invoice" }, { title: "Create Receipt" }],
+		title: "Sales",
+		items: [
+			{ title: "Create Coupon", href: "/dashboard/coupons/create" },
+			{ title: "Create Receipt", href: "/dashboard/customers/create-receipt" },
+		],
 	},
 	{
-		title: "Vendors",
-		items: [{ title: "Create Cash Purchase" }, { title: "Create Bill" }, { title: "Create Payment" }],
+		title: "Users",
+		items: [
+			{ title: "New Customer", href: "/dashboard/customers/create" },
+			{ title: "New Employee", href: "/dashboard/employees/create" },
+			{ title: "Loan Request", href: "/dashboard/loan/new" },
+		],
 	},
 	{
 		title: "Accounting",
 		items: [
-			{ title: "Create Journal" },
-			{ title: "Create Cash Transaction" },
-			{ title: "Create Cash Revenue" },
-			{ title: "Create Cash Expense" },
+			{ title: "General Ledger", href: "/dashboard/reports/detail/general-ledger" },
+			{ title: "Trial Balance", href: "/dashboard/reports/detail/trial-balance" },
+			{ title: "Income & Expense", href: "/dashboard/reports/detail/balance-sheet" },
+			{ title: "Daily Report", href: "/dashboard/reports/detail/daily-report" },
 		],
 	},
-];
+] as const;
