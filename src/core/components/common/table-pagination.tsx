@@ -83,12 +83,12 @@ export function TablePagination({
 	});
 
 	return (
-		<div className="flex w-full flex-col sm:flex-row flex-wrap items-center justify-between gap-4 p-3 text-xs text-gray-700">
-			<div className="flex items-center gap-1">
+		<div className="flex w-full flex-col gap-4 p-3 text-xs text-gray-700 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+			<div className="flex min-w-0 w-full items-center gap-1 sm:w-auto sm:flex-1">
 				<Button
 					variant="outline"
 					size="icon"
-					className="h-8 w-8"
+					className="h-8 w-8 shrink-0"
 					onClick={onPrev}
 					disabled={!canPrev || !onPrev}
 					aria-label="Previous page"
@@ -96,12 +96,14 @@ export function TablePagination({
 					<Icon icon="mdi:chevron-left" />
 				</Button>
 
-				<div className="flex items-center gap-1">{pageLinks}</div>
+				<div className="min-w-0 flex-1 overflow-x-auto">
+					<div className="flex w-max min-w-full items-center gap-1">{pageLinks}</div>
+				</div>
 
 				<Button
 					variant="outline"
 					size="icon"
-					className="h-8 w-8"
+					className="h-8 w-8 shrink-0"
 					onClick={onNext}
 					disabled={!canNext || !onNext}
 					aria-label="Next page"
@@ -110,7 +112,7 @@ export function TablePagination({
 				</Button>
 			</div>
 
-			<div className="flex items-center gap-2">
+			<div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
 				<span>{goToLabel}</span>
 				<div className="w-[56px]">
 					<Input

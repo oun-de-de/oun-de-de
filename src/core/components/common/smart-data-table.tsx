@@ -263,7 +263,7 @@ export function SmartDataTable<T extends object>({
 	}, [updateScrollState]);
 
 	return (
-		<div className={cn("flex flex-col gap-4", className)}>
+		<div className={cn("flex min-w-0 flex-col gap-4", className)}>
 			{showFilterBar && filterConfig && (
 				<TableFilterBar
 					showTypeFilter={filterConfig.showTypeFilter}
@@ -284,7 +284,7 @@ export function SmartDataTable<T extends object>({
 				/>
 			)}
 
-			<div className="relative flex-1 min-h-0">
+			<div className="relative flex-1 min-h-0 min-w-0">
 				{canScrollLeft && (
 					<ScrollArrowButton $side="left" type="button" onClick={() => scrollByAmount(-240)} aria-label="Scroll left">
 						<Icon icon="mdi:chevron-left" size={16} />
@@ -296,7 +296,7 @@ export function SmartDataTable<T extends object>({
 					</ScrollArrowButton>
 				)}
 				<div
-					className="h-full overflow-auto w-full"
+					className="h-full w-full min-w-0 overflow-auto"
 					style={{ maxHeight: maxBodyHeight }}
 					ref={scrollRef}
 					onScroll={updateScrollState}

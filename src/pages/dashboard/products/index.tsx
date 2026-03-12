@@ -77,7 +77,7 @@ export default function ProductsPage() {
 
 	return (
 		<DashboardSplitView
-			sidebarClassName={isCollapsed ? "lg:w-20" : "lg:w-1/4"}
+			sidebarClassName={isCollapsed ? "lg:w-20 xl:w-20" : "lg:w-[16rem] xl:w-1/5"}
 			sidebar={
 				<ProductSidebar
 					activeProductId={activeProduct?.id || null}
