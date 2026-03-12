@@ -26,15 +26,12 @@ export interface ReportSectionVisibility {
 	signature: boolean;
 }
 
-export interface ReportColumnVisibility {
-	refNo: boolean;
-	category: boolean;
-	geography: boolean;
-	address: boolean;
-	phone: boolean;
-}
+export type ReportColumnVisibility = Record<string, boolean>;
 
-export type ReportColumnLabels = Partial<Record<keyof ReportColumnVisibility, string>>;
+export type ReportColumnOption = {
+	key: string;
+	label: string;
+};
 
 interface ReportToolbarProps {
 	leftActions?: React.ReactNode;
@@ -44,7 +41,7 @@ interface ReportToolbarProps {
 	onShowSectionsChange?: (sections: ReportSectionVisibility) => void;
 	showColumns?: ReportColumnVisibility;
 	onShowColumnsChange?: (columns: ReportColumnVisibility) => void;
-	columnLabels?: ReportColumnLabels;
+	columnOptions?: ReportColumnOption[];
 	enableColumnCustomization?: boolean;
 	onPrint?: () => void;
 	onExportExcel?: () => void;
@@ -58,14 +55,6 @@ interface ReportToolbarProps {
 	onSortModeChange?: (mode: SortMode) => void;
 }
 
-const DEFAULT_COLUMN_LABELS: Record<keyof ReportColumnVisibility, string> = {
-	refNo: "Ref No",
-	category: "Category",
-	geography: "Geography",
-	address: "Address",
-	phone: "Phone",
-};
-
 function ReportToolbarComponent({
 	leftActions,
 	rightActions,
@@ -74,7 +63,7 @@ function ReportToolbarComponent({
 	onShowSectionsChange,
 	showColumns,
 	onShowColumnsChange,
-	columnLabels,
+	columnOptions = [],
 	enableColumnCustomization = true,
 	onPrint,
 	onExportExcel,
@@ -87,8 +76,16 @@ function ReportToolbarComponent({
 	sortMode,
 	onSortModeChange,
 }: ReportToolbarProps) {
-	const resolvedColumnLabels = { ...DEFAULT_COLUMN_LABELS, ...columnLabels };
 	const [isCustomizeOpen, setIsCustomizeOpen] = React.useState(false);
+	const toggleColumn = React.useCallback(
+		(columnKey: string, checked: boolean) => {
+			onShowColumnsChange?.({
+				...(showColumns ?? {}),
+				[columnKey]: checked,
+			});
+		},
+		[onShowColumnsChange, showColumns],
+	);
 
 	return (
 		<div className="flex flex-col">
@@ -169,46 +166,15 @@ function ReportToolbarComponent({
 										</Button>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align="start" className="w-48">
-										<DropdownMenuCheckboxItem
-											checked={showColumns?.refNo}
-											onCheckedChange={(checked) =>
-												showColumns && onShowColumnsChange?.({ ...showColumns, refNo: !!checked })
-											}
-										>
-											{resolvedColumnLabels.refNo}
-										</DropdownMenuCheckboxItem>
-										<DropdownMenuCheckboxItem
-											checked={showColumns?.category}
-											onCheckedChange={(checked) =>
-												showColumns && onShowColumnsChange?.({ ...showColumns, category: !!checked })
-											}
-										>
-											{resolvedColumnLabels.category}
-										</DropdownMenuCheckboxItem>
-										<DropdownMenuCheckboxItem
-											checked={showColumns?.geography}
-											onCheckedChange={(checked) =>
-												showColumns && onShowColumnsChange?.({ ...showColumns, geography: !!checked })
-											}
-										>
-											{resolvedColumnLabels.geography}
-										</DropdownMenuCheckboxItem>
-										<DropdownMenuCheckboxItem
-											checked={showColumns?.address}
-											onCheckedChange={(checked) =>
-												showColumns && onShowColumnsChange?.({ ...showColumns, address: !!checked })
-											}
-										>
-											{resolvedColumnLabels.address}
-										</DropdownMenuCheckboxItem>
-										<DropdownMenuCheckboxItem
-											checked={showColumns?.phone}
-											onCheckedChange={(checked) =>
-												showColumns && onShowColumnsChange?.({ ...showColumns, phone: !!checked })
-											}
-										>
-											{resolvedColumnLabels.phone}
-										</DropdownMenuCheckboxItem>
+										{columnOptions.map((option) => (
+											<DropdownMenuCheckboxItem
+												key={option.key}
+												checked={showColumns?.[option.key] ?? true}
+												onCheckedChange={(checked) => toggleColumn(option.key, !!checked)}
+											>
+												{option.label}
+											</DropdownMenuCheckboxItem>
+										))}
 									</DropdownMenuContent>
 								</DropdownMenu>
 							)}
@@ -355,37 +321,14 @@ function ReportToolbarComponent({
 							<div className="space-y-2">
 								<div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Columns</div>
 								<div className="flex flex-wrap gap-2">
-									<ToolbarToggleButton
-										label={resolvedColumnLabels.refNo}
-										active={!!showColumns?.refNo}
-										onClick={() => showColumns && onShowColumnsChange?.({ ...showColumns, refNo: !showColumns.refNo })}
-									/>
-									<ToolbarToggleButton
-										label={resolvedColumnLabels.category}
-										active={!!showColumns?.category}
-										onClick={() =>
-											showColumns && onShowColumnsChange?.({ ...showColumns, category: !showColumns.category })
-										}
-									/>
-									<ToolbarToggleButton
-										label={resolvedColumnLabels.geography}
-										active={!!showColumns?.geography}
-										onClick={() =>
-											showColumns && onShowColumnsChange?.({ ...showColumns, geography: !showColumns.geography })
-										}
-									/>
-									<ToolbarToggleButton
-										label={resolvedColumnLabels.address}
-										active={!!showColumns?.address}
-										onClick={() =>
-											showColumns && onShowColumnsChange?.({ ...showColumns, address: !showColumns.address })
-										}
-									/>
-									<ToolbarToggleButton
-										label={resolvedColumnLabels.phone}
-										active={!!showColumns?.phone}
-										onClick={() => showColumns && onShowColumnsChange?.({ ...showColumns, phone: !showColumns.phone })}
-									/>
+									{columnOptions.map((option) => (
+										<ToolbarToggleButton
+											key={option.key}
+											label={option.label}
+											active={showColumns?.[option.key] ?? true}
+											onClick={() => toggleColumn(option.key, !(showColumns?.[option.key] ?? true))}
+										/>
+									))}
 								</div>
 							</div>
 						)}

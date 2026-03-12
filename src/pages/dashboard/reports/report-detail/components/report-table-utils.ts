@@ -12,7 +12,17 @@ export function normalizeReportFilters(filters?: ReportFiltersValue) {
 
 export function formatFilterRange(filters?: ReportFiltersValue): string {
 	if (!filters?.useDateRange || !filters.fromDate || !filters.toDate) return "All Dates";
-	return filters.fromDate === filters.toDate ? filters.fromDate : `${filters.fromDate} To ${filters.toDate}`;
+	const fromDate = formatFilterDateForDisplay(filters.fromDate);
+	const toDate = formatFilterDateForDisplay(filters.toDate);
+	return filters.fromDate === filters.toDate ? fromDate : `${fromDate} To ${toDate}`;
+}
+
+export function formatFilterDateForDisplay(value?: string): string {
+	if (!value) return "All";
+	const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+	if (!match) return value;
+	const [, year, month, day] = match;
+	return `${day}/${month}/${year}`;
 }
 
 export function parseDisplayDate(value: unknown): number {

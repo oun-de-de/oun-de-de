@@ -22,6 +22,10 @@ export interface DailyReportBoughtItem {
 export interface DailyReportResponse {
 	soldProducts?: DailyReportProductRevenue[] | null;
 	boughtItems?: DailyReportBoughtItem[] | null;
+	iceCubeSaleCash?: number | null;
+	premiumIceSaleCash?: number | null;
+	customerSaleInvoicePremiumIce?: number | null;
+	customerSaleInvoiceIceCube?: number | null;
 	totalRevenue?: number | null;
 	totalCashReceive?: number | null;
 	totalExpense?: number | null;

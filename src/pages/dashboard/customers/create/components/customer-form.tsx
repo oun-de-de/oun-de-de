@@ -7,6 +7,7 @@ import { VehicleListField } from "./vehicle-list-field";
 
 export type CustomerFormData = DefaultFormData & {
 	registerDate: string;
+	code: string;
 	name: string;
 	status: boolean;
 	referredById?: string;
@@ -62,6 +63,9 @@ export function CustomerForm({
 				}
 				if (field.name === "referredById") {
 					return { ...field, options: customerOptions };
+				}
+				if (field.name === "code") {
+					return { ...field };
 				}
 				return field;
 			})

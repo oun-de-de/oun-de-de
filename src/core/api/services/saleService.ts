@@ -10,6 +10,7 @@ import type { SaleFilters } from "@/core/domain/sales/entities/sale-filter";
 import type { Pagination } from "@/core/types/pagination";
 import { apiClient } from "../apiClient";
 import { faker } from "@faker-js/faker";
+import { format } from "date-fns";
 
 enum SaleApiPath {
 	Customers = "/sale/customers",
@@ -119,7 +120,7 @@ function generateProduct(id: string, date?: string): SaleProduct {
 		amount: Number(faker.commerce.price({ min: 50, max: 500 })),
 		currency: "USD",
 		imageUrl: faker.image.urlPicsumPhotos({ width: 200, height: 200, grayscale: false }),
-		date: date ?? faker.date.recent({ days: 30 }).toLocaleDateString("en-GB"),
+		date: date ?? format(faker.date.recent({ days: 30 }), "dd/MM/yyyy"),
 		customer: makeFilter(id, `Customer ${id}`),
 		employee: makeFilter(id, `Employee ${id}`),
 		warehouse: makeFilter(id, `Warehouse ${id}`),

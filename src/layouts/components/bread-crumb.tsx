@@ -16,7 +16,7 @@ import {
 } from "@/core/ui/breadcrumb";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/core/ui/dropdown-menu";
 import { useFilteredNavData } from "@/layouts/dashboard/nav";
-import { getReportDefinition } from "@/pages/dashboard/reports/report-detail/report-registry";
+import { getReportDefinition } from "@/pages/dashboard/reports/report-detail/report-specs";
 import { getRouteTitle } from "./route-mappings";
 
 interface BreadCrumbProps {

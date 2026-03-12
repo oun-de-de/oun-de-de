@@ -9,6 +9,7 @@ export const mapCustomerFormToUpdatePayload = (
 	options?: { skipPaymentTerm?: boolean },
 ): UpdateCustomerInfoInput => {
 	const payload: UpdateCustomerInfoInput = {
+		code: data.code,
 		name: data.name,
 		warehouseId: data.warehouseId,
 		memo: data.memo,

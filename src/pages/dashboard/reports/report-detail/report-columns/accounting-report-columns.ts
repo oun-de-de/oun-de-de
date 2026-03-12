@@ -17,6 +17,20 @@ export function buildLedgerColumns(): ReportTemplateColumn[] {
 	]);
 }
 
+export function buildIncomeExpenseLedgerColumns(): ReportTemplateColumn[] {
+	return buildSizedColumns([
+		["no", "NO", "w-[6%]", "center"],
+		["date", "DATE", "w-[12%]", "center"],
+		["refNo", "REF NO", "w-[15%]"],
+		["type", "TYPE", "w-[12%]", "center"],
+		["name", "NAME", "w-[18%]"],
+		["memo", "MEMO", "w-[17%]"],
+		["debit", "DEBIT", "w-[10%]", "right"],
+		["credit", "CREDIT", "w-[10%]", "right"],
+		["balance", "BALANCE", "w-[12%]", "right"],
+	]);
+}
+
 export function buildTrialBalanceColumns(): ReportTemplateColumn[] {
 	return buildSizedColumns([
 		["no", "NO", "w-[5%]", "center"],

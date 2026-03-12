@@ -1,0 +1,35 @@
+import { buildCustomerListRows, buildCycleReportRows } from "../components/report-table-builders";
+import { REPORT_DEFAULT_DATE } from "../constants";
+import { buildCustomerListColumns, buildCycleColumns } from "../report-columns/core-report-columns";
+import { REPORT_FILTERS, type BuildReportRowsParams, type ReportDefinitionMap } from "../report-types";
+
+function buildCycleSummaryRows({ cycles }: BuildReportRowsParams) {
+	return buildCycleReportRows(cycles);
+}
+
+function buildCustomerListReportRows({ filteredCustomers }: BuildReportRowsParams) {
+	return buildCustomerListRows(filteredCustomers);
+}
+
+export const CORE_REPORT_SPECS: ReportDefinitionMap = {
+	"open-invoice-on-period-by-group": {
+		slug: "open-invoice-on-period-by-group",
+		title: "Open Invoice By Period Group",
+		templateId: "cycle-summary",
+		subtitle: REPORT_DEFAULT_DATE,
+		buildColumns: buildCycleColumns,
+		buildRows: buildCycleSummaryRows,
+		dataSource: "cycle",
+		filterConfig: REPORT_FILTERS.customerAndDateRange,
+	},
+	"customer-list": {
+		slug: "customer-list",
+		title: "Customer List",
+		templateId: "customer-list",
+		subtitle: REPORT_DEFAULT_DATE,
+		buildColumns: buildCustomerListColumns,
+		buildRows: buildCustomerListReportRows,
+		dataSource: "customer-list",
+		filterConfig: REPORT_FILTERS.customerOnly,
+	},
+};

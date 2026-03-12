@@ -6,6 +6,7 @@ import Icon from "@/core/components/icon/icon";
 import type { SummaryStatCardData } from "@/core/types/common";
 import type { Cycle } from "@/core/types/cycle";
 import type { Invoice, InvoiceExportPreviewRow } from "@/core/types/invoice";
+import { BackButton } from "@/core/components/common";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
 import {
@@ -234,12 +235,7 @@ export function InvoiceContent({
 		<div className={`flex w-full flex-col gap-4 ${isLoading ? "opacity-60 pointer-events-none" : ""}`}>
 			<div className="flex flex-wrap items-center justify-between gap-2 shrink-0">
 				<div className="flex items-center gap-2">
-					{onBack && (
-						<Button size="sm" variant="ghost" onClick={onBack} className="gap-1">
-							<Icon icon="mdi:arrow-left" />
-							Back
-						</Button>
-					)}
+					{onBack && <BackButton onClick={onBack} />}
 					<Button size="sm" className="gap-1">
 						<Icon icon="mdi:file-document-outline" />
 						Invoice

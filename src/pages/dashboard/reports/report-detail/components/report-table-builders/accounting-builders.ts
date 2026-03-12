@@ -2,6 +2,7 @@ import { accountingRows } from "@/_mock/data/dashboard";
 import { formatNumber } from "@/core/utils/formatters";
 import type { ReportTemplateRow } from "../../../components/layout/report-template-table";
 import { parseNumericCell } from "../report-table-utils";
+import { createIndexedReportRow, createLedgerCells, createReportRow } from "./report-row-helpers";
 
 export function buildLedgerRows(): ReportTemplateRow[] {
 	let runningBalance = 0;
@@ -11,22 +12,49 @@ export function buildLedgerRows(): ReportTemplateRow[] {
 		const credit = parseNumericCell(row.cr);
 		runningBalance += debit - credit;
 
-		return {
-			key: `${row.refNo}-${index}`,
-			cells: {
+		return createReportRow(
+			`${row.refNo}-${index}`,
+			createLedgerCells({
 				date: row.date,
-				type: row.type,
 				refNo: row.refNo,
-				employee: "General Employee",
-				memo: row.memo || row.currency || "-",
-				class: row.currency || "General",
+				type: row.type,
 				name: row.type,
-				product: "-",
+				memo: row.memo || row.currency || "-",
 				debit: row.dr || "-",
 				credit: row.cr || "-",
 				balance: formatNumber(runningBalance),
-			},
-		};
+				extraCells: {
+					employee: "General Employee",
+					class: row.currency || "General",
+					product: "-",
+				},
+			}),
+		);
+	});
+}
+
+export function buildIncomeExpenseLedgerRows(): ReportTemplateRow[] {
+	let runningBalance = 0;
+
+	return accountingRows.map((row, index) => {
+		const debit = parseNumericCell(row.dr);
+		const credit = parseNumericCell(row.cr);
+		runningBalance += debit - credit;
+
+		return createReportRow(
+			`income-expense-${row.refNo}-${index}`,
+			createLedgerCells({
+				no: index + 1,
+				date: row.date,
+				refNo: row.refNo,
+				type: row.type,
+				name: row.type || "-",
+				memo: row.memo || row.currency || "-",
+				debit: row.dr || "-",
+				credit: row.cr || "-",
+				balance: formatNumber(runningBalance),
+			}),
+		);
 	});
 }
 
@@ -39,13 +67,11 @@ export function buildTrialBalanceRows(): ReportTemplateRow[] {
 		return acc;
 	}, {});
 
-	return Object.entries(aggregates).map(([account, totals], index) => ({
-		key: `trial-${account}`,
-		cells: {
-			no: index + 1,
+	return Object.entries(aggregates).map(([account, totals], index) =>
+		createIndexedReportRow(`trial-${account}`, index, {
 			account,
 			debit: formatNumber(totals.debit),
 			credit: formatNumber(totals.credit),
-		},
-	}));
+		}),
+	);
 }

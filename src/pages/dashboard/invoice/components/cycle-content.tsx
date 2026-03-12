@@ -133,7 +133,7 @@ export function CycleContent({ customerId, customerName, onSelectCycle, requireC
 			</div>
 
 			{/* Filters: Duration + Status + Date Range */}
-			<div className="flex flex-wrap items-center justify gap-4 rounded-lg border p-4">
+			<div className="flex flex-wrap items-center justify gap-2 rounded-lg border p-4">
 				<div className="space-y-1.5">
 					<Label>Duration</Label>
 					<Combobox<(typeof durationOptions)[number]>

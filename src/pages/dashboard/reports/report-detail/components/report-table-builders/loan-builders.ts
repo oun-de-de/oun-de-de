@@ -2,6 +2,7 @@ import type { Customer } from "@/core/types/customer";
 import type { Installment, Loan } from "@/core/types/loan";
 import { formatDisplayDate, formatNumber } from "@/core/utils/formatters";
 import type { ReportTemplateRow } from "../../../components/layout/report-template-table";
+import { createIndexedReportRow, createLedgerCells, createReportRow } from "./report-row-helpers";
 
 function getLoanPaymentTotals(loan: Loan, installments: Installment[] = []) {
 	const collected = installments
@@ -63,22 +64,18 @@ export function buildCustomerLoanRows(
 		const installments = installmentsByLoanId[loan.id] ?? [];
 		const { collected, balance } = getLoanPaymentTotals(loan, installments);
 
-		return {
-			key: loan.id,
-			cells: {
-				no: index + 1,
-				date: formatDisplayDate(loan.createdAt || loan.startDate),
-				code: customer?.code ?? loan.borrowerId,
-				name: loan.borrowerName,
-				reason: getCustomerLoanPurpose(loan, customer),
-				debit: formatNumber(loan.principalAmount),
-				credit: formatNumber(collected),
-				balance: formatNumber(balance),
-				qty: loan.termMonths,
-				paymentTerm: getCustomerPaymentTerm(loan, installments),
-				other: getCustomerOtherText(loan, installments),
-			},
-		};
+		return createIndexedReportRow(loan.id, index, {
+			date: formatDisplayDate(loan.createdAt || loan.startDate),
+			code: customer?.code ?? loan.borrowerId,
+			name: loan.borrowerName,
+			reason: getCustomerLoanPurpose(loan, customer),
+			debit: formatNumber(loan.principalAmount),
+			credit: formatNumber(collected),
+			balance: formatNumber(balance),
+			qty: loan.termMonths,
+			paymentTerm: getCustomerPaymentTerm(loan, installments),
+			other: getCustomerOtherText(loan, installments),
+		});
 	});
 }
 
@@ -90,19 +87,21 @@ export function buildEmployeeLoanRows(
 		const installments = installmentsByLoanId[loan.id] ?? [];
 		const { collected, balance } = getLoanPaymentTotals(loan, installments);
 
-		return {
-			key: loan.id,
-			cells: {
+		return createReportRow(
+			loan.id,
+			createLedgerCells({
 				date: formatDisplayDate(loan.createdAt || loan.startDate),
-				type: "General Employee",
 				refNo: `${String(index + 1).padStart(5, "0")}-${loan.borrowerId}`,
-				employee: loan.borrowerName,
-				memo: getEmployeeLoanMemo(loan, installments),
+				type: "General Employee",
 				name: "",
+				memo: getEmployeeLoanMemo(loan, installments),
 				debit: formatNumber(loan.principalAmount),
 				credit: formatNumber(collected),
 				balance: formatNumber(balance),
-			},
-		};
+				extraCells: {
+					employee: loan.borrowerName,
+				},
+			}),
+		);
 	});
 }

@@ -40,10 +40,4 @@ export const DEFAULT_REPORT_SECTIONS: ReportSectionVisibility = {
 	signature: false,
 };
 
-export const DEFAULT_REPORT_COLUMNS: ReportColumnVisibility = {
-	refNo: true,
-	category: false,
-	geography: true,
-	address: true,
-	phone: true,
-};
+export const DEFAULT_REPORT_COLUMNS: ReportColumnVisibility = {};
