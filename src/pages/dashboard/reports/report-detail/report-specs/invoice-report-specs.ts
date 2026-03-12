@@ -1,0 +1,75 @@
+import {
+	buildInvoiceReportRows,
+	buildMonthlyRevenueExpenseRows,
+	buildOpenInvoiceRows,
+	buildSaleDetailRows,
+} from "../components/report-table-builders";
+import { REPORT_DEFAULT_DATE } from "../constants";
+import {
+	buildOpenInvoiceDetailColumns,
+	buildReceiptDetailColumns,
+	buildSaleDetailColumns,
+} from "../report-columns/invoice-report-columns";
+import { buildMonthlySummaryColumns } from "../report-columns/accounting-report-columns";
+import { REPORT_FILTERS, type BuildReportRowsParams, type ReportDefinitionMap } from "../report-types";
+
+function buildReceiptDetailRows({ exportLines }: BuildReportRowsParams) {
+	return buildInvoiceReportRows(exportLines);
+}
+
+function buildOpenInvoiceDetailRows({ invoices, previewRows }: BuildReportRowsParams) {
+	return buildOpenInvoiceRows(invoices, previewRows);
+}
+
+function buildSaleDetailReportRows({ invoices, exportLines }: BuildReportRowsParams) {
+	return buildSaleDetailRows(invoices, exportLines);
+}
+
+function buildMonthlyRevenueExpenseReportRows({ invoices, previewRows }: BuildReportRowsParams) {
+	return buildMonthlyRevenueExpenseRows(invoices, previewRows);
+}
+
+export const INVOICE_REPORT_SPECS: ReportDefinitionMap = {
+	"open-invoice-detail-by-customer": {
+		slug: "open-invoice-detail-by-customer",
+		title: "Open Invoice Detail Report",
+		templateId: "open-invoice-detail-by-customer",
+		subtitle: REPORT_DEFAULT_DATE,
+		buildColumns: buildOpenInvoiceDetailColumns,
+		buildRows: buildOpenInvoiceDetailRows,
+		dataSource: "invoice-export",
+		filterConfig: REPORT_FILTERS.customerAndDateRange,
+	},
+	"sale-detail-by-customer": {
+		slug: "sale-detail-by-customer",
+		title: "Sale Detail By Customer",
+		templateId: "sale-detail-by-customer",
+		subtitle: REPORT_DEFAULT_DATE,
+		buildColumns: buildSaleDetailColumns,
+		buildRows: buildSaleDetailReportRows,
+		dataSource: "invoice-export",
+		invoiceType: "invoice",
+		filterConfig: REPORT_FILTERS.customerAndDateRange,
+	},
+	"receipt-detail-by-customer": {
+		slug: "receipt-detail-by-customer",
+		title: "Receipt Detail By Customer",
+		templateId: "receipt-detail-by-customer",
+		subtitle: REPORT_DEFAULT_DATE,
+		buildColumns: buildReceiptDetailColumns,
+		buildRows: buildReceiptDetailRows,
+		dataSource: "invoice-export",
+		invoiceType: "receipt",
+		filterConfig: REPORT_FILTERS.customerAndDateRange,
+	},
+	"profit-and-loss": {
+		slug: "profit-and-loss",
+		title: "Monthly Revenue & Expense",
+		templateId: "monthly-revenue-expense-summary",
+		subtitle: REPORT_DEFAULT_DATE,
+		buildColumns: buildMonthlySummaryColumns,
+		buildRows: buildMonthlyRevenueExpenseReportRows,
+		dataSource: "invoice-summary",
+		filterConfig: REPORT_FILTERS.customerAndDateRange,
+	},
+};

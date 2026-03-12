@@ -3,6 +3,7 @@ import type { Product } from "@/core/types/product";
 import { formatDisplayDate, formatNumber } from "@/core/utils/formatters";
 import type { ReportTemplateRow } from "../../../components/layout/report-template-table";
 import { parseDisplayDate, parseNumericCell } from "../report-table-utils";
+import { createIndexedReportRow, createReportRow } from "./report-row-helpers";
 
 const INVENTORY_SUPPLIER = {
 	name: "LC 1988 Supply",
@@ -73,18 +74,16 @@ function buildAssetOther(product: Product) {
 }
 
 export function buildProductListRows(products: Product[]): ReportTemplateRow[] {
-	return products.map((product, index) => ({
-		key: product.id,
-		cells: {
-			no: index + 1,
+	return products.map((product, index) =>
+		createIndexedReportRow(product.id, index, {
 			name: product.name ?? "-",
 			unit: product.unit?.name ?? "-",
 			quantity: formatNumber(product.quantity),
 			cost: formatNumber(product.cost),
 			price: formatNumber(product.price),
 			value: formatNumber(product.quantity * product.cost),
-		},
-	}));
+		}),
+	);
 }
 
 export function buildInventoryBagRows(products: Product[]): ReportTemplateRow[] {
@@ -93,9 +92,9 @@ export function buildInventoryBagRows(products: Product[]): ReportTemplateRow[] 
 		const stockOutQty = Math.max(Math.round(product.quantity * 0.35), 0);
 		const balanceQty = Math.max(stockInQty - stockOutQty, 0);
 
-		return {
-			key: `inventory-${product.id}`,
-			cells: buildInventoryMovementCells({
+		return createReportRow(
+			`inventory-${product.id}`,
+			buildInventoryMovementCells({
 				itemCode: product.refNo ?? product.id,
 				itemName: product.name,
 				date: product.date,
@@ -106,7 +105,7 @@ export function buildInventoryBagRows(products: Product[]): ReportTemplateRow[] 
 				supplierAddress: INVENTORY_SUPPLIER.address,
 				balanceQty,
 			}),
-		};
+		);
 	});
 }
 
@@ -130,9 +129,9 @@ export function buildInventoryStockReportRows(lines: InventoryStockReportLine[] 
 
 			runningBalanceByItem.set(itemKey, nextBalance);
 
-			return {
-				key: `inventory-stock-${index}-${itemKey}`,
-				cells: buildInventoryMovementCells({
+			return createReportRow(
+				`inventory-stock-${index}-${itemKey}`,
+				buildInventoryMovementCells({
 					itemCode: line.itemCode,
 					itemName: line.itemName,
 					date: line.createdAt,
@@ -141,7 +140,7 @@ export function buildInventoryStockReportRows(lines: InventoryStockReportLine[] 
 					supplierName: line.reason,
 					balanceQty: nextBalance,
 				}),
-			};
+			);
 		});
 }
 
@@ -178,10 +177,8 @@ export function filterInventoryStockReportRowsByDate(
 }
 
 export function buildCompanyAssetRows(products: Product[]): ReportTemplateRow[] {
-	return products.map((product, index) => ({
-		key: `asset-${product.id}`,
-		cells: {
-			no: index + 1,
+	return products.map((product, index) =>
+		createIndexedReportRow(`asset-${product.id}`, index, {
 			name: product.name ?? "-",
 			entryDate: formatDisplayDate(product.date),
 			supplierName: product.refNo ? `Ref ${product.refNo}` : "Internal record",
@@ -193,6 +190,6 @@ export function buildCompanyAssetRows(products: Product[]): ReportTemplateRow[] 
 			balance: formatNumber(product.quantity * product.cost),
 			qty: formatNumber(product.quantity),
 			other: buildAssetOther(product),
-		},
-	}));
+		}),
+	);
 }

@@ -63,21 +63,28 @@ function generateDailyIncomeAccountingData(days: number): DailyIncomeAccounting[
 
 function generateReportDailyReportData(date: string): DailyReportResponse {
 	const dateSeed = new Date(date).getDate() || 1;
-	const soldProducts = Array.from({ length: 3 }, (_, index) => {
+	const soldProducts = Array.from({ length: 4 }, (_, index) => {
 		const totalQuantity = faker.number.int({ min: 20 + dateSeed, max: 250 + dateSeed });
 		const totalAmount = totalQuantity * faker.number.int({ min: 1_000, max: 4_000 });
+		const productNameByIndex = [
+			"Ice cube sale cash",
+			"Premium Ice sale cash",
+			"customer sale invoice Premium Ice",
+			"Customer sale invoice ice cube",
+		];
 
 		return {
-			productName: `Ice Product ${index + 1}`,
+			productName: productNameByIndex[index] ?? `Ice Product ${index + 1}`,
 			unit: "bag",
 			totalQuantity,
 			totalAmount,
 		};
 	});
 
-	const boughtItems = Array.from({ length: 2 }, (_, index) => ({
-		itemName: `Expense ${index + 1}`,
-		expense: faker.number.int({ min: 100_000, max: 800_000 }),
+	const expenseNames = ["Fuel", "Salary Advance", "Equipment Repair", "Ice Bag Purchase"];
+	const boughtItems = expenseNames.map((itemName, index) => ({
+		itemName,
+		expense: faker.number.int({ min: 100_000 + index * 20_000, max: 800_000 + dateSeed * 5_000 }),
 	}));
 
 	const totalRevenue = soldProducts.reduce((sum, item) => sum + (item.totalAmount ?? 0), 0);
@@ -86,6 +93,10 @@ function generateReportDailyReportData(date: string): DailyReportResponse {
 	return {
 		soldProducts,
 		boughtItems,
+		iceCubeSaleCash: soldProducts[0]?.totalAmount ?? 0,
+		premiumIceSaleCash: soldProducts[1]?.totalAmount ?? 0,
+		customerSaleInvoicePremiumIce: soldProducts[2]?.totalAmount ?? 0,
+		customerSaleInvoiceIceCube: soldProducts[3]?.totalAmount ?? 0,
 		totalRevenue,
 		totalCashReceive: Math.max(totalRevenue - faker.number.int({ min: 0, max: 300_000 }), 0),
 		totalExpense,
@@ -128,6 +139,46 @@ function generateInventoryStockReportData(fromDate: string, toDate: string): Inv
 			type: "OUT",
 			reason: "BORROW",
 			createdAt: `${secondDate}T14:00:00`,
+		},
+		{
+			itemCode: "ICE-BAG-001",
+			itemName: "Ice Bag Small",
+			quantity: 25,
+			type: "IN",
+			reason: "RETURN",
+			createdAt: `${secondDate}T16:00:00`,
+		},
+		{
+			itemCode: "ICE-BAG-003",
+			itemName: "Premium Ice Sleeve",
+			quantity: 60,
+			type: "IN",
+			reason: "PURCHASE",
+			createdAt: `${firstDate}T10:30:00`,
+		},
+		{
+			itemCode: "ICE-BAG-003",
+			itemName: "Premium Ice Sleeve",
+			quantity: 18,
+			type: "OUT",
+			reason: "CONSUME",
+			createdAt: `${secondDate}T11:15:00`,
+		},
+		{
+			itemCode: "ICE-BAG-004",
+			itemName: "Crystal Ice Wrapper",
+			quantity: 45,
+			type: "IN",
+			reason: "PURCHASE",
+			createdAt: `${secondDate}T07:45:00`,
+		},
+		{
+			itemCode: "ICE-BAG-004",
+			itemName: "Crystal Ice Wrapper",
+			quantity: 12,
+			type: "OUT",
+			reason: "BORROW",
+			createdAt: `${secondDate}T17:20:00`,
 		},
 	];
 }

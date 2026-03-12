@@ -8,12 +8,13 @@ import {
 import type { ReportColumnVisibility, ReportSectionVisibility } from "../../components/layout/report-toolbar";
 import { formatReportTimestamp } from "../constants";
 import type { ReportFiltersValue } from "./report-filters";
-import { buildReportPresentation } from "./report-table-presentation";
+import { buildReportPresentation } from "./report-table-presentation-builders";
 import { useReportTableData } from "./use-report-table-data";
 
 const EMPTY_ARRAY: any[] = [];
 
 interface ReportTableProps {
+	columns: ReportTemplateColumn[];
 	showSections?: ReportSectionVisibility;
 	showColumns?: ReportColumnVisibility;
 	className?: string;
@@ -29,6 +30,7 @@ interface ReportTableProps {
 }
 
 export const ReportTable = React.memo(function ReportTable({
+	columns,
 	showSections,
 	showColumns,
 	className,
@@ -38,17 +40,41 @@ export const ReportTable = React.memo(function ReportTable({
 	onInvoiceIdsChange,
 	onTableDataChange,
 }: ReportTableProps) {
-	const { definition, invoiceIds, previewRows, selectedCustomerLabel, sourceRows, sortedRows } = useReportTableData({
-		reportSlug,
-		filters,
-		sortMode,
-	});
-	const columns = useMemo(() => definition.buildColumns(), [definition]);
-	const hiddenColumnKeys = useMemo(() => definition.hiddenColumnKeys?.(showColumns) ?? [], [definition, showColumns]);
+	const { definition, invoiceIds, previewRows, selectedCustomerLabel, selectedCustomer, sourceRows, sortedRows } =
+		useReportTableData({
+			reportSlug,
+			filters,
+			sortMode,
+		});
+	const hiddenColumnKeys = useMemo(
+		() =>
+			Object.entries(showColumns ?? {})
+				.filter(([, isVisible]) => isVisible === false)
+				.map(([columnKey]) => columnKey),
+		[showColumns],
+	);
 	const presentation = useMemo(
 		() =>
-			buildReportPresentation(reportSlug, definition.title, filters, selectedCustomerLabel, sourceRows, previewRows),
-		[definition.title, filters, previewRows, reportSlug, selectedCustomerLabel, sourceRows],
+			buildReportPresentation({
+				templateId: definition.templateId,
+				reportSlug,
+				title: definition.title,
+				filters,
+				selectedCustomerLabel,
+				selectedCustomer,
+				rows: sourceRows,
+				previewRows,
+			}),
+		[
+			definition.templateId,
+			definition.title,
+			filters,
+			previewRows,
+			reportSlug,
+			selectedCustomer,
+			selectedCustomerLabel,
+			sourceRows,
+		],
 	);
 
 	useEffect(() => {

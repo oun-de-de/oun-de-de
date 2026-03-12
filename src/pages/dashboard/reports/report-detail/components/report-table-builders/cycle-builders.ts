@@ -1,6 +1,7 @@
 import type { Cycle } from "@/core/types/cycle";
 import { formatDisplayDate, formatKHR } from "@/core/utils/formatters";
 import type { ReportTemplateRow } from "../../../components/layout/report-template-table";
+import { createReportRow } from "./report-row-helpers";
 
 export function buildCycleReportRows(cycles: Cycle[]): ReportTemplateRow[] {
 	return cycles.map((cycle) => {
@@ -10,15 +11,12 @@ export function buildCycleReportRows(cycles: Cycle[]): ReportTemplateRow[] {
 		const paid = cycle.totalPaidAmount ?? 0;
 		const outstanding = Math.max(0, invoiceTotal - paid);
 
-		return {
-			key: cycle.id,
-			cells: {
-				customer: cycle.customerName ?? "-",
-				cycle: `${startDate} - ${endDate}`,
-				invoiceTotal: formatKHR(invoiceTotal),
-				paid: formatKHR(paid),
-				outstanding: formatKHR(outstanding),
-			},
-		};
+		return createReportRow(cycle.id, {
+			customer: cycle.customerName ?? "-",
+			cycle: `${startDate} - ${endDate}`,
+			invoiceTotal: formatKHR(invoiceTotal),
+			paid: formatKHR(paid),
+			outstanding: formatKHR(outstanding),
+		});
 	});
 }

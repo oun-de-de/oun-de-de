@@ -1,4 +1,5 @@
 import invoiceService from "@/core/api/services/invoice-service";
+import { BackButton } from "@/core/components/common";
 import { cn } from "@/core/utils";
 import {
 	getPaperSizePageValue,
@@ -9,14 +10,20 @@ import {
 } from "@/pages/dashboard/invoice/export-preview/constants";
 import { buildInvoiceExportBlob } from "@/pages/dashboard/invoice/export-preview/utils/invoice-export-template";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { ReportFilterBar } from "../../components/layout/report-filter-bar";
 import { ReportLayout } from "../../components/layout/report-layout";
 import type { ReportTemplateColumn, ReportTemplateRow } from "../../components/layout/report-template-table";
 import { ReportToolbar } from "../../components/layout/report-toolbar";
 import { DEFAULT_REPORT_COLUMNS, DEFAULT_REPORT_SECTIONS, REPORT_DEFAULT_DATE_INPUT } from "../constants";
-import { getReportDefinition } from "../report-registry";
-import { hasVisibleReportFilters } from "../report-types";
+import { getReportDefinition } from "../report-specs";
+import {
+	createVisibleColumnMap,
+	getReportColumnOptions,
+	getReportColumns,
+	hasVisibleReportFilters,
+} from "../report-types";
 import { ReportFilters, type ReportFiltersValue } from "./report-filters";
 import { ReportTable } from "./report-table";
 
@@ -41,6 +48,7 @@ function areReportFiltersEqual(left: ReportFiltersValue, right: ReportFiltersVal
 }
 
 export function ReportDetailView({ reportSlug }: ReportDetailViewProps) {
+	const navigate = useNavigate();
 	const [showSections, setShowSections] = useState(DEFAULT_REPORT_SECTIONS);
 	const [showColumns, setShowColumns] = useState(DEFAULT_REPORT_COLUMNS);
 	const [exportInvoiceIds, setExportInvoiceIds] = useState<string[]>([]);
@@ -61,6 +69,14 @@ export function ReportDetailView({ reportSlug }: ReportDetailViewProps) {
 	const [appliedFilters, setAppliedFilters] = useState<ReportFiltersValue>(DEFAULT_REPORT_FILTERS);
 	const hasPendingFilterChanges = !areReportFiltersEqual(draftFilters, appliedFilters);
 	const handlePrint = () => window.print();
+	const handleBack = useCallback(() => {
+		if (window.history.length > 1) {
+			navigate(-1);
+			return;
+		}
+
+		navigate("/dashboard/reports");
+	}, [navigate]);
 	const reportDefinition = useMemo(() => getReportDefinition(reportSlug), [reportSlug]);
 	const isExcelExportReport =
 		reportSlug === "open-invoice-detail-by-customer" || reportSlug === "receipt-detail-by-customer";
@@ -68,7 +84,13 @@ export function ReportDetailView({ reportSlug }: ReportDetailViewProps) {
 	const pageSizeValue = useMemo(() => getPaperSizePageValue(paperSizeMode), [paperSizeMode]);
 	const tableClassName = useMemo(() => getTemplateClassName(templateMode), [templateMode]);
 	const hasVisibleFilters = hasVisibleReportFilters(reportDefinition.filterConfig);
-	const enableColumnCustomization = Boolean(reportDefinition.hiddenColumnKeys);
+	const reportColumns = useMemo(() => getReportColumns(reportDefinition), [reportDefinition]);
+	const columnOptions = useMemo(() => getReportColumnOptions(reportDefinition), [reportDefinition]);
+	const enableColumnCustomization = columnOptions.length > 0;
+
+	useEffect(() => {
+		setShowColumns(createVisibleColumnMap(columnOptions));
+	}, [reportSlug, columnOptions]);
 
 	useEffect(() => {
 		const styleId = "report-page-size-style";
@@ -164,6 +186,10 @@ export function ReportDetailView({ reportSlug }: ReportDetailViewProps) {
 
 	return (
 		<ReportLayout className="report-print-page">
+			<div className="print:hidden">
+				<BackButton onClick={handleBack} />
+			</div>
+
 			{showSections.filter && hasVisibleFilters && (
 				<ReportFilterBar title="Filter" icon="mdi:filter-outline" defaultOpen={true} className="print:hidden">
 					<ReportFilters
@@ -183,7 +209,7 @@ export function ReportDetailView({ reportSlug }: ReportDetailViewProps) {
 					onShowSectionsChange={setShowSections}
 					showColumns={showColumns}
 					onShowColumnsChange={setShowColumns}
-					columnLabels={reportDefinition.columnLabels}
+					columnOptions={columnOptions}
 					enableColumnCustomization={enableColumnCustomization}
 					templateMode={templateMode}
 					onTemplateModeChange={setTemplateMode}
@@ -201,6 +227,7 @@ export function ReportDetailView({ reportSlug }: ReportDetailViewProps) {
 				{/* <div className={cn("w-full", tableWrapperClassName)}> */}
 				<div className="w-full">
 					<ReportTable
+						columns={reportColumns}
 						showSections={showSections}
 						showColumns={showColumns}
 						className={cn("rounded-t-none report-print-target print:w-full", tableClassName)}
