@@ -3,10 +3,12 @@ import { DefaultForm, type DefaultFormData, type FormFieldConfig } from "@/core/
 import type { CreateCustomer } from "@/core/types/customer";
 import type { Vehicle } from "@/core/types/vehicle";
 import { CUSTOMER_FIELDS } from "../constants/customer-fields";
+import { GenerateCodeButton } from "./generate-code-button";
 import { VehicleListField } from "./vehicle-list-field";
 
 export type CustomerFormData = DefaultFormData & {
 	registerDate: string;
+	code: string;
 	name: string;
 	status: boolean;
 	referredById?: string;
@@ -62,6 +64,9 @@ export function CustomerForm({
 				}
 				if (field.name === "referredById") {
 					return { ...field, options: customerOptions };
+				}
+				if (field.name === "code") {
+					return { ...field, endAdornment: mode === "create" ? <GenerateCodeButton /> : undefined };
 				}
 				return field;
 			})

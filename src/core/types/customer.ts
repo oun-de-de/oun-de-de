@@ -78,6 +78,7 @@ export interface CustomerDetail
 
 export interface CreateCustomer {
 	registerDate: Date;
+	code: string;
 	name: string;
 	status: boolean;
 	warehouseId: string;
@@ -100,6 +101,7 @@ export interface CreateCustomer {
 
 export interface UpdateCustomer {
 	registerDate?: string;
+	code?: string;
 	name?: string;
 	status?: boolean;
 	referredById?: string;
