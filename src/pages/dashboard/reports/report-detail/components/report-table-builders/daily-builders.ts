@@ -8,7 +8,7 @@ function buildDailyMetricRow(
 	label: string,
 	amount: string,
 	metricKey: string,
-	no: string | number = "",
+	no: string | number,
 	quantity = "",
 ): ReportTemplateRow {
 	return createReportRow(key, {
@@ -28,24 +28,28 @@ export function buildApiDailyReportRows(report: DailyReportResponse | undefined)
 			"Ice cube sale cash",
 			formatNumber(report?.iceCubeSaleCash ?? 0),
 			"daily-ice-cube-sale-cash",
+			1,
 		),
 		buildDailyMetricRow(
 			"daily-premium-ice-sale-cash",
 			"Premium Ice sale cash",
 			formatNumber(report?.premiumIceSaleCash ?? 0),
 			"daily-premium-ice-sale-cash",
+			2,
 		),
 		buildDailyMetricRow(
 			"daily-customer-sale-invoice-premium-ice",
 			"customer sale invoice Premium Ice",
 			formatNumber(report?.customerSaleInvoicePremiumIce ?? 0),
 			"daily-customer-sale-invoice-premium-ice",
+			3,
 		),
 		buildDailyMetricRow(
 			"daily-customer-sale-invoice-ice-cube",
 			"Customer sale invoice ice cube",
 			formatNumber(report?.customerSaleInvoiceIceCube ?? 0),
 			"daily-customer-sale-invoice-ice-cube",
+			4,
 		),
 	];
 	const summaryRows: ReportTemplateRow[] = [
@@ -54,14 +58,16 @@ export function buildApiDailyReportRows(report: DailyReportResponse | undefined)
 			"Total Revenues",
 			formatNumber(report?.totalRevenue ?? 0),
 			"daily-total-revenue",
+			5,
 		),
 		buildDailyMetricRow(
 			"daily-cash-received",
 			"Daily Cash receive",
 			formatNumber(report?.totalCashReceive ?? 0),
 			"daily-cash-receive",
+			6,
 		),
-		buildDailyMetricRow("daily-expense-section", "Daily expenses", "", "daily-expense-section"),
+		buildDailyMetricRow("daily-expense-section", "Daily expenses", "", "daily-expense-section", 7),
 	];
 	const expenseRows = boughtItems.map((item, index) =>
 		buildDailyMetricRow(
@@ -69,7 +75,7 @@ export function buildApiDailyReportRows(report: DailyReportResponse | undefined)
 			item.itemName?.trim() || `Expense item ${index + 1}`,
 			formatNumber(item.expense ?? 0),
 			`daily-expense-item-${index}`,
-			index + 1,
+			index + 8,
 		),
 	);
 
@@ -82,6 +88,7 @@ export function buildApiDailyReportRows(report: DailyReportResponse | undefined)
 			"Total expense",
 			formatNumber(report?.totalExpense ?? 0),
 			"daily-expense-total",
+			expenseRows.length + 8,
 		),
 	];
 }
