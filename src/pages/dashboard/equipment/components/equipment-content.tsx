@@ -1,5 +1,4 @@
 import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
-import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
 import { useNavigate } from "react-router";
 import { useEquipmentContent } from "../hooks/use-equipment-content";
@@ -31,9 +30,6 @@ export function EquipmentContent({ activeItemId }: Props) {
 			{/* Header */}
 			<div className="flex flex-wrap items-center justify-between gap-2">
 				<div className="flex items-center gap-2">
-					<Button size="sm" className="gap-1">
-						Equipment
-					</Button>
 					<Text variant="body2" className="text-slate-400">
 						{activeItem ? `${activeItem.name} selected` : "All equipment"}
 					</Text>

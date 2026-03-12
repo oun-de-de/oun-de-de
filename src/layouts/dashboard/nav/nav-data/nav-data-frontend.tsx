@@ -78,13 +78,12 @@ export const newActions = [
 	{
 		title: "Sales",
 		items: [
-			{ title: "New Invoice", href: "/dashboard/invoice" },
 			{ title: "Create Coupon", href: "/dashboard/coupons/create" },
 			{ title: "Create Receipt", href: "/dashboard/customers/create-receipt" },
 		],
 	},
 	{
-		title: "People",
+		title: "Users",
 		items: [
 			{ title: "New Customer", href: "/dashboard/customers/create" },
 			{ title: "New Employee", href: "/dashboard/employees/create" },
