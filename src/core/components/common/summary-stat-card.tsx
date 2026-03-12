@@ -5,7 +5,7 @@ import { Text, Title } from "@/core/ui/typography";
 import { formatNumber } from "@/core/utils/formatters";
 
 const CardRoot = styled.div.attrs({
-	className: "flex items-center justify-between rounded-lg border px-4 py-3",
+	className: "flex items-center justify-between rounded-lg border p-2",
 })``;
 
 const LabelText = styled(Text).attrs({
@@ -15,11 +15,11 @@ const LabelText = styled(Text).attrs({
 
 const ValueTitle = styled(Title).attrs({
 	as: "h6",
-	className: "text-lg font-bold",
+	className: "text-md font-bold",
 })``;
 
 const IconWrap = styled.span.attrs<{ $color: string }>(({ $color }) => ({
-	className: `flex h-10 w-10 items-center justify-center rounded-lg text-white ${$color}`,
+	className: `flex h-8 w-8 items-center justify-center rounded-lg text-white ${$color}`,
 }))``;
 
 export function SummaryStatCard({ label, value, color, icon }: SummaryStatCardData) {

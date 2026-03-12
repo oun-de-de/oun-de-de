@@ -1,12 +1,11 @@
 import { couponSummaryCards } from "@/_mock/data/dashboard";
 import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
-import Icon from "@/core/components/icon/icon";
 import type { Coupon } from "@/core/types/coupon";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
+import { useNavigate } from "react-router";
 import type { CouponState } from "../stores/coupon-state";
 import { columns } from "./coupon-columns";
-import { useNavigate } from "react-router";
 
 type CouponContentProps = {
 	activeCustomerName: string | null | undefined;
@@ -39,10 +38,6 @@ export function CouponContent({
 		<>
 			<div className="flex flex-wrap items-center justify-between gap-2">
 				<div className="flex items-center gap-2">
-					<Button size="sm" className="gap-1">
-						<Icon icon="mdi:ticket-percent-outline" />
-						Coupons
-					</Button>
 					<Text variant="body2" className="text-muted-foreground">
 						{activeCustomerName ? `${activeCustomerName} selected` : "No customer selected"}
 					</Text>
@@ -54,7 +49,7 @@ export function CouponContent({
 				</div>
 			</div>
 
-			<div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+			<div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 pb-2">
 				{summaryCards.map((card) => (
 					<SummaryStatCard key={card.label} {...card} />
 				))}
