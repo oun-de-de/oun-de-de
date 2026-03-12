@@ -106,6 +106,8 @@ type SmartDataTableProps<T> = {
 	className?: string;
 	/** Max height for the scrollable table body container (e.g. "60vh", "480px") */
 	maxBodyHeight?: string;
+	/** Minimum height for the scrollable table body container (e.g. "420px", "50vh") */
+	minBodyHeight?: string;
 	/** Callback when a row is clicked */
 	onRowClick?: (row: T) => void;
 	/** Visual variant of the table wrapper */
@@ -165,6 +167,7 @@ export function SmartDataTable<T extends object>({
 	paginationConfig,
 	className,
 	maxBodyHeight = "60vh",
+	minBodyHeight = "420px",
 	onRowClick,
 	variant = "default",
 	enableFilterBar = true,
@@ -263,7 +266,7 @@ export function SmartDataTable<T extends object>({
 	}, [updateScrollState]);
 
 	return (
-		<div className={cn("flex min-w-0 flex-col gap-4", className)}>
+		<div className={cn("flex min-w-0 flex-col gap-2 lg:gap-4", className)}>
 			{showFilterBar && filterConfig && (
 				<TableFilterBar
 					showTypeFilter={filterConfig.showTypeFilter}
@@ -297,7 +300,7 @@ export function SmartDataTable<T extends object>({
 				)}
 				<div
 					className="h-full w-full min-w-0 overflow-auto"
-					style={{ maxHeight: maxBodyHeight }}
+					style={{ minHeight: minBodyHeight, maxHeight: maxBodyHeight }}
 					ref={scrollRef}
 					onScroll={updateScrollState}
 				>
