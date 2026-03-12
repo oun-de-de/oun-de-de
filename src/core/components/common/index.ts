@@ -1,3 +1,4 @@
+export { BackButton } from "./back-button";
 export type { DefaultFormData, DefaultFormProps, FormFieldConfig } from "./default-form";
 export { DefaultForm } from "./default-form";
 export { EntityListItem } from "./entity-list-item";

@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import Icon from "@/core/components/icon/icon";
+import { BackButton } from "@/core/components/common";
 import { Badge } from "@/core/ui/badge";
 import { Button } from "@/core/ui/button";
 import { Separator } from "@/core/ui/separator";
@@ -31,10 +31,7 @@ export default function BorrowDetailPage() {
 					<Text variant="body1" className="mb-4 text-lg font-semibold">
 						Loan not found
 					</Text>
-					<Button onClick={() => router.push("/dashboard/loan")}>
-						<Icon icon="mdi:arrow-left" className="mr-2" />
-						Back to Loans
-					</Button>
+					<BackButton onClick={() => router.push("/dashboard/loan")} label="Back to Loans" />
 				</div>
 			</div>
 		);
@@ -45,9 +42,7 @@ export default function BorrowDetailPage() {
 			{/* Header */}
 			<div className="flex flex-wrap items-center justify-between gap-3">
 				<div className="flex items-center gap-2">
-					<Button size="sm" variant="outline" onClick={() => router.push("/dashboard/loan")}>
-						<Icon icon="mdi:arrow-left" />
-					</Button>
+					<BackButton appearance="icon" onClick={() => router.push("/dashboard/loan")} />
 					<Button size="sm" className="gap-1 pointer-events-none">
 						Loan Details
 					</Button>

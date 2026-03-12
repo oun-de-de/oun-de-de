@@ -2,8 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import customerService from "@/core/api/services/customer-service";
-import { SmartDataTable } from "@/core/components/common";
-import Icon from "@/core/components/icon/icon";
+import { BackButton, SmartDataTable } from "@/core/components/common";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
 import { buildPagination } from "@/core/utils/dashboard-utils";
@@ -84,10 +83,7 @@ export default function EquipmentDetailPage() {
 					<Text variant="body1" className="mb-4 text-lg font-semibold">
 						Equipment not found
 					</Text>
-					<Button onClick={() => router.push("/dashboard/equipment")}>
-						<Icon icon="mdi:arrow-left" className="mr-2" />
-						Back to Equipment
-					</Button>
+					<BackButton onClick={() => router.push("/dashboard/equipment")} label="Back to Equipment" />
 				</div>
 			</div>
 		);
@@ -98,9 +94,7 @@ export default function EquipmentDetailPage() {
 			{/* Header */}
 			<div className="flex flex-wrap items-center justify-between gap-3">
 				<div className="flex items-center gap-2">
-					<Button size="sm" variant="outline" onClick={() => router.push("/dashboard/equipment")}>
-						<Icon icon="mdi:arrow-left" />
-					</Button>
+					<BackButton appearance="icon" onClick={() => router.push("/dashboard/equipment")} />
 					<Button size="sm" className="gap-1">
 						{activeItem.name}
 					</Button>

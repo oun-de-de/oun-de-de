@@ -1,5 +1,4 @@
-import { Icon } from "@/core/components/icon";
-import { Button } from "@/core/ui/button";
+import { BackButton } from "@/core/components/common";
 import { useTranslation } from "react-i18next";
 
 interface ReturnButtonProps {
@@ -7,10 +6,5 @@ interface ReturnButtonProps {
 }
 export function ReturnButton({ onClick }: ReturnButtonProps) {
 	const { t } = useTranslation();
-	return (
-		<Button variant="link" onClick={onClick} className="w-full cursor-pointer text-accent-foreground">
-			<Icon icon="solar:alt-arrow-left-linear" size={20} />
-			<span className="text-sm">{t("sys.login.backSignIn")}</span>
-		</Button>
-	);
+	return <BackButton appearance="link" onClick={onClick} className="w-full" label={t("sys.login.backSignIn")} />;
 }

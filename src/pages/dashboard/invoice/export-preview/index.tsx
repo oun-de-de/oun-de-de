@@ -3,10 +3,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
 import invoiceService from "@/core/api/services/invoice-service";
-import Icon from "@/core/components/icon/icon";
+import { BackButton } from "@/core/components/common";
 import { useAuthUser } from "@/core/services/auth/hooks/use-auth";
 import type { InvoiceExportPreviewLocationState } from "@/core/types/invoice";
-import { Button } from "@/core/ui/button";
 import { cn } from "@/core/utils";
 import {
 	type ReportTemplateMetaColumn,
@@ -249,10 +248,7 @@ export default function InvoiceExportPreviewPage() {
 	return (
 		<div className="invoice-export-preview-page flex h-full flex-col gap-4 p-1 overflow-auto print:block print:h-auto print:p-0">
 			<div className="print:hidden">
-				<Button variant="ghost" size="sm" onClick={handleBack} className="gap-1 text-sky-600 hover:bg-sky-50">
-					<Icon icon="mdi:arrow-left" />
-					Back
-				</Button>
+				<BackButton onClick={handleBack} />
 			</div>
 
 			<div className="flex flex-col print:block">
