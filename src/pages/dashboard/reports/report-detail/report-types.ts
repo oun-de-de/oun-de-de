@@ -64,6 +64,7 @@ export interface ReportDefinition {
 	buildRows: (params: BuildReportRowsParams) => ReportTemplateRow[];
 	summaryRows?: ReportTemplateSummaryRow[];
 	dataSource?: ReportDataSource;
+	needsPreviewRows?: boolean;
 	invoiceType?: ReportInvoiceType;
 	loanBorrowerType?: BorrowerType;
 	emptyText?: string;

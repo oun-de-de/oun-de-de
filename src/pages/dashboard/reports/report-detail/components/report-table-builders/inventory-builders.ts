@@ -116,12 +116,14 @@ export function buildInventoryStockReportRows(lines: InventoryStockReportLine[] 
 	const runningBalanceByItem = new Map<string, number>();
 
 	return [...lines]
+		.map((line) => ({
+			line,
+			sortTime: parseFlexibleDateToUtcTime(line.createdAt),
+		}))
 		.sort((left, right) => {
-			const leftTime = parseFlexibleDateToUtcTime(left.createdAt);
-			const rightTime = parseFlexibleDateToUtcTime(right.createdAt);
-			return leftTime - rightTime;
+			return left.sortTime - right.sortTime;
 		})
-		.map((line, index) => {
+		.map(({ line }, index) => {
 			const itemKey = line.itemCode?.trim() || line.itemName?.trim() || `item-${index}`;
 			const previousBalance = runningBalanceByItem.get(itemKey) ?? 0;
 			const quantity = Number(line.quantity ?? 0);

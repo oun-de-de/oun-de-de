@@ -45,6 +45,7 @@ export function useReportTableData({ reportSlug, filters, sortMode }: UseReportT
 	const definition = getReportDefinition(reportSlug);
 	const dataSource = definition.dataSource ?? "invoice-export";
 	const { customerId, reportDateFrom, reportDateTo } = normalizeReportFilters(filters);
+	const shouldBuildPreviewRows = definition.needsPreviewRows === true;
 
 	const isInvoiceExport = isInvoiceDataSource(dataSource);
 	const isCycle = isCycleDataSource(dataSource);
@@ -183,7 +184,10 @@ export function useReportTableData({ reportSlug, filters, sortMode }: UseReportT
 				? installmentsByLoanId
 				: fallbackReportInstallmentsByLoanId;
 
-	const previewRows = useMemo<InvoiceExportPreviewRow[]>(() => mapExportLinesToPreviewRows(exportLines), [exportLines]);
+	const previewRows = useMemo<InvoiceExportPreviewRow[]>(
+		() => (shouldBuildPreviewRows ? mapExportLinesToPreviewRows(exportLines) : []),
+		[exportLines, shouldBuildPreviewRows],
+	);
 
 	const sourceRows = useMemo<ReportTemplateRow[]>(
 		() =>
