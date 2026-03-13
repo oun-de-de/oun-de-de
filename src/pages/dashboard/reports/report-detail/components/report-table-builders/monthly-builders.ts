@@ -3,7 +3,11 @@ import type { Invoice, InvoiceExportPreviewRow } from "@/core/types/invoice";
 import { formatNumber } from "@/core/utils/formatters";
 import type { ReportTemplateRow } from "../../../components/layout/report-template-table";
 import { parseNumericCell } from "../report-table-utils";
-import { splitPreviewRowsByInvoiceType, sumOriginalAmount, sumPaid } from "./invoice-builder-helpers";
+import {
+	splitPreviewRowsIntoCashAndCredit,
+	sumOriginalAmount,
+	sumPreviewRowPaidAmount,
+} from "./invoice-builder-helpers";
 import { createReportRow } from "./report-row-helpers";
 
 function sumExpenses(): number {
@@ -33,12 +37,12 @@ export function buildMonthlyRevenueExpenseRows(
 	invoices: Invoice[],
 	previewRows: InvoiceExportPreviewRow[],
 ): ReportTemplateRow[] {
-	const { cashRows, creditRows } = splitPreviewRowsByInvoiceType(invoices, previewRows);
+	const { cashRows, creditRows } = splitPreviewRowsIntoCashAndCredit(invoices, previewRows);
 	const installmentCollected = creditRows.filter((row) => (row.paid ?? 0) > 0);
 	const totalMonthlyIncome = sumOriginalAmount(previewRows);
-	const totalCashSales = sumOriginalAmount(cashRows) + sumPaid(creditRows);
+	const totalCashSales = sumOriginalAmount(cashRows) + sumPreviewRowPaidAmount(creditRows);
 	const totalCreditSales = sumOriginalAmount(creditRows);
-	const totalInstallments = sumPaid(installmentCollected);
+	const totalInstallments = sumPreviewRowPaidAmount(installmentCollected);
 	const totalExpenses = sumExpenses();
 	const netTotal = totalMonthlyIncome - totalExpenses - totalCreditSales;
 	const expenseDetailRows = accountingRows

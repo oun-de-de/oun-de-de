@@ -1,6 +1,7 @@
 import type { Customer } from "@/core/types/customer";
 import type { Installment, Loan } from "@/core/types/loan";
-import { formatDisplayDate, formatNumber } from "@/core/utils/formatters";
+import { formatFlexibleDisplayDate } from "@/core/utils/date-display";
+import { formatNumber } from "@/core/utils/formatters";
 import type { ReportTemplateRow } from "../../../components/layout/report-template-table";
 import { createIndexedReportRow, createLedgerCells, createReportRow } from "./report-row-helpers";
 
@@ -23,7 +24,7 @@ function getInstallmentSummary(installments: Installment[] = []) {
 	return {
 		paidCount,
 		overdueCount,
-		nextDue: nextDue ? formatDisplayDate(nextDue.dueDate) : "-",
+		nextDue: nextDue ? formatFlexibleDisplayDate(nextDue.dueDate) : "-",
 	};
 }
 
@@ -65,7 +66,7 @@ export function buildCustomerLoanRows(
 		const { collected, balance } = getLoanPaymentTotals(loan, installments);
 
 		return createIndexedReportRow(loan.id, index, {
-			date: formatDisplayDate(loan.createdAt || loan.startDate),
+			date: formatFlexibleDisplayDate(loan.createdAt || loan.startDate),
 			code: customer?.code ?? loan.borrowerId,
 			name: loan.borrowerName,
 			reason: getCustomerLoanPurpose(loan, customer),
@@ -90,7 +91,7 @@ export function buildEmployeeLoanRows(
 		return createReportRow(
 			loan.id,
 			createLedgerCells({
-				date: formatDisplayDate(loan.createdAt || loan.startDate),
+				date: formatFlexibleDisplayDate(loan.createdAt || loan.startDate),
 				refNo: `${String(index + 1).padStart(5, "0")}-${loan.borrowerId}`,
 				type: "General Employee",
 				name: "",

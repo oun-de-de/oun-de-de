@@ -1,7 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Cycle } from "@/core/types/cycle";
+import { formatFlexibleDisplayDate } from "@/core/utils/date-display";
 import { Badge } from "@/core/ui/badge";
-import { formatDisplayDate, formatKHR } from "../utils/formatters";
+import { formatKHR } from "../utils/formatters";
 
 function getCycleStatusVariant(status: Cycle["status"]): "success" | "warning" | "error" {
 	switch (status) {
@@ -33,12 +34,12 @@ export function getCycleColumns(): ColumnDef<Cycle>[] {
 		{
 			accessorKey: "startDate",
 			header: "Start Date",
-			cell: ({ row }) => formatDisplayDate(row.original.startDate),
+			cell: ({ row }) => formatFlexibleDisplayDate(row.original.startDate),
 		},
 		{
 			accessorKey: "endDate",
 			header: "End Date",
-			cell: ({ row }) => formatDisplayDate(row.original.endDate),
+			cell: ({ row }) => formatFlexibleDisplayDate(row.original.endDate),
 		},
 		{
 			accessorKey: "status",

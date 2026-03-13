@@ -1,20 +1,20 @@
 import * as XLSX from "xlsx";
-import type { InvoiceExportLineResult } from "@/core/types/invoice";
-import { formatDisplayDate } from "@/core/utils/formatters";
+import type { InvoiceExportLineApi } from "@/core/types/invoice";
+import { formatFlexibleDisplayDate } from "@/core/utils/date-display";
 
 const EXCEL_MIME_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
 type TemplateColumn = {
 	label: string;
 	width: number;
-	map: (row: InvoiceExportLineResult, index: number) => string | number | null;
+	map: (row: InvoiceExportLineApi, index: number) => string | number | null;
 };
 
 const TEMPLATE_COLUMNS: TemplateColumn[] = [
 	{ label: "NO", width: 8, map: (_row, index) => index + 1 },
 	{ label: "REF NO", width: 18, map: (row) => row.refNo ?? "" },
 	{ label: "CUSTOMER", width: 24, map: (row) => row.customerName ?? "" },
-	{ label: "DATE", width: 14, map: (row) => formatReportDate(row.date) },
+	{ label: "DATE", width: 14, map: (row) => formatFlexibleDisplayDate(row.date, row.date ?? "") },
 	{ label: "PRODUCT NAME", width: 28, map: (row) => row.productName ?? "" },
 	{ label: "UNIT", width: 12, map: (row) => row.unit ?? "" },
 	{ label: "PRICE", width: 14, map: (row) => row.pricePerProduct ?? null },
@@ -27,11 +27,7 @@ const TEMPLATE_COLUMNS: TemplateColumn[] = [
 	{ label: "MEMO", width: 30, map: (row) => row.memo ?? "" },
 ];
 
-function formatReportDate(value?: string | null): string {
-	return formatDisplayDate(value);
-}
-
-export function buildInvoiceExportBlob(rows: InvoiceExportLineResult[]): Blob {
+export function buildInvoiceExportBlob(rows: InvoiceExportLineApi[]): Blob {
 	const headerRow = TEMPLATE_COLUMNS.map((column) => column.label);
 	const dataRows = rows.map((row, index) => TEMPLATE_COLUMNS.map((column) => column.map(row, index)));
 	const worksheet = XLSX.utils.aoa_to_sheet([headerRow, ...dataRows]);

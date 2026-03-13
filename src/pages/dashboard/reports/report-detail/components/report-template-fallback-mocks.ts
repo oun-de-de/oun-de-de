@@ -1,5 +1,5 @@
 import type { Customer } from "@/core/types/customer";
-import type { Invoice, InvoiceExportLineResult } from "@/core/types/invoice";
+import type { Invoice, InvoiceExportLineApi } from "@/core/types/invoice";
 import type { Installment, Loan } from "@/core/types/loan";
 import type { Product } from "@/core/types/product";
 
@@ -91,7 +91,7 @@ export const fallbackReportInvoices: Invoice[] = [
 	},
 ];
 
-export const fallbackReportExportLines: InvoiceExportLineResult[] = [
+export const fallbackReportExportLines: InvoiceExportLineApi[] = [
 	{
 		refNo: "INV-250301",
 		customerName: "Tony Trading",

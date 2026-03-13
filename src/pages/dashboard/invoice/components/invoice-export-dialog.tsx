@@ -6,7 +6,7 @@ import { Calendar } from "@/core/ui/calendar";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/core/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/core/ui/popover";
 import { cn } from "@/core/utils";
-import { formatDisplayDate } from "@/core/utils/formatters";
+import { formatFlexibleDisplayDate } from "@/core/utils/date-display";
 
 interface InvoiceExportDialogProps {
 	open: boolean;
@@ -43,11 +43,10 @@ export function InvoiceExportDialog({ open, onOpenChange, onExport, isExporting 
 									{dateRange?.from ? (
 										dateRange.to ? (
 											<>
-												{formatDisplayDate(dateRange.from.toISOString())} -{" "}
-												{formatDisplayDate(dateRange.to.toISOString())}
+												{formatFlexibleDisplayDate(dateRange.from)} - {formatFlexibleDisplayDate(dateRange.to)}
 											</>
 										) : (
-											formatDisplayDate(dateRange.from.toISOString())
+											formatFlexibleDisplayDate(dateRange.from)
 										)
 									) : (
 										<span>Pick a date range</span>

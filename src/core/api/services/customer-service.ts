@@ -22,7 +22,6 @@ const getCustomerList = (params?: {
 	page?: number;
 	limit?: number;
 	name?: string;
-	customerType?: string;
 	sort?: string;
 	paymentTerm?: number;
 }): Promise<Pagination<Customer>> =>
@@ -33,7 +32,6 @@ const getCustomerList = (params?: {
 				page: params?.page ? params.page - 1 : 0,
 				size: params?.limit,
 				name: params?.name,
-				customer_type: params?.customerType,
 				sort: params?.sort,
 				payment_term: params?.paymentTerm,
 			},

@@ -6,6 +6,7 @@ import invoiceService from "@/core/api/services/invoice-service";
 import loanService from "@/core/api/services/loan-service";
 import productService from "@/core/api/services/product-service";
 import reportService from "@/core/api/services/report-service";
+import { formatDateToYYYYMMDD, getTodayUTC } from "@/core/utils/date-utils";
 import type { Customer } from "@/core/types/customer";
 import type { InvoiceExportPreviewRow } from "@/core/types/invoice";
 import type { Installment } from "@/core/types/loan";
@@ -53,8 +54,8 @@ export function useReportTableData({ reportSlug, filters, sortMode }: UseReportT
 	const isLoanList = isLoanListDataSource(dataSource);
 	const isDailyReportApi = isDailyReportApiDataSource(dataSource);
 	const isInventoryStockReportApi = isInventoryStockReportApiDataSource(dataSource);
-	const reportDate =
-		(isDailyReportApi ? filters?.fromDate : undefined) || filters?.toDate || new Date().toISOString().slice(0, 10);
+	const defaultReportDate = formatDateToYYYYMMDD(getTodayUTC());
+	const reportDate = (isDailyReportApi ? filters?.fromDate : undefined) || filters?.toDate || defaultReportDate;
 	const inventoryDateFrom = filters?.fromDate || reportDate;
 	const inventoryDateTo = filters?.toDate || inventoryDateFrom;
 	const inventoryHistoryDateFrom = "1970-01-01";

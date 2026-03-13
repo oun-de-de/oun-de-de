@@ -9,9 +9,10 @@ import { Input } from "@/core/ui/input";
 import { Label } from "@/core/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/core/ui/tabs";
 import { cn } from "@/core/utils";
+import { formatFlexibleDisplayDate } from "@/core/utils/date-display";
 import { useCyclePaymentState } from "../hooks/use-cycle-payment-state";
 import { useCyclePayments } from "../hooks/use-cycle-payments";
-import { formatDisplayDate, formatKHR } from "../utils/formatters";
+import { formatKHR } from "../utils/formatters";
 import { PAYMENT_COLUMNS } from "./payment-columns";
 
 type CyclePaymentDialogProps = {
@@ -175,7 +176,7 @@ export function CyclePaymentDialog({
 					</DialogTitle>
 					<DialogDescription>
 						{cycle
-							? `${cycle.customerName} · ${formatDisplayDate(cycle.startDate)} ~ ${formatDisplayDate(cycle.endDate)}`
+							? `${cycle.customerName} · ${formatFlexibleDisplayDate(cycle.startDate)} ~ ${formatFlexibleDisplayDate(cycle.endDate)}`
 							: "No cycle selected"}
 					</DialogDescription>
 				</DialogHeader>

@@ -15,7 +15,7 @@ export interface Invoice {
 	paymentTerm?: string;
 }
 
-export interface InvoiceExportLineResult {
+export interface InvoiceExportLineApi {
 	refNo?: string;
 	customerName?: string;
 	date?: string;
