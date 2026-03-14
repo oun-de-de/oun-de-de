@@ -8,6 +8,7 @@ export interface WeightRecord {
 	quantityPerProduct: number | null;
 	quantity: number | null;
 	weight: number | null;
+	amount?: number | null;
 	outTime: string;
 	memo: string | null;
 	manual: boolean;

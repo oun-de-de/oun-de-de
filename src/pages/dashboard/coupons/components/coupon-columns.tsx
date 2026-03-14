@@ -1,6 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Coupon } from "@/core/types/coupon";
 import { Badge } from "@/core/ui/badge";
+import { Button } from "@/core/ui/button";
 import { formatDisplayDate, formatNumber } from "@/core/utils/formatters";
 import { getEmployeeDisplayName } from "@/pages/dashboard/employees/utils/employee-utils";
 
@@ -10,7 +11,11 @@ const mappingVehicleType: Record<string, string> = {
 	OTHER: "Other",
 };
 
-export const columns: ColumnDef<Coupon>[] = [
+type CouponColumnsOptions = {
+	onViewWeightRecords: (coupon: Coupon) => void;
+};
+
+export const getCouponColumns = ({ onViewWeightRecords }: CouponColumnsOptions): ColumnDef<Coupon>[] => [
 	{
 		header: "Coupon No.",
 		accessorKey: "couponNo",
@@ -19,15 +24,20 @@ export const columns: ColumnDef<Coupon>[] = [
 			bodyClassName: "text-center",
 		},
 	},
-	// {
-	// 	header: "ID",
-	// 	accessorKey: "id",
-	// 	cell: ({ row }) => <span className="font-semibold text-sky-600">{row.original.id.slice(0, 8)}</span>,
-	// },
 	{
 		header: "Date",
 		accessorKey: "date",
 		cell: ({ row }) => formatDisplayDate(row.original.date),
+	},
+	{
+		header: "Status",
+		cell: ({ row }) => {
+			const isDeleted = Boolean(row.original.delAccNo?.trim());
+			return <Badge variant={isDeleted ? "destructive" : "success"}>{isDeleted ? "Deleted" : "Active"}</Badge>;
+		},
+		meta: {
+			bodyClassName: "text-center",
+		},
 	},
 	{
 		header: "Plate Number",
@@ -65,8 +75,12 @@ export const columns: ColumnDef<Coupon>[] = [
 		header: "Weight Records",
 		cell: ({ row }) => {
 			const records = row.original.weightRecords;
-			if (!records || records.length === 0) return "-";
-			return <span className="font-medium">{records.length} records</span>;
+			const count = records?.length ?? 0;
+			return (
+				<Button size="sm" variant="link" onClick={() => onViewWeightRecords(row.original)}>
+					{count > 0 ? `View ${count} records` : "View records"}
+				</Button>
+			);
 		},
 	},
 	{

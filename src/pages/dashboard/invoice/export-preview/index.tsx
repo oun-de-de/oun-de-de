@@ -196,13 +196,17 @@ export default function InvoiceExportPreviewPage() {
 	}, []);
 
 	const handleBack = useCallback(() => {
-		if (window.history.length > 1) {
-			navigate(-1);
+		if (state?.cycleId) {
+			const params = new URLSearchParams();
+			if (state.customerId) params.set("customerId", state.customerId);
+			if (state.customerName) params.set("customerName", state.customerName);
+			params.set("cycleId", state.cycleId);
+			navigate(`/dashboard/invoice?${params.toString()}`);
 			return;
 		}
 
 		navigate("/dashboard/invoice");
-	}, [navigate]);
+	}, [navigate, state]);
 
 	const handleCopy = useCallback(async () => {
 		const clipboardText = buildClipboardText(reportRows, visibleColumnIds, columns);
