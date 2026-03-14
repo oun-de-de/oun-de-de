@@ -11,6 +11,32 @@ function formatNumber(value: number | null): string {
 	return coreFormatNumber(value);
 }
 
+function toReportRow(row: InvoiceExportPreviewRow, index: number): ReportTemplateRow {
+	const originalAmount = getPreviewRowOriginalAmount(row);
+	const received = row.paid;
+	const balance = getPreviewRowBalance(row, originalAmount);
+
+	return {
+		key: `${row.refNo}-${row.productName ?? "no-item"}-${index}`,
+		cells: {
+			no: index + 1,
+			customer: row.customerName,
+			date: formatFlexibleDisplayDate(row.date, row.date ?? ""),
+			refNo: row.refNo,
+			// Report table cells use display fallbacks instead of raw nulls.
+			productName: row.productName ?? EMPTY_CELL,
+			unit: row.unit ?? EMPTY_CELL,
+			price: formatNumber(row.pricePerProduct),
+			quantity: formatNumber(row.quantity),
+			amount: formatNumber(row.amount),
+			total: formatNumber(row.total),
+			memo: row.memo ?? EMPTY_CELL,
+			received: formatNumber(received),
+			balance: formatNumber(balance),
+		},
+	};
+}
+
 export function getPreviewRowOriginalAmount(row: InvoiceExportPreviewRow): number | null {
 	return (
 		row.amount ??
@@ -73,31 +99,11 @@ export function sortPreviewRows(previewRows: InvoiceExportPreviewRow[], sortMode
 }
 
 export function buildReportRows(previewRows: InvoiceExportPreviewRow[]): ReportTemplateRow[] {
-	return previewRows.map((row, index) => {
-		const originalAmount = getPreviewRowOriginalAmount(row);
-		const received = row.paid;
-		const balance = getPreviewRowBalance(row, originalAmount);
+	return previewRows.map(toReportRow);
+}
 
-		return {
-			key: `${row.refNo}-${row.productName ?? "no-item"}-${index}`,
-			cells: {
-				no: index + 1,
-				customer: row.customerName,
-				date: formatFlexibleDisplayDate(row.date, row.date ?? ""),
-				refNo: row.refNo,
-				// Report table cells use display fallbacks instead of raw nulls.
-				productName: row.productName ?? EMPTY_CELL,
-				unit: row.unit ?? EMPTY_CELL,
-				price: formatNumber(row.pricePerProduct),
-				quantity: formatNumber(row.quantity),
-				amount: formatNumber(row.amount),
-				total: formatNumber(row.total),
-				memo: row.memo ?? EMPTY_CELL,
-				received: formatNumber(received),
-				balance: formatNumber(balance),
-			},
-		};
-	});
+export function buildReportRowsFromExportLines(exportLines: InvoiceExportLineApi[]): ReportTemplateRow[] {
+	return exportLines.map((line, index) => toReportRow(toInvoiceExportPreviewRow(line), index));
 }
 
 export function calculateTotalBalance(previewRows: InvoiceExportPreviewRow[]): number {

@@ -1,6 +1,6 @@
 import type { Invoice, InvoiceExportLineApi, InvoiceExportPreviewRow } from "@/core/types/invoice";
 import {
-	buildReportRows as buildExportReportRows,
+	buildReportRowsFromExportLines,
 	getPreviewRowBalance,
 	getPreviewRowOriginalAmount,
 	toInvoiceExportPreviewRow,
@@ -16,7 +16,7 @@ export function mapExportLinesToPreviewRows(exportLines: InvoiceExportLineApi[])
 }
 
 export function buildInvoiceReportRows(exportLines: InvoiceExportLineApi[]): ReportTemplateRow[] {
-	return buildExportReportRows(mapExportLinesToPreviewRows(exportLines));
+	return buildReportRowsFromExportLines(exportLines);
 }
 
 export function groupPreviewRowsByRefNo(
