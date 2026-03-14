@@ -1,8 +1,9 @@
 import type { InventoryStockReportLine } from "@/core/types/report";
 import type { Product } from "@/core/types/product";
-import { formatDisplayDate, formatNumber } from "@/core/utils/formatters";
+import { formatFlexibleDisplayDate, parseFlexibleDateToUtcTime } from "@/core/utils/date-display";
+import { formatNumber } from "@/core/utils/formatters";
 import type { ReportTemplateRow } from "../../../components/layout/report-template-table";
-import { parseDisplayDate, parseNumericCell } from "../report-table-utils";
+import { parseDisplayDate, parseNumericCell, parseReportDateInput } from "../report-table-utils";
 import { createIndexedReportRow, createReportRow } from "./report-row-helpers";
 
 const INVENTORY_SUPPLIER = {
@@ -30,7 +31,7 @@ function buildInventoryMovementCells(params: {
 }) {
 	const itemName = params.itemName ?? EMPTY_CELL;
 	const itemCode = params.itemCode ?? EMPTY_CELL;
-	const dateText = formatDisplayDate(params.date);
+	const dateText = formatFlexibleDisplayDate(params.date);
 	const quantityText = formatNumber(params.quantity);
 
 	return {
@@ -115,12 +116,14 @@ export function buildInventoryStockReportRows(lines: InventoryStockReportLine[] 
 	const runningBalanceByItem = new Map<string, number>();
 
 	return [...lines]
+		.map((line) => ({
+			line,
+			sortTime: parseFlexibleDateToUtcTime(line.createdAt),
+		}))
 		.sort((left, right) => {
-			const leftTime = left.createdAt ? new Date(left.createdAt).getTime() : 0;
-			const rightTime = right.createdAt ? new Date(right.createdAt).getTime() : 0;
-			return leftTime - rightTime;
+			return left.sortTime - right.sortTime;
 		})
-		.map((line, index) => {
+		.map(({ line }, index) => {
 			const itemKey = line.itemCode?.trim() || line.itemName?.trim() || `item-${index}`;
 			const previousBalance = runningBalanceByItem.get(itemKey) ?? 0;
 			const quantity = Number(line.quantity ?? 0);
@@ -151,8 +154,8 @@ export function filterInventoryStockReportRowsByDate(
 ): ReportTemplateRow[] {
 	if (!fromDate && !toDate) return rows;
 
-	const fromTime = fromDate ? new Date(`${fromDate}T00:00:00`).getTime() : Number.NEGATIVE_INFINITY;
-	const toTime = toDate ? new Date(`${toDate}T23:59:59`).getTime() : Number.POSITIVE_INFINITY;
+	const fromTime = parseReportDateInput(fromDate);
+	const toTime = parseReportDateInput(toDate, true);
 
 	const rowsWithinRange = rows.filter((row) => {
 		const rowTime = parseDisplayDate(row.cells.balanceDate);
@@ -180,7 +183,7 @@ export function buildCompanyAssetRows(products: Product[]): ReportTemplateRow[] 
 	return products.map((product, index) =>
 		createIndexedReportRow(`asset-${product.id}`, index, {
 			name: product.name ?? "-",
-			entryDate: formatDisplayDate(product.date),
+			entryDate: formatFlexibleDisplayDate(product.date),
 			supplierName: product.refNo ? `Ref ${product.refNo}` : "Internal record",
 			supplierPhone: EMPTY_CELL,
 			supplierAddress: EMPTY_CELL,

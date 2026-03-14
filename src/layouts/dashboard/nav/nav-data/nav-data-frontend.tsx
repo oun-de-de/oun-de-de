@@ -41,6 +41,12 @@ export const frontendNavData: NavProps["data"] = [
 				roles: ["SUPER_ADMIN"],
 			},
 			{
+				title: "Cash Transaction",
+				path: "/dashboard/cash-transactions",
+				icon: <Icon icon="lucide:wallet" size="24" />,
+				roles: ["SUPER_ADMIN"],
+			},
+			{
 				title: "Loan",
 				path: "/dashboard/loan",
 				icon: <Icon icon="lucide:clipboard-list" size="24" />,
@@ -93,6 +99,7 @@ export const newActions = [
 	{
 		title: "Accounting",
 		items: [
+			{ title: "Cash Transaction", href: "/dashboard/cash-transactions" },
 			{ title: "General Ledger", href: "/dashboard/reports/detail/general-ledger" },
 			{ title: "Trial Balance", href: "/dashboard/reports/detail/trial-balance" },
 			{ title: "Income & Expense", href: "/dashboard/reports/detail/balance-sheet" },

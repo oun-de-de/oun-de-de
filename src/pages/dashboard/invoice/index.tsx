@@ -4,12 +4,12 @@ import { DashboardSplitView } from "@/core/components/common/dashboard-split-vie
 import { useSidebarCollapse } from "@/core/hooks/use-sidebar-collapse";
 import type { Customer } from "@/core/types/customer";
 import type { Cycle } from "@/core/types/cycle";
+import { formatFlexibleDisplayDate } from "@/core/utils/date-display";
 import { CustomerSidebar } from "@/pages/dashboard/customers/components/customer-sidebar";
 import { CycleContent } from "./components/cycle-content";
 import { InvoiceContent } from "./components/invoice-content";
 import { useCycleDetail } from "./hooks/use-cycle-detail";
 import { useInvoiceTable } from "./hooks/use-invoice-table";
-import { formatDisplayDate } from "./utils/formatters";
 
 export default function InvoicePage() {
 	const [searchParams] = useSearchParams();
@@ -55,7 +55,7 @@ export default function InvoicePage() {
 	});
 
 	const activeInvoiceLabel = activeCycle
-		? `${activeCustomerName ?? activeCycle.customerName} — ${formatDisplayDate(activeCycle.startDate)} ~ ${formatDisplayDate(activeCycle.endDate)}`
+		? `${activeCustomerName ?? activeCycle.customerName} — ${formatFlexibleDisplayDate(activeCycle.startDate)} ~ ${formatFlexibleDisplayDate(activeCycle.endDate)}`
 		: null;
 
 	return (

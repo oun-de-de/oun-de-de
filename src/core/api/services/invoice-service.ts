@@ -1,5 +1,5 @@
 import type { PagePaginatedResponse } from "@/core/types/common";
-import type { Invoice, InvoiceExportLineResult, InvoiceType } from "@/core/types/invoice";
+import type { Invoice, InvoiceExportLineApi, InvoiceType } from "@/core/types/invoice";
 import type { Pagination } from "@/core/types/pagination";
 import { mapPagePaginatedResponseToPagination } from "@/core/utils/pagination";
 import { apiClient } from "../apiClient";
@@ -63,7 +63,7 @@ export const getInvoices = (params?: {
 		});
 
 export const exportInvoice = (invoiceIds: string[]) =>
-	apiClient.post<InvoiceExportLineResult[]>({
+	apiClient.post<InvoiceExportLineApi[]>({
 		url: `${INVOICE_API.LIST}/export`,
 		data: {
 			invoiceIds,
@@ -76,7 +76,7 @@ export const updateInvoice = (invoiceIds: string[], customerName?: string, type?
 		data: {
 			invoiceIds,
 			...(customerName !== undefined ? { customerName } : {}),
-			...(type ? { type } : {}),
+			...(type ? { type: toApiInvoiceType(type) } : {}),
 		},
 	});
 export default {

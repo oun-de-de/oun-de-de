@@ -5,7 +5,7 @@ import { styled } from "styled-components";
 import { type ErrorState, isErrorState } from "@/core/types/state";
 import { useStore } from "@/core/ui/store/multi-store-provider";
 import { StoreBuilder } from "@/core/ui/store/store-builder";
-import { formatKHR, formatNumber } from "@/core/utils/formatters";
+import { formatDisplayDate, formatKHR, formatNumber } from "@/core/utils/formatters";
 import { rgbAlpha } from "@/core/utils/theme";
 import Repository from "@/service-locator";
 import {
@@ -41,7 +41,7 @@ export default function DashboardIncomeAccounting() {
 					);
 				}
 
-				const categories = state.list.map((d) => d.date);
+				const categories = state.list.map((d) => formatDisplayDate(d.date, d.date));
 				const series = [
 					{
 						name: "Income",

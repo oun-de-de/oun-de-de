@@ -1,21 +1,22 @@
-import type { Invoice, InvoiceExportLineResult, InvoiceExportPreviewRow } from "@/core/types/invoice";
+import type { Invoice, InvoiceExportLineApi, InvoiceExportPreviewRow } from "@/core/types/invoice";
 import {
-	buildReportRows as buildExportReportRows,
-	mapExportLineToPreviewRow,
-	resolveBalance,
-	resolveOriginalAmount,
+	buildReportRowsFromExportLines,
+	getPreviewRowBalance,
+	getPreviewRowOriginalAmount,
+	toInvoiceExportPreviewRow,
 } from "../../../../invoice/export-preview/utils/export-preview-rows";
 import type { ReportTemplateRow } from "../../../components/layout/report-template-table";
 
 const PREMIUM_PRODUCT_KEYWORDS = ["premium", "solid ice", "អនាម័យ"] as const;
 const ICE_CUBE_KEYWORDS = ["cube", "ដើម"] as const;
 
-export function mapExportLinesToPreviewRows(exportLines: InvoiceExportLineResult[]): InvoiceExportPreviewRow[] {
-	return exportLines.map(mapExportLineToPreviewRow);
+export function mapExportLinesToPreviewRows(exportLines: InvoiceExportLineApi[]): InvoiceExportPreviewRow[] {
+	// Reuse the invoice preview row shape so report/export logic works from one normalized source.
+	return exportLines.map(toInvoiceExportPreviewRow);
 }
 
-export function buildInvoiceReportRows(exportLines: InvoiceExportLineResult[]): ReportTemplateRow[] {
-	return buildExportReportRows(mapExportLinesToPreviewRows(exportLines));
+export function buildInvoiceReportRows(exportLines: InvoiceExportLineApi[]): ReportTemplateRow[] {
+	return buildReportRowsFromExportLines(exportLines);
 }
 
 export function groupPreviewRowsByRefNo(
@@ -40,22 +41,26 @@ export function getNotificationText(amount: number): string {
 }
 
 export function sumOriginalAmount(rows: InvoiceExportPreviewRow[]): number {
-	return rows.reduce((sum, row) => sum + (resolveOriginalAmount(row) ?? 0), 0);
+	return rows.reduce((sum, row) => sum + (getPreviewRowOriginalAmount(row) ?? 0), 0);
 }
 
-export function sumPaid(rows: InvoiceExportPreviewRow[]): number {
+export function sumPreviewRowPaidAmount(rows: InvoiceExportPreviewRow[]): number {
 	return rows.reduce((sum, row) => sum + (row.paid ?? 0), 0);
 }
 
-export function getInvoicePaid(rows: InvoiceExportPreviewRow[]): number {
+export function getMaxInvoicePaidAmount(rows: InvoiceExportPreviewRow[]): number {
 	const paidValues = rows.map((row) => row.paid ?? 0).filter((value) => value > 0);
 	if (paidValues.length === 0) return 0;
 	return Math.max(...paidValues);
 }
 
-export function getInvoiceBalance(rows: InvoiceExportPreviewRow[], originalAmount: number, received: number): number {
+export function getMinimumInvoiceBalance(
+	rows: InvoiceExportPreviewRow[],
+	originalAmount: number,
+	received: number,
+): number {
 	const balanceValues = rows
-		.map((row) => resolveBalance(row, resolveOriginalAmount(row)))
+		.map((row) => getPreviewRowBalance(row, getPreviewRowOriginalAmount(row)))
 		.filter((value): value is number => value != null && value >= 0);
 
 	if (balanceValues.length > 0) {
@@ -69,11 +74,12 @@ export function getOpenInvoiceMetrics(
 	invoice: Pick<Invoice, "refNo" | "amount">,
 	rowsByRefNo: Map<string, InvoiceExportPreviewRow[]>,
 ) {
+	// Metrics are derived from normalized preview rows because export lines may be partial or duplicated per invoice.
 	const rows = rowsByRefNo.get(invoice.refNo ?? "") ?? [];
 	const originalAmount = invoice.amount ?? sumOriginalAmount(rows);
-	const received = getInvoicePaid(rows);
+	const received = getMaxInvoicePaidAmount(rows);
 	const balance =
-		rows.length > 0 ? getInvoiceBalance(rows, originalAmount, received) : Math.max(originalAmount - received, 0);
+		rows.length > 0 ? getMinimumInvoiceBalance(rows, originalAmount, received) : Math.max(originalAmount - received, 0);
 
 	return { originalAmount, received, balance };
 }
@@ -101,7 +107,7 @@ export function buildInvoiceTypeMap(invoices: Invoice[]): Map<string, string> {
 	return new Map(invoices.map((invoice) => [invoice.refNo ?? "", invoice.type ?? ""]));
 }
 
-export function splitPreviewRowsByInvoiceType(invoices: Invoice[], previewRows: InvoiceExportPreviewRow[]) {
+export function splitPreviewRowsIntoCashAndCredit(invoices: Invoice[], previewRows: InvoiceExportPreviewRow[]) {
 	const typeByRefNo = buildInvoiceTypeMap(invoices);
 	return previewRows.reduce<{ cashRows: InvoiceExportPreviewRow[]; creditRows: InvoiceExportPreviewRow[] }>(
 		(acc, row) => {

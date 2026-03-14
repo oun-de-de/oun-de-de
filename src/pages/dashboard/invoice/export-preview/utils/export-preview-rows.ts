@@ -1,6 +1,6 @@
-import { parseISO } from "date-fns";
-import type { InvoiceExportLineResult, InvoiceExportPreviewRow } from "@/core/types/invoice";
-import { formatNumber as coreFormatNumber, formatDisplayDate } from "@/core/utils/formatters";
+import type { InvoiceExportLineApi, InvoiceExportPreviewRow } from "@/core/types/invoice";
+import { formatFlexibleDisplayDate, parseFlexibleDateToUtcTime } from "@/core/utils/date-display";
+import { formatNumber as coreFormatNumber } from "@/core/utils/formatters";
 import type { ReportTemplateRow } from "@/pages/dashboard/reports/components/layout/report-template-table";
 import type { SortMode } from "../constants";
 
@@ -11,11 +11,33 @@ function formatNumber(value: number | null): string {
 	return coreFormatNumber(value);
 }
 
-function formatReportDate(value: string): string {
-	return formatDisplayDate(value, value);
+function toReportRow(row: InvoiceExportPreviewRow, index: number): ReportTemplateRow {
+	const originalAmount = getPreviewRowOriginalAmount(row);
+	const received = row.paid;
+	const balance = getPreviewRowBalance(row, originalAmount);
+
+	return {
+		key: `${row.refNo}-${row.productName ?? "no-item"}-${index}`,
+		cells: {
+			no: index + 1,
+			customer: row.customerName,
+			date: formatFlexibleDisplayDate(row.date, row.date ?? ""),
+			refNo: row.refNo,
+			// Report table cells use display fallbacks instead of raw nulls.
+			productName: row.productName ?? EMPTY_CELL,
+			unit: row.unit ?? EMPTY_CELL,
+			price: formatNumber(row.pricePerProduct),
+			quantity: formatNumber(row.quantity),
+			amount: formatNumber(row.amount),
+			total: formatNumber(row.total),
+			memo: row.memo ?? EMPTY_CELL,
+			received: formatNumber(received),
+			balance: formatNumber(balance),
+		},
+	};
 }
 
-export function resolveOriginalAmount(row: InvoiceExportPreviewRow): number | null {
+export function getPreviewRowOriginalAmount(row: InvoiceExportPreviewRow): number | null {
 	return (
 		row.amount ??
 		row.total ??
@@ -23,13 +45,14 @@ export function resolveOriginalAmount(row: InvoiceExportPreviewRow): number | nu
 	);
 }
 
-export function resolveBalance(row: InvoiceExportPreviewRow, originalAmount: number | null): number | null {
+export function getPreviewRowBalance(row: InvoiceExportPreviewRow, originalAmount: number | null): number | null {
 	if (row.balance !== null) return row.balance;
 	if (originalAmount === null) return null;
 	return Math.max(0, originalAmount - (row.paid ?? 0));
 }
 
-export function mapExportLineToPreviewRow(line: InvoiceExportLineResult): InvoiceExportPreviewRow {
+export function toInvoiceExportPreviewRow(line: InvoiceExportLineApi): InvoiceExportPreviewRow {
+	// Preview rows are UI-facing: normalize nullable API fields into values the preview table can always render.
 	return {
 		refNo: line.refNo ?? "",
 		customerName: line.customerName ?? "-",
@@ -52,22 +75,22 @@ export function sortPreviewRows(previewRows: InvoiceExportPreviewRow[], sortMode
 	switch (sortMode) {
 		case "date-desc":
 			return rows.sort((a, b) => {
-				const left = parseISO(a.date).getTime();
-				const right = parseISO(b.date).getTime();
-				return (Number.isNaN(right) ? 0 : right) - (Number.isNaN(left) ? 0 : left);
+				const left = parseFlexibleDateToUtcTime(a.date);
+				const right = parseFlexibleDateToUtcTime(b.date);
+				return right - left;
 			});
 		case "date-asc":
 			return rows.sort((a, b) => {
-				const left = parseISO(a.date).getTime();
-				const right = parseISO(b.date).getTime();
-				return (Number.isNaN(left) ? 0 : left) - (Number.isNaN(right) ? 0 : right);
+				const left = parseFlexibleDateToUtcTime(a.date);
+				const right = parseFlexibleDateToUtcTime(b.date);
+				return left - right;
 			});
 		case "customer-asc":
 			return rows.sort((a, b) => a.customerName.localeCompare(b.customerName));
 		case "balance-desc":
 			return rows.sort((a, b) => {
-				const left = resolveBalance(a, resolveOriginalAmount(a)) ?? 0;
-				const right = resolveBalance(b, resolveOriginalAmount(b)) ?? 0;
+				const left = getPreviewRowBalance(a, getPreviewRowOriginalAmount(a)) ?? 0;
+				const right = getPreviewRowBalance(b, getPreviewRowOriginalAmount(b)) ?? 0;
 				return right - left;
 			});
 		default:
@@ -76,36 +99,17 @@ export function sortPreviewRows(previewRows: InvoiceExportPreviewRow[], sortMode
 }
 
 export function buildReportRows(previewRows: InvoiceExportPreviewRow[]): ReportTemplateRow[] {
-	return previewRows.map((row, index) => {
-		const originalAmount = resolveOriginalAmount(row);
-		const received = row.paid;
-		const balance = resolveBalance(row, originalAmount);
+	return previewRows.map(toReportRow);
+}
 
-		return {
-			key: `${row.refNo}-${row.productName ?? "no-item"}-${index}`,
-			cells: {
-				no: index + 1,
-				customer: row.customerName,
-				date: formatReportDate(row.date),
-				refNo: row.refNo,
-				productName: row.productName ?? EMPTY_CELL,
-				unit: row.unit ?? EMPTY_CELL,
-				price: formatNumber(row.pricePerProduct),
-				quantity: formatNumber(row.quantity),
-				amount: formatNumber(row.amount),
-				total: formatNumber(row.total),
-				memo: row.memo ?? EMPTY_CELL,
-				received: formatNumber(received),
-				balance: formatNumber(balance),
-			},
-		};
-	});
+export function buildReportRowsFromExportLines(exportLines: InvoiceExportLineApi[]): ReportTemplateRow[] {
+	return exportLines.map((line, index) => toReportRow(toInvoiceExportPreviewRow(line), index));
 }
 
 export function calculateTotalBalance(previewRows: InvoiceExportPreviewRow[]): number {
 	return previewRows.reduce((sum, row) => {
-		const originalAmount = resolveOriginalAmount(row);
-		const nextBalance = resolveBalance(row, originalAmount) ?? 0;
+		const originalAmount = getPreviewRowOriginalAmount(row);
+		const nextBalance = getPreviewRowBalance(row, originalAmount) ?? 0;
 		return sum + nextBalance;
 	}, 0);
 }

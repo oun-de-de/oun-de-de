@@ -38,6 +38,7 @@ export const INVOICE_REPORT_SPECS: ReportDefinitionMap = {
 		buildColumns: buildOpenInvoiceDetailColumns,
 		buildRows: buildOpenInvoiceDetailRows,
 		dataSource: "invoice-export",
+		needsPreviewRows: true,
 		filterConfig: REPORT_FILTERS.customerAndDateRange,
 	},
 	"sale-detail-by-customer": {
@@ -70,6 +71,7 @@ export const INVOICE_REPORT_SPECS: ReportDefinitionMap = {
 		buildColumns: buildMonthlySummaryColumns,
 		buildRows: buildMonthlyRevenueExpenseReportRows,
 		dataSource: "invoice-summary",
+		needsPreviewRows: true,
 		filterConfig: REPORT_FILTERS.customerAndDateRange,
 	},
 };

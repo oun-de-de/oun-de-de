@@ -9,6 +9,7 @@ import type { Invoice, InvoiceExportPreviewRow } from "@/core/types/invoice";
 import { BackButton } from "@/core/components/common";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
+import { formatFlexibleDisplayDate } from "@/core/utils/date-display";
 import {
 	INVOICE_FILTER_FIELD_OPTIONS,
 	INVOICE_FILTER_TYPE_OPTIONS,
@@ -192,13 +193,13 @@ export function InvoiceContent({
 						},
 						{
 							label: "Start Date",
-							value: `${activeCycle.startDate.split("T")[0]}`,
+							value: formatFlexibleDisplayDate(activeCycle.startDate),
 							color: "bg-violet-500",
 							icon: "mdi:calendar-range",
 						},
 						{
 							label: "End Date",
-							value: `${activeCycle.endDate.split("T")[0]}`,
+							value: formatFlexibleDisplayDate(activeCycle.endDate),
 							color: "bg-violet-500",
 							icon: "mdi:calendar-range",
 						},

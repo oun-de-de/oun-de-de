@@ -65,6 +65,10 @@ export const ROUTE_TITLE_MAPPINGS = [
 		title: "Coupon Center",
 	},
 	{
+		path: "/dashboard/cash-transactions",
+		title: "Cash Transaction Center",
+	},
+	{
 		path: "/dashboard/accounting",
 		title: "Accounting Center",
 	},

@@ -1,8 +1,12 @@
 import { Badge } from "@/core/ui/badge";
 import { Skeleton } from "@/core/ui/skeleton";
 import { Icon } from "@/core/components/icon";
+import { formatKHR, formatNumber } from "@/core/utils/formatters";
 import { styled } from "styled-components";
 import { CustomerSummaryItem } from "../../../../../core/domain/dashboard/entities/customer-info";
+
+const formatCustomerSummaryValue = (item: CustomerSummaryItem) =>
+	item.id === "overdue-cycles" || item.id === "overdue-installments" ? formatNumber(item.value) : formatKHR(item.value);
 
 // Loading skeleton cho Customer Info card
 export function CustomerInfoCardLoading() {
@@ -37,7 +41,7 @@ export default function CustomerInfoCard({ item }: { item: CustomerSummaryItem }
 				</StyledBadgeIconWrapper>
 				<div className="flex flex-col py-1">
 					<span className="text-lg font-semibold">{item.label}</span>
-					<span className="text-lg font-semibold">{item.value}</span>
+					<span className="text-lg font-semibold">{formatCustomerSummaryValue(item)}</span>
 				</div>
 			</div>
 		</Badge>
