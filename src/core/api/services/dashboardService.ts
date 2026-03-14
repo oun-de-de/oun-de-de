@@ -3,7 +3,6 @@ import type { DailyIncomeAccounting, DailyIncomePos } from "@/core/domain/dashbo
 import type { FilterData } from "@/core/domain/dashboard/entities/filter";
 import type { PerformanceItem } from "@/core/domain/dashboard/entities/performance";
 import type { VendorSummaryItem } from "@/core/domain/dashboard/entities/vendor-info";
-import { formatDisplayDate, formatKHR } from "@/core/utils/formatters";
 import { apiClient } from "../apiClient";
 
 enum DashboardApiPath {
@@ -36,60 +35,88 @@ const DEFAULT_DASHBOARD_FILTERS: FilterData[] = [
 	{ id: "30", value: "Last 30 Days" },
 ];
 
-const mapPerformanceToCards = (response: GetPerformanceResponse): PerformanceItem[] => [
-	{ id: "income", label: "Income", value: formatKHR(response.income), variant: "info" },
-	{ id: "expenses", label: "Expenses", value: formatKHR(response.expenses), variant: "warning" },
-	{
-		id: "net-income",
-		label: "Net Income",
-		value: formatKHR(response.income - response.expenses),
-		variant: response.income >= response.expenses ? "success" : "destructive",
-	},
-];
+function toCustomerSummaryItems(response: FinancialOverviewResponse): CustomerSummaryItem[] {
+	return [
+		{
+			id: "invoice-amount",
+			label: "Invoice Amount",
+			value: response.invoiceAmount,
+			variant: "warning",
+			icon: "solar:bill-list-bold",
+		},
+		{
+			id: "overdue-cycles",
+			label: "Overdue Cycles",
+			value: response.overdueCycles,
+			variant: "destructive",
+			icon: "solar:danger-triangle-bold",
+		},
+		{
+			id: "overdue-installments",
+			label: "Overdue Installments",
+			value: response.overdueLoanInstallments,
+			variant: "info",
+			icon: "solar:clock-circle-bold",
+		},
+		{
+			id: "deposit-balance",
+			label: "Deposit Balance",
+			value: response.depositBalance,
+			variant: "success",
+			icon: "solar:dollar-bold",
+		},
+	];
+}
 
-const mapFinancialOverviewToCards = (response: FinancialOverviewResponse): CustomerSummaryItem[] => [
-	{
-		id: "invoice-amount",
-		label: "Invoice Amount",
-		value: formatKHR(response.invoiceAmount),
-		variant: "warning",
-		icon: "solar:bill-list-bold",
-	},
-	{
-		id: "overdue-cycles",
-		label: "Overdue Cycles",
-		value: response.overdueCycles,
-		variant: "destructive",
-		icon: "solar:danger-triangle-bold",
-	},
-	{
-		id: "overdue-installments",
-		label: "Overdue Installments",
-		value: response.overdueLoanInstallments,
-		variant: "info",
-		icon: "solar:clock-circle-bold",
-	},
-	{
-		id: "deposit-balance",
-		label: "Deposit Balance",
-		value: formatKHR(response.depositBalance),
-		variant: "success",
-		icon: "solar:dollar-bold",
-	},
-];
+function toPerformanceItems(response: GetPerformanceResponse): PerformanceItem[] {
+	return [
+		{ id: "income", label: "Income", value: response.income, variant: "info" },
+		{ id: "expenses", label: "Expenses", value: response.expenses, variant: "warning" },
+		{
+			id: "net-income",
+			label: "Net Income",
+			value: response.income - response.expenses,
+			variant: response.income >= response.expenses ? "success" : "destructive",
+		},
+	];
+}
 
-const mapDailyReport = (response: DailyReportResponse[]): DailyIncomeAccounting[] =>
-	response.map((item) => ({
-		date: formatDisplayDate(item.date, item.date),
+function toDailyIncomeAccountingItems(response: DailyReportResponse[]): DailyIncomeAccounting[] {
+	return response.map((item) => ({
+		date: item.date,
 		income: item.income,
 		expense: item.expense,
 	}));
+}
 
-const mapDailyReportToDailyIncomePos = (response: DailyReportResponse[]): DailyIncomePos[] =>
-	response.map((item) => ({
-		date: formatDisplayDate(item.date, item.date),
+function toDailyIncomePosItems(response: DailyReportResponse[]): DailyIncomePos[] {
+	return response.map((item) => ({
+		date: item.date,
 		amount: item.income,
 	}));
+}
+
+function getMockRangeDays(range: string): number {
+	if (range === "7") return 7;
+	if (range === "15") return 15;
+	return 30;
+}
+
+function createMockFinancialOverviewResponse(): FinancialOverviewResponse {
+	return {
+		invoiceAmount: 398_631_700,
+		overdueCycles: 0,
+		overdueLoanInstallments: 0,
+		depositBalance: 0,
+	};
+}
+
+function createMockPerformanceResponse(): GetPerformanceResponse {
+	return {
+		income: 255_180_200,
+		expenses: 39_366_200,
+	};
+}
 
 export interface DailyIncomePosApi {
 	getDailyIncomesPos(range: string): Promise<DailyIncomePos[]>;
@@ -111,21 +138,19 @@ export class DashboardApiImpl implements DashboardApi {
 		const response = await apiClient.get<FinancialOverviewResponse>({
 			url: DashboardApiPath.FinancialOverview,
 		});
-		return mapFinancialOverviewToCards(response);
+		return toCustomerSummaryItems(response);
 	}
 
 	async getVendorInfo(): Promise<VendorSummaryItem[]> {
-		const response = await apiClient.get<VendorSummaryItem[]>({
-			url: "/dashboard/vendor-info",
-		});
-		return response;
+		// Swagger does not expose a vendor summary endpoint yet.
+		return [];
 	}
 
 	async getPerformance(): Promise<PerformanceItem[]> {
 		const response = await apiClient.get<GetPerformanceResponse>({
 			url: DashboardApiPath.Performance,
 		});
-		return mapPerformanceToCards(response);
+		return toPerformanceItems(response);
 	}
 
 	async getFiltersByType(_type: string): Promise<FilterData[]> {
@@ -139,7 +164,7 @@ export class DailyIncomePosApiImpl implements DailyIncomePosApi {
 			url: DashboardApiPath.DailyReport,
 			params: { range },
 		});
-		return mapDailyReportToDailyIncomePos(response);
+		return toDailyIncomePosItems(response);
 	}
 }
 
@@ -149,7 +174,7 @@ export class DailyIncomeAccountingApiImpl implements DailyIncomeAccountingApi {
 			url: DashboardApiPath.DailyReport,
 			params: { range },
 		});
-		return mapDailyReport(response);
+		return toDailyIncomeAccountingItems(response);
 	}
 }
 
@@ -188,19 +213,7 @@ function generateDailyIncomeAccounting(days: number): DailyIncomeAccounting[] {
 
 export class DashboardApiMockupImpl implements DashboardApi {
 	async getCustomerInfo(): Promise<CustomerSummaryItem[]> {
-		const mock: CustomerSummaryItem[] = [
-			{ id: "deposit", label: "Deposit Balance", value: "0 ₺", variant: "info", icon: "solar:dollar-bold" },
-			{
-				id: "sale-order",
-				label: "Sale Order",
-				value: "0 ₺",
-				variant: "success",
-				icon: "solar:users-group-rounded-bold",
-			},
-			{ id: "invoice", label: "Invoice", value: "398,631,700 ₺", variant: "warning", icon: "solar:bill-list-bold" },
-			{ id: "overdue", label: "Overdue", value: "0 ₺", variant: "destructive", icon: "solar:bill-cross-bold" },
-		];
-		return Promise.resolve(mock);
+		return Promise.resolve(toCustomerSummaryItems(createMockFinancialOverviewResponse()));
 	}
 
 	async getVendorInfo(): Promise<VendorSummaryItem[]> {
@@ -209,12 +222,7 @@ export class DashboardApiMockupImpl implements DashboardApi {
 	}
 
 	async getPerformance(): Promise<PerformanceItem[]> {
-		const mock: PerformanceItem[] = [
-			{ id: "income", label: "Income", value: "255,180,200 ₺", variant: "info" },
-			{ id: "expenses", label: "Expenses", value: "39,366,200 ₺", variant: "warning" },
-			{ id: "net-income", label: "Net Income", value: "215,814,000 ₺", variant: "success" },
-		];
-		return Promise.resolve(mock);
+		return Promise.resolve(toPerformanceItems(createMockPerformanceResponse()));
 	}
 
 	async getFiltersByType(_type: string): Promise<FilterData[]> {
@@ -224,18 +232,12 @@ export class DashboardApiMockupImpl implements DashboardApi {
 
 export class DailyIncomePosMockupImpl implements DailyIncomePosApi {
 	async getDailyIncomesPos(range: string): Promise<DailyIncomePos[]> {
-		let days = 30;
-		if (range === "7") days = 7;
-		if (range === "15") days = 15;
-		return Promise.resolve(generateDailyIncomePos(days));
+		return Promise.resolve(generateDailyIncomePos(getMockRangeDays(range)));
 	}
 }
 
 export class DailyIncomeAccountingMockupImpl implements DailyIncomeAccountingApi {
 	async getDailyIncomesAccounting(range: string): Promise<DailyIncomeAccounting[]> {
-		let days = 30;
-		if (range === "7") days = 7;
-		if (range === "15") days = 15;
-		return Promise.resolve(generateDailyIncomeAccounting(days));
+		return Promise.resolve(generateDailyIncomeAccounting(getMockRangeDays(range)));
 	}
 }

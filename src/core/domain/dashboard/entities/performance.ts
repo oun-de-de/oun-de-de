@@ -4,8 +4,8 @@ import type { VariantProps } from "class-variance-authority";
 type BadgeVariant = VariantProps<typeof badgeVariants>["variant"];
 
 export type PerformanceItem = {
-  id: string;
-  label: string;
-  value: string | number;
-  variant: BadgeVariant;
+	id: string;
+	label: string;
+	value: number;
+	variant: BadgeVariant;
 };

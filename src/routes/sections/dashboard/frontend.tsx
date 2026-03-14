@@ -25,6 +25,7 @@ export function getFrontendDashboardRoutes(): RouteObject[] {
 		{ path: "dashboard/products/edit/:id", element: Component("/pages/dashboard/products/edit") },
 		{ path: "dashboard/coupons", element: Component("/pages/dashboard/coupons") },
 		{ path: "dashboard/coupons/create", element: Component("/pages/dashboard/coupons/create") },
+		{ path: "dashboard/cash-transactions", element: Component("/pages/dashboard/cash-transactions") },
 		{ path: "dashboard/accounting", element: Component("/pages/dashboard/accounting") },
 		{ path: "dashboard/reports", element: Component("/pages/dashboard/reports") },
 		{ path: "dashboard/reports/detail/:slug", element: <ReportDetailTemplate /> },

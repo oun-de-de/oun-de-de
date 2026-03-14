@@ -1,5 +1,6 @@
-import type { Invoice, InvoiceExportLineResult, InvoiceExportPreviewRow } from "@/core/types/invoice";
-import { formatDisplayDate, formatNumber } from "@/core/utils/formatters";
+import type { Invoice, InvoiceExportLineApi, InvoiceExportPreviewRow } from "@/core/types/invoice";
+import { formatFlexibleDisplayDate } from "@/core/utils/date-display";
+import { formatNumber } from "@/core/utils/formatters";
 import type { ReportTemplateRow } from "../../../components/layout/report-template-table";
 import {
 	buildInvoiceTypeMap,
@@ -38,7 +39,7 @@ export function buildOpenInvoiceRows(invoices: Invoice[], previewRows: InvoiceEx
 
 		return createIndexedReportRow(invoice.id, index, {
 			customer: invoice.customerName ?? "-",
-			date: formatDisplayDate(invoice.date),
+			date: formatFlexibleDisplayDate(invoice.date),
 			refNo: invoice.refNo ?? "-",
 			employee: invoice.createdBy ?? "-",
 			originalAmount: formatNumber(originalAmount),
@@ -53,7 +54,7 @@ export function buildOpenInvoiceRows(invoices: Invoice[], previewRows: InvoiceEx
 export function buildCustomerTransactionRows(invoices: Invoice[]): ReportTemplateRow[] {
 	return invoices.map((invoice, index) =>
 		createIndexedReportRow(invoice.id, index, {
-			date: formatDisplayDate(invoice.date),
+			date: formatFlexibleDisplayDate(invoice.date),
 			refNo: invoice.refNo ?? "-",
 			customer: invoice.customerName ?? "-",
 			type: invoice.type ?? "-",
@@ -63,7 +64,7 @@ export function buildCustomerTransactionRows(invoices: Invoice[]): ReportTemplat
 	);
 }
 
-export function buildSaleDetailRows(invoices: Invoice[], exportLines: InvoiceExportLineResult[]): ReportTemplateRow[] {
+export function buildSaleDetailRows(invoices: Invoice[], exportLines: InvoiceExportLineApi[]): ReportTemplateRow[] {
 	const typeByRefNo = buildInvoiceTypeMap(invoices);
 
 	return exportLines.map((line, index) => {
@@ -71,7 +72,7 @@ export function buildSaleDetailRows(invoices: Invoice[], exportLines: InvoiceExp
 		const displayType = invoiceType === "receipt" ? "Receipt" : invoiceType === "invoice" ? "Invoice" : "-";
 
 		return createIndexedReportRow(`${line.refNo ?? "sale"}-${line.productName ?? index}`, index, {
-			date: formatDisplayDate(line.date ?? ""),
+			date: formatFlexibleDisplayDate(line.date),
 			refNo: line.refNo ?? "-",
 			type: displayType,
 			category: getProductCategory(line.productName),

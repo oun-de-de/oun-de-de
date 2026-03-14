@@ -18,12 +18,7 @@ import type { ReportTemplateColumn, ReportTemplateRow } from "../../components/l
 import { ReportToolbar } from "../../components/layout/report-toolbar";
 import { DEFAULT_REPORT_COLUMNS, DEFAULT_REPORT_SECTIONS, REPORT_DEFAULT_DATE_INPUT } from "../constants";
 import { getReportDefinition } from "../report-specs";
-import {
-	createVisibleColumnMap,
-	getReportColumnOptions,
-	getReportColumns,
-	hasVisibleReportFilters,
-} from "../report-types";
+import { createVisibleColumnMap, getReportColumnOptions, hasVisibleReportFilters } from "../report-types";
 import { ReportFilters, type ReportFiltersValue } from "./report-filters";
 import { ReportTable } from "./report-table";
 
@@ -84,7 +79,7 @@ export function ReportDetailView({ reportSlug }: ReportDetailViewProps) {
 	const pageSizeValue = useMemo(() => getPaperSizePageValue(paperSizeMode), [paperSizeMode]);
 	const tableClassName = useMemo(() => getTemplateClassName(templateMode), [templateMode]);
 	const hasVisibleFilters = hasVisibleReportFilters(reportDefinition.filterConfig);
-	const reportColumns = useMemo(() => getReportColumns(reportDefinition), [reportDefinition]);
+	const reportColumns = useMemo(() => reportDefinition.buildColumns(), [reportDefinition]);
 	const columnOptions = useMemo(() => getReportColumnOptions(reportDefinition), [reportDefinition]);
 	const enableColumnCustomization = columnOptions.length > 0;
 

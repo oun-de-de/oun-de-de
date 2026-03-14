@@ -6,7 +6,7 @@ import invoiceService from "@/core/api/services/invoice-service";
 import loanService from "@/core/api/services/loan-service";
 import productService from "@/core/api/services/product-service";
 import reportService from "@/core/api/services/report-service";
-import type { Customer } from "@/core/types/customer";
+import { formatDateToYYYYMMDD, getTodayUTC } from "@/core/utils/date-utils";
 import type { InvoiceExportPreviewRow } from "@/core/types/invoice";
 import type { Installment } from "@/core/types/loan";
 import type { SortMode } from "../../../invoice/export-preview/constants";
@@ -44,6 +44,7 @@ export function useReportTableData({ reportSlug, filters, sortMode }: UseReportT
 	const definition = getReportDefinition(reportSlug);
 	const dataSource = definition.dataSource ?? "invoice-export";
 	const { customerId, reportDateFrom, reportDateTo } = normalizeReportFilters(filters);
+	const shouldBuildPreviewRows = definition.needsPreviewRows === true;
 
 	const isInvoiceExport = isInvoiceDataSource(dataSource);
 	const isCycle = isCycleDataSource(dataSource);
@@ -53,8 +54,8 @@ export function useReportTableData({ reportSlug, filters, sortMode }: UseReportT
 	const isLoanList = isLoanListDataSource(dataSource);
 	const isDailyReportApi = isDailyReportApiDataSource(dataSource);
 	const isInventoryStockReportApi = isInventoryStockReportApiDataSource(dataSource);
-	const reportDate =
-		(isDailyReportApi ? filters?.fromDate : undefined) || filters?.toDate || new Date().toISOString().slice(0, 10);
+	const defaultReportDate = formatDateToYYYYMMDD(getTodayUTC());
+	const reportDate = (isDailyReportApi ? filters?.fromDate : undefined) || filters?.toDate || defaultReportDate;
 	const inventoryDateFrom = filters?.fromDate || reportDate;
 	const inventoryDateTo = filters?.toDate || inventoryDateFrom;
 	const inventoryHistoryDateFrom = "1970-01-01";
@@ -175,14 +176,12 @@ export function useReportTableData({ reportSlug, filters, sortMode }: UseReportT
 	const exportLines = exportQuery.data ?? (invoiceQuery.data ? [] : fallbackReportExportLines);
 	const products = productQuery.data ?? fallbackReportProducts;
 	const loanContent = loanQuery.data ? loanQuery.data.content : fallbackReportLoans;
-	const resolvedInstallmentsByLoanId =
-		loanQuery.data && Object.keys(installmentsByLoanId).length === 0
-			? installmentsByLoanId
-			: loanQuery.data
-				? installmentsByLoanId
-				: fallbackReportInstallmentsByLoanId;
+	const resolvedInstallmentsByLoanId = loanQuery.data ? installmentsByLoanId : fallbackReportInstallmentsByLoanId;
 
-	const previewRows = useMemo<InvoiceExportPreviewRow[]>(() => mapExportLinesToPreviewRows(exportLines), [exportLines]);
+	const previewRows = useMemo<InvoiceExportPreviewRow[]>(
+		() => (shouldBuildPreviewRows ? mapExportLinesToPreviewRows(exportLines) : []),
+		[exportLines, shouldBuildPreviewRows],
+	);
 
 	const sourceRows = useMemo<ReportTemplateRow[]>(
 		() =>
@@ -220,22 +219,27 @@ export function useReportTableData({ reportSlug, filters, sortMode }: UseReportT
 	);
 
 	const sortedRows = useMemo(() => sortReportRows(sourceRows, sortMode), [sourceRows, sortMode]);
-	const selectedCustomerLabel = useMemo(() => {
-		if (!customerId) return "All";
+	const selectedCustomerInfo = useMemo(() => {
+		if (!customerId) {
+			return {
+				selectedCustomer: undefined,
+				selectedCustomerLabel: "All",
+			};
+		}
+
 		const selectedCustomer = customerQuery.data?.list.find((customer) => customer.id === customerId);
-		return selectedCustomer?.name ?? "Filtered";
+		return {
+			selectedCustomer,
+			selectedCustomerLabel: selectedCustomer?.name ?? "Filtered",
+		};
 	}, [customerId, customerQuery.data?.list]);
-	const selectedCustomer = useMemo<Customer | undefined>(
-		() => customerQuery.data?.list.find((customer) => customer.id === customerId),
-		[customerId, customerQuery.data?.list],
-	);
 
 	return {
 		definition,
 		invoiceIds,
 		previewRows,
-		selectedCustomerLabel,
-		selectedCustomer,
+		selectedCustomerLabel: selectedCustomerInfo.selectedCustomerLabel,
+		selectedCustomer: selectedCustomerInfo.selectedCustomer,
 		sourceRows,
 		sortedRows,
 	};

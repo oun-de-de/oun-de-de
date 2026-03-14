@@ -25,6 +25,24 @@ export function formatFilterDateForDisplay(value?: string): string {
 	return `${day}/${month}/${year}`;
 }
 
+export function parseReportDateInput(value?: string, endOfDay = false): number {
+	if (!value) {
+		return endOfDay ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
+	}
+	const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+	if (!match) return Number.NaN;
+	const [, year, month, day] = match;
+	return Date.UTC(
+		Number(year),
+		Number(month) - 1,
+		Number(day),
+		endOfDay ? 23 : 0,
+		endOfDay ? 59 : 0,
+		endOfDay ? 59 : 0,
+		endOfDay ? 999 : 0,
+	);
+}
+
 export function parseDisplayDate(value: unknown): number {
 	if (typeof value !== "string") return 0;
 	const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);

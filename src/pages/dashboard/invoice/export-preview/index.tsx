@@ -33,7 +33,7 @@ import {
 import {
 	buildReportRows,
 	calculateTotalBalance,
-	mapExportLineToPreviewRow,
+	toInvoiceExportPreviewRow,
 	sortPreviewRows,
 } from "./utils/export-preview-rows";
 import { buildInvoiceExportBlob } from "./utils/invoice-export-template";
@@ -103,7 +103,7 @@ export default function InvoiceExportPreviewPage() {
 	);
 
 	const previewRows = useMemo(
-		() => (exportQuery.data?.length ? exportQuery.data.map(mapExportLineToPreviewRow) : fallbackRows),
+		() => (exportQuery.data?.length ? exportQuery.data.map(toInvoiceExportPreviewRow) : fallbackRows),
 		[exportQuery.data, fallbackRows],
 	);
 
