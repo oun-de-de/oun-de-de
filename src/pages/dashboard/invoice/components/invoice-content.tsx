@@ -213,12 +213,17 @@ export function InvoiceContent({
 		(invoices: Invoice[]) => {
 			if (invoices.length === 0) return;
 
-			const exportState = buildExportPreviewState(invoices);
+			const exportState = {
+				...buildExportPreviewState(invoices),
+				customerId: activeCycle?.customerId,
+				customerName: activeCycle?.customerName,
+				cycleId: activeCycle?.id,
+			};
 			navigate(`/dashboard/invoice/export-preview?ids=${exportState.selectedInvoiceIds.join(",")}`, {
 				state: exportState,
 			});
 		},
-		[navigate],
+		[activeCycle, navigate],
 	);
 
 	const handleOpenExportPreview = () => {
