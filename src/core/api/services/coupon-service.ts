@@ -1,5 +1,5 @@
 import type { PagePaginatedResponse } from "@/core/types/common";
-import type { Coupon, CreateCouponRequest } from "@/core/types/coupon";
+import type { Coupon, CreateCouponRequest, WeightRecord } from "@/core/types/coupon";
 import type { Pagination } from "@/core/types/pagination";
 import { mapPagePaginatedResponseToPagination } from "@/core/utils/pagination";
 import { apiClient } from "../apiClient";
@@ -8,6 +8,8 @@ export enum CouponApi {
 	List = "/coupons",
 	Create = "/coupons",
 }
+
+const getCouponWeightRecordsUrl = (couponId: string) => `/coupons/${couponId}/weight-records`;
 
 const getCouponList = (params?: {
 	page?: number;
@@ -29,7 +31,13 @@ const getCouponList = (params?: {
 
 const createCoupon = (coupon: CreateCouponRequest) => apiClient.post<Coupon>({ url: CouponApi.Create, data: coupon });
 
+const getCouponWeightRecords = (couponId: string) =>
+	apiClient.get<WeightRecord[]>({
+		url: getCouponWeightRecordsUrl(couponId),
+	});
+
 export default {
 	getCouponList,
 	createCoupon,
+	getCouponWeightRecords,
 };
