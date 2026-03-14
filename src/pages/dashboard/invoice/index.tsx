@@ -16,7 +16,7 @@ export default function InvoicePage() {
 	const [activeCustomerId, setActiveCustomerId] = useState<string | null>(() => searchParams.get("customerId"));
 	const [activeCustomerName, setActiveCustomerName] = useState<string | null>(() => searchParams.get("customerName"));
 	const [activeCycleSnapshot, setActiveCycleSnapshot] = useState<Cycle | null>(null);
-	const [activeCycleId, setActiveCycleId] = useState<string | null>(null);
+	const [activeCycleId, setActiveCycleId] = useState<string | null>(() => searchParams.get("cycleId"));
 	const { isCollapsed, handleToggle } = useSidebarCollapse();
 	const { data: activeCycleDetail } = useCycleDetail(activeCycleId);
 	const activeCycle = activeCycleDetail ?? activeCycleSnapshot;
@@ -24,8 +24,13 @@ export default function InvoicePage() {
 	useEffect(() => {
 		const queryCustomerId = searchParams.get("customerId");
 		const queryCustomerName = searchParams.get("customerName");
+		const queryCycleId = searchParams.get("cycleId");
 		setActiveCustomerId((prev) => (prev === queryCustomerId ? prev : queryCustomerId));
 		setActiveCustomerName((prev) => (prev === queryCustomerName ? prev : queryCustomerName));
+		setActiveCycleId((prev) => (prev === queryCycleId ? prev : queryCycleId));
+		if (!queryCycleId) {
+			setActiveCycleSnapshot(null);
+		}
 	}, [searchParams]);
 
 	const handleSelectCustomer = useCallback((customer: Customer | null) => {

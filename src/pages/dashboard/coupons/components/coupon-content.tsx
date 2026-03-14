@@ -1,11 +1,15 @@
+import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { couponSummaryCards } from "@/_mock/data/dashboard";
 import { SmartDataTable, SummaryStatCard } from "@/core/components/common";
+import couponService from "@/core/api/services/coupon-service";
 import type { Coupon } from "@/core/types/coupon";
 import { Button } from "@/core/ui/button";
 import { Text } from "@/core/ui/typography";
 import { useNavigate } from "react-router";
 import type { CouponState } from "../stores/coupon-state";
-import { columns } from "./coupon-columns";
+import { getCouponColumns } from "./coupon-columns";
+import { CouponWeightRecordsDialog } from "./coupon-weight-records-dialog";
 
 type CouponContentProps = {
 	activeCustomerName: string | null | undefined;
@@ -32,7 +36,19 @@ export function CouponContent({
 	paginationItems,
 }: CouponContentProps) {
 	const navigate = useNavigate();
-	// const activeCoupon = pagedCoupons.find((item) => item.id === activeCouponId);
+	const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
+	const columns = useMemo(
+		() =>
+			getCouponColumns({
+				onViewWeightRecords: setSelectedCoupon,
+			}),
+		[],
+	);
+	const { data: weightRecords = [], isLoading: isWeightRecordsLoading } = useQuery({
+		queryKey: ["coupon-weight-records", selectedCoupon?.id],
+		queryFn: () => couponService.getCouponWeightRecords(selectedCoupon!.id),
+		enabled: Boolean(selectedCoupon?.id),
+	});
 
 	return (
 		<>
@@ -70,6 +86,16 @@ export function CouponContent({
 					onPageChange: (nextPage: number) => updateState({ page: nextPage }),
 					onPageSizeChange: (nextSize: number) => updateState({ pageSize: nextSize, page: 1 }),
 				}}
+			/>
+
+			<CouponWeightRecordsDialog
+				open={Boolean(selectedCoupon)}
+				onOpenChange={(open) => {
+					if (!open) setSelectedCoupon(null);
+				}}
+				coupon={selectedCoupon}
+				weightRecords={weightRecords}
+				isLoading={isWeightRecordsLoading}
 			/>
 		</>
 	);
